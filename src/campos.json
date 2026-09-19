@@ -1,0 +1,398 @@
+{
+  "clima_calido": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 1,
+    "admite_no_aplica": false
+  },
+  "humedad_grano": {
+    "tipo": "N",
+    "unidad": "PCT_BH",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "metodo_humedad": {
+    "tipo": "X",
+    "unidad": "TEXTO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "temperatura_muestra": {
+    "tipo": "N",
+    "unidad": "CELSIUS",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "equipo_humedad_verificado": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "muestra_representativa": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "procedimiento_medicion_cumplido": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "aw_medida": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "actividad_agua": {
+    "tipo": "N",
+    "unidad": "FRACCION",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "temperatura_grano": {
+    "tipo": "N",
+    "unidad": "CELSIUS",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "temperatura_grano_previa": {
+    "tipo": "N",
+    "unidad": "CELSIUS",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "punto_medicion": {
+    "tipo": "X",
+    "unidad": "TEXTO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "punto_medicion_previo": {
+    "tipo": "X",
+    "unidad": "TEXTO",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "metodo_termico": {
+    "tipo": "X",
+    "unidad": "TEXTO",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "metodo_termico_previo": {
+    "tipo": "X",
+    "unidad": "TEXTO",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "temperatura_almacen": {
+    "tipo": "N",
+    "unidad": "CELSIUS",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "hr_almacen": {
+    "tipo": "N",
+    "unidad": "PCT_HR",
+    "paso": 2,
+    "admite_no_aplica": false
+  },
+  "temperatura_aire_exterior": {
+    "tipo": "N",
+    "unidad": "CELSIUS",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "hr_aire_exterior": {
+    "tipo": "N",
+    "unidad": "PCT_HR",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "lluvia_o_niebla": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "humedad_equilibrio_maiz": {
+    "tipo": "N",
+    "unidad": "PCT_BH",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "tabla_equilibrio_id": {
+    "tipo": "X",
+    "unidad": "TEXTO",
+    "paso": 2,
+    "admite_no_aplica": true
+  },
+  "insectos_vivos": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "granos_perforados": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "polvillo_inusual": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "exuvias_larvas": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "ruido_alimentacion": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "heces_roedores_aves_entorno": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "huellas": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "bolsa_roida": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "grano_derramado_por_plaga": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "moho_visible": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "olor_anormal": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "condensacion_interna": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": true
+  },
+  "germinacion": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "suciedad_origen_animal": {
+    "tipo": "N",
+    "unidad": "PCT_MASA",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "heces_visibles": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "granos_defectuosos": {
+    "tipo": "N",
+    "unidad": "PCT_MASA",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "granos_enfermos": {
+    "tipo": "N",
+    "unidad": "PCT_MASA",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "granos_quebrados": {
+    "tipo": "N",
+    "unidad": "PCT_MASA",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "materia_organica_extrana": {
+    "tipo": "N",
+    "unidad": "PCT_MASA",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "materia_inorganica_extrana": {
+    "tipo": "N",
+    "unidad": "PCT_MASA",
+    "paso": 3,
+    "admite_no_aplica": false
+  },
+  "sello_integro": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": true
+  },
+  "perforacion_barrera": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": true
+  },
+  "bolsa_abierta_sin_resellar": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": true
+  },
+  "cierre_seguro": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "recipiente_limpio": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "recipiente_seco": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "material_grado_alimentario": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "recipiente_resistente": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "distancia_piso": {
+    "tipo": "N",
+    "unidad": "METROS",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "distancia_pared": {
+    "tipo": "N",
+    "unidad": "METROS",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "distancia_techo": {
+    "tipo": "N",
+    "unidad": "METROS",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "fecha_limpieza_general": {
+    "tipo": "F",
+    "unidad": "TEXTO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "limpieza_previa_nuevo_lote": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": true
+  },
+  "limpieza_diaria": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "limpieza_tras_operaciones": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": true
+  },
+  "polvo_humo_gases_vapores": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "quimicos_combustibles_en_almacen": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 4,
+    "admite_no_aplica": false
+  },
+  "fecha_inspeccion_grano": {
+    "tipo": "F",
+    "unidad": "TEXTO",
+    "paso": 5,
+    "admite_no_aplica": true
+  },
+  "fecha_inspeccion_exterior": {
+    "tipo": "F",
+    "unidad": "TEXTO",
+    "paso": 5,
+    "admite_no_aplica": true
+  },
+  "fecha_control_almacen": {
+    "tipo": "F",
+    "unidad": "TEXTO",
+    "paso": 5,
+    "admite_no_aplica": false
+  },
+  "ingreso_inspeccionado": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 5,
+    "admite_no_aplica": true
+  },
+  "hay_evento_que_invalida_control": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 5,
+    "admite_no_aplica": false
+  },
+  "sensor_interno_hermetico": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 5,
+    "admite_no_aplica": true
+  },
+  "temperatura_ambiente_maxima_intervalo": {
+    "tipo": "N",
+    "unidad": "CELSIUS",
+    "paso": 5,
+    "admite_no_aplica": true
+  }
+}

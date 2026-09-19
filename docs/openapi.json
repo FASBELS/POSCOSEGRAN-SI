@@ -1,0 +1,5784 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "POSCOSEGRAN API",
+    "description": "Sistema experto para condiciones de almacenamiento poscosecha de maíz chulpi. Evalúa condiciones de almacenamiento; no certifica inocuidad, ausencia de micotoxinas ni aptitud para consumo.",
+    "version": "0.7.0"
+  },
+  "paths": {
+    "/api/v1/me": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Perfil",
+        "operationId": "perfil_api_v1_me_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Perfil"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/inicio": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Inicio",
+        "description": "Resumen de la unidad de trabajo. Consultar nunca crea ni cierra nada.",
+        "operationId": "inicio_api_v1_inicio_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inicio"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/almacenes": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Listar Almacenes",
+        "operationId": "listar_almacenes_api_v1_almacenes_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Almacen_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Crear Almacen",
+        "operationId": "crear_almacen_api_v1_almacenes_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlmacenEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Almacen"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/almacenes/{id_almacen}": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Obtener Almacen",
+        "operationId": "obtener_almacen_api_v1_almacenes__id_almacen__get",
+        "parameters": [
+          {
+            "name": "id_almacen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Almacen"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Almacen"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Actualizar Almacen",
+        "operationId": "actualizar_almacen_api_v1_almacenes__id_almacen__patch",
+        "parameters": [
+          {
+            "name": "id_almacen",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Almacen"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-Match"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlmacenEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Almacen"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lotes": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Listar Lotes",
+        "operationId": "listar_lotes_api_v1_lotes_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Lote_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Crear Lote",
+        "operationId": "crear_lote_api_v1_lotes_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoteEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lote"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lotes/{id_lote}": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Obtener Lote",
+        "operationId": "obtener_lote_api_v1_lotes__id_lote__get",
+        "parameters": [
+          {
+            "name": "id_lote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Lote"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lote"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Actualizar Lote",
+        "operationId": "actualizar_lote_api_v1_lotes__id_lote__patch",
+        "parameters": [
+          {
+            "name": "id_lote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Lote"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-Match"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoteEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lote"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Listar Unidades",
+        "operationId": "listar_unidades_api_v1_unidades_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "id_lote",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Id Lote"
+            }
+          },
+          {
+            "name": "id_almacen",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Id Almacen"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Unidad_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Crear Unidad",
+        "operationId": "crear_unidad_api_v1_unidades_post",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnidadEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unidad"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}": {
+      "get": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Obtener Unidad",
+        "operationId": "obtener_unidad_api_v1_unidades__id_unidad__get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unidad"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "recursos"
+        ],
+        "summary": "Actualizar Unidad",
+        "operationId": "actualizar_unidad_api_v1_unidades__id_unidad__patch",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-Match"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnidadEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unidad"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/borrador": {
+      "get": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Obtener Borrador",
+        "operationId": "obtener_borrador_api_v1_unidades__id_unidad__borrador_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Borrador"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Guardar Borrador",
+        "description": "Un borrador no autoriza nada ni invalida el resultado vigente.\n\nComunicar un hallazgo adverso real exige enviarlo como evaluación o control.",
+        "operationId": "guardar_borrador_api_v1_unidades__id_unidad__borrador_put",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-Match"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-None-Match"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluacionEntrada-Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Borrador"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/evaluaciones": {
+      "post": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Evaluar",
+        "description": "Emite una evaluación. SIN_CONCLUSION_AUTOMATICA es una respuesta exitosa.",
+        "operationId": "evaluar_api_v1_unidades__id_unidad__evaluaciones_post",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluacionEntrada-Input"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultadoEvaluacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/evaluaciones/{id_evaluacion}": {
+      "get": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Obtener Evaluacion",
+        "operationId": "obtener_evaluacion_api_v1_evaluaciones__id_evaluacion__get",
+        "parameters": [
+          {
+            "name": "id_evaluacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Evaluacion"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultadoEvaluacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/historial": {
+      "get": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Historial",
+        "operationId": "historial_api_v1_unidades__id_unidad__historial_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_ResultadoEvaluacion_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/vigencia": {
+      "get": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Consultar Vigencia",
+        "operationId": "consultar_vigencia_api_v1_unidades__id_unidad__vigencia_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vigencia"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/controles": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Controles",
+        "operationId": "listar_controles_api_v1_unidades__id_unidad__controles_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Control_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Registrar Control",
+        "description": "'completo' lo decide el servidor comparando requisitos y observaciones.",
+        "operationId": "registrar_control_api_v1_unidades__id_unidad__controles_post",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ControlEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Control"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/planes": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Planes",
+        "operationId": "listar_planes_api_v1_unidades__id_unidad__planes_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Plan_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Registrar Plan",
+        "description": "Registrar un plan no equivale a cumplirlo: solo deja constancia de su existencia.",
+        "operationId": "registrar_plan_api_v1_unidades__id_unidad__planes_post",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/dictamenes": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Dictamenes",
+        "operationId": "listar_dictamenes_api_v1_unidades__id_unidad__dictamenes_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Dictamen_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Emitir Dictamen",
+        "description": "Exige técnico asignado: ser propietario de la unidad no habilita esta acción.",
+        "operationId": "emitir_dictamen_api_v1_unidades__id_unidad__dictamenes_post",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DictamenEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dictamen"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/incidencias": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Incidencias",
+        "operationId": "listar_incidencias_api_v1_unidades__id_unidad__incidencias_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(ABIERTA|CERRADA)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estado"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Incidencia_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidencias/{id_incidencia}": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Obtener Incidencia",
+        "operationId": "obtener_incidencia_api_v1_incidencias__id_incidencia__get",
+        "parameters": [
+          {
+            "name": "id_incidencia",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Incidencia"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Incidencia"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidencias/{id_incidencia}/revisiones": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Revisiones",
+        "operationId": "listar_revisiones_api_v1_incidencias__id_incidencia__revisiones_get",
+        "parameters": [
+          {
+            "name": "id_incidencia",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Incidencia"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Revision_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Registrar Revision",
+        "description": "Registrar una revisión no autoriza almacenamiento ni cierra el episodio.",
+        "operationId": "registrar_revision_api_v1_incidencias__id_incidencia__revisiones_post",
+        "parameters": [
+          {
+            "name": "id_incidencia",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Incidencia"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Revision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incidencias/{id_incidencia}/resoluciones": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Resoluciones",
+        "operationId": "listar_resoluciones_api_v1_incidencias__id_incidencia__resoluciones_get",
+        "parameters": [
+          {
+            "name": "id_incidencia",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Incidencia"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Resolucion_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Resolver Incidencia",
+        "description": "Cierra el episodio con evidencia y disposición: es el único modo de levantarlo.",
+        "operationId": "resolver_incidencia_api_v1_incidencias__id_incidencia__resoluciones_post",
+        "parameters": [
+          {
+            "name": "id_incidencia",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Incidencia"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolucionEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resolucion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/admisiones": {
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Registrar Admision",
+        "description": "No se admite con una vigencia distinta de VIGENTE: se comprueba antes de actuar.",
+        "operationId": "registrar_admision_api_v1_unidades__id_unidad__admisiones_post",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdmisionEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Admision"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/unidades/{id_unidad}/eventos": {
+      "get": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Listar Eventos",
+        "operationId": "listar_eventos_api_v1_unidades__id_unidad__eventos_get",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pagina_Evento_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "seguimiento"
+        ],
+        "summary": "Registrar Evento",
+        "operationId": "registrar_evento_api_v1_unidades__id_unidad__eventos_post",
+        "parameters": [
+          {
+            "name": "id_unidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Unidad"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventoEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Evento"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conocimiento": {
+      "get": {
+        "tags": [
+          "conocimiento"
+        ],
+        "summary": "Catalogo",
+        "operationId": "catalogo_api_v1_conocimiento_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Catalogo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/salud": {
+      "get": {
+        "tags": [
+          "operacion"
+        ],
+        "summary": "Salud",
+        "operationId": "salud_salud_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Salud Salud Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/salud/bd": {
+      "get": {
+        "tags": [
+          "operacion"
+        ],
+        "summary": "Salud Bd",
+        "operationId": "salud_bd_salud_bd_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Salud Bd Salud Bd Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Accion": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "title": "Codigo"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "responsable_requerido": {
+            "type": "string",
+            "enum": [
+              "PRODUCTOR",
+              "TECNICO"
+            ],
+            "title": "Responsable Requerido"
+          },
+          "id_incidencia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Incidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "codigo",
+          "descripcion",
+          "responsable_requerido",
+          "id_incidencia"
+        ],
+        "title": "Accion"
+      },
+      "Admision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "id_evaluacion": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Evaluacion"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "INGRESO",
+              "CONTINUIDAD"
+            ],
+            "title": "Tipo"
+          },
+          "registrado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Registrado En"
+          },
+          "id_responsable": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Responsable"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "id_evaluacion",
+          "tipo",
+          "registrado_en",
+          "id_responsable"
+        ],
+        "title": "Admision"
+      },
+      "AdmisionEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "id_evaluacion": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Evaluacion"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "INGRESO",
+              "CONTINUIDAD"
+            ],
+            "title": "Tipo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "id_evaluacion",
+          "tipo"
+        ],
+        "title": "AdmisionEntrada"
+      },
+      "Almacen": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "ubicacion": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Ubicacion"
+          },
+          "clima_calido": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clima Calido"
+          },
+          "fundamento_clima": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fundamento Clima"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "ubicacion",
+          "clima_calido",
+          "fundamento_clima",
+          "id",
+          "revision",
+          "creado_en"
+        ],
+        "title": "Almacen"
+      },
+      "AlmacenEntrada": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "ubicacion": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Ubicacion"
+          },
+          "clima_calido": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clima Calido"
+          },
+          "fundamento_clima": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fundamento Clima"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "ubicacion",
+          "clima_calido",
+          "fundamento_clima"
+        ],
+        "title": "AlmacenEntrada"
+      },
+      "Borrador": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "contenido": {
+            "$ref": "#/components/schemas/EvaluacionEntrada-Output"
+          },
+          "actualizado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Actualizado En"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "revision",
+          "contenido",
+          "actualizado_en"
+        ],
+        "title": "Borrador"
+      },
+      "CalculosTiempo": {
+        "properties": {
+          "vida_consumida": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vida Consumida"
+          },
+          "vida_minima_documentada": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vida Minima Documentada"
+          },
+          "vida_proyectada": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vida Proyectada"
+          },
+          "tiempo_referencia_actual": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tiempo Referencia Actual"
+          },
+          "celda_tabla": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CeldaTabla"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "vida_consumida",
+          "vida_minima_documentada",
+          "vida_proyectada",
+          "tiempo_referencia_actual",
+          "celda_tabla"
+        ],
+        "title": "CalculosTiempo"
+      },
+      "Catalogo": {
+        "properties": {
+          "version_base": {
+            "type": "string",
+            "title": "Version Base"
+          },
+          "reglas": {
+            "items": {
+              "$ref": "#/components/schemas/Regla"
+            },
+            "type": "array",
+            "title": "Reglas"
+          },
+          "ramas_r30": {
+            "items": {
+              "$ref": "#/components/schemas/Regla"
+            },
+            "type": "array",
+            "title": "Ramas R30"
+          },
+          "fuentes": {
+            "items": {
+              "$ref": "#/components/schemas/Fuente"
+            },
+            "type": "array",
+            "title": "Fuentes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version_base",
+          "reglas",
+          "ramas_r30",
+          "fuentes"
+        ],
+        "title": "Catalogo"
+      },
+      "CeldaTabla": {
+        "properties": {
+          "id_tabla": {
+            "type": "string",
+            "title": "Id Tabla"
+          },
+          "humedad_fila": {
+            "type": "number",
+            "title": "Humedad Fila"
+          },
+          "temperatura_columna_f": {
+            "type": "number",
+            "title": "Temperatura Columna F"
+          },
+          "dias_referencia": {
+            "type": "integer",
+            "title": "Dias Referencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_tabla",
+          "humedad_fila",
+          "temperatura_columna_f",
+          "dias_referencia"
+        ],
+        "title": "CeldaTabla"
+      },
+      "Control": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "INGRESO",
+              "GRANO",
+              "EXTERIOR",
+              "ALMACEN"
+            ],
+            "title": "Tipo"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          },
+          "completo": {
+            "type": "boolean",
+            "title": "Completo"
+          },
+          "campos_pendientes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Campos Pendientes"
+          },
+          "id_responsable": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Responsable"
+          },
+          "evidencia": {
+            "type": "string",
+            "title": "Evidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "tipo",
+          "fecha",
+          "completo",
+          "campos_pendientes",
+          "id_responsable",
+          "evidencia"
+        ],
+        "title": "Control"
+      },
+      "ControlEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "INGRESO",
+              "GRANO",
+              "EXTERIOR",
+              "ALMACEN"
+            ],
+            "title": "Tipo"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          },
+          "observaciones": {
+            "items": {
+              "$ref": "#/components/schemas/ObservacionEntrada"
+            },
+            "type": "array",
+            "title": "Observaciones"
+          },
+          "evidencia": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Evidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "tipo",
+          "fecha",
+          "observaciones",
+          "evidencia"
+        ],
+        "title": "ControlEntrada"
+      },
+      "ControlProximo": {
+        "properties": {
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "PENDIENTE",
+              "ATRASADO"
+            ],
+            "title": "Estado"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_unidad",
+          "nombre",
+          "fecha",
+          "estado"
+        ],
+        "title": "ControlProximo"
+      },
+      "DatoPendiente": {
+        "properties": {
+          "campo": {
+            "type": "string",
+            "title": "Campo"
+          },
+          "motivo": {
+            "type": "string",
+            "title": "Motivo"
+          },
+          "paso": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "title": "Paso"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campo",
+          "motivo",
+          "paso"
+        ],
+        "title": "DatoPendiente"
+      },
+      "Dictamen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "humedad_min": {
+            "type": "number",
+            "title": "Humedad Min"
+          },
+          "humedad_max": {
+            "type": "number",
+            "title": "Humedad Max"
+          },
+          "plazo_maximo_dias": {
+            "type": "integer",
+            "title": "Plazo Maximo Dias"
+          },
+          "emitido_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Emitido En"
+          },
+          "vence_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Vence En"
+          },
+          "condiciones": {
+            "type": "string",
+            "title": "Condiciones"
+          },
+          "evidencia": {
+            "type": "string",
+            "title": "Evidencia"
+          },
+          "id_tecnico": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Tecnico"
+          },
+          "vigente": {
+            "type": "boolean",
+            "title": "Vigente"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "humedad_min",
+          "humedad_max",
+          "plazo_maximo_dias",
+          "emitido_en",
+          "vence_en",
+          "condiciones",
+          "evidencia",
+          "id_tecnico",
+          "vigente"
+        ],
+        "title": "Dictamen"
+      },
+      "DictamenEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "humedad_min": {
+            "type": "number",
+            "title": "Humedad Min"
+          },
+          "humedad_max": {
+            "type": "number",
+            "title": "Humedad Max"
+          },
+          "plazo_maximo_dias": {
+            "type": "integer",
+            "maximum": 365.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Plazo Maximo Dias"
+          },
+          "vence_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Vence En"
+          },
+          "condiciones": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Condiciones"
+          },
+          "evidencia": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Evidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "humedad_min",
+          "humedad_max",
+          "plazo_maximo_dias",
+          "vence_en",
+          "condiciones",
+          "evidencia"
+        ],
+        "title": "DictamenEntrada"
+      },
+      "Estimacion": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "ESTIMACION_HERMETICA",
+              "SUSTITUCION_TABLA"
+            ],
+            "title": "Tipo"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "campos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Campos"
+          },
+          "id_tabla": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Tabla"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tipo",
+          "descripcion",
+          "campos",
+          "id_tabla"
+        ],
+        "title": "Estimacion"
+      },
+      "Evaluacion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "id_lote": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Lote"
+          },
+          "id_recipiente": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Recipiente"
+          },
+          "id_almacen": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Almacen"
+          },
+          "fecha_evaluacion": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Evaluacion"
+          },
+          "fase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "INGRESO",
+                  "SEGUIMIENTO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fase"
+          },
+          "decision_final": {
+            "type": "string",
+            "enum": [
+              "CUARENTENA",
+              "BLOQUEAR_INGRESO",
+              "RETIRAR_LOTE",
+              "CORREGIR_Y_REEVALUAR",
+              "SIN_CONCLUSION_AUTOMATICA",
+              "AUTORIZAR_CON_MONITOREO",
+              "AUTORIZAR_ALMACENAMIENTO"
+            ],
+            "title": "Decision Final"
+          },
+          "rama_r30": {
+            "type": "string",
+            "enum": [
+              "R30.1",
+              "R30.2",
+              "R30.3",
+              "R30.4",
+              "R30.5",
+              "R30.6",
+              "R30.7",
+              "R30.8",
+              "R30.9"
+            ],
+            "title": "Rama R30"
+          },
+          "motivos": {
+            "items": {
+              "$ref": "#/components/schemas/Motivo"
+            },
+            "type": "array",
+            "title": "Motivos"
+          },
+          "acciones_requeridas": {
+            "items": {
+              "$ref": "#/components/schemas/Accion"
+            },
+            "type": "array",
+            "title": "Acciones Requeridas"
+          },
+          "datos_pendientes": {
+            "items": {
+              "$ref": "#/components/schemas/DatoPendiente"
+            },
+            "type": "array",
+            "title": "Datos Pendientes"
+          },
+          "estimaciones_y_sustituciones": {
+            "items": {
+              "$ref": "#/components/schemas/Estimacion"
+            },
+            "type": "array",
+            "title": "Estimaciones Y Sustituciones"
+          },
+          "reglas_activadas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reglas Activadas"
+          },
+          "observaciones_aplicadas": {
+            "items": {
+              "$ref": "#/components/schemas/ObservacionValidada"
+            },
+            "type": "array",
+            "title": "Observaciones Aplicadas"
+          },
+          "calculos_tiempo": {
+            "$ref": "#/components/schemas/CalculosTiempo"
+          },
+          "fecha_proximo_control": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Proximo Control"
+          },
+          "fecha_vencimiento_autorizacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Vencimiento Autorizacion"
+          },
+          "version_base": {
+            "type": "string",
+            "title": "Version Base"
+          },
+          "version_parametros": {
+            "type": "string",
+            "title": "Version Parametros"
+          },
+          "version_motor": {
+            "type": "string",
+            "title": "Version Motor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "id_lote",
+          "id_recipiente",
+          "id_almacen",
+          "fecha_evaluacion",
+          "fase",
+          "decision_final",
+          "rama_r30",
+          "motivos",
+          "acciones_requeridas",
+          "datos_pendientes",
+          "estimaciones_y_sustituciones",
+          "reglas_activadas",
+          "observaciones_aplicadas",
+          "calculos_tiempo",
+          "fecha_proximo_control",
+          "fecha_vencimiento_autorizacion",
+          "version_base",
+          "version_parametros",
+          "version_motor"
+        ],
+        "title": "Evaluacion"
+      },
+      "EvaluacionEntrada-Input": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "fase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "INGRESO",
+                  "SEGUIMIENTO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fase"
+          },
+          "observaciones": {
+            "items": {
+              "$ref": "#/components/schemas/ObservacionEntrada"
+            },
+            "type": "array",
+            "title": "Observaciones"
+          },
+          "historial": {
+            "$ref": "#/components/schemas/HistorialEntrada"
+          },
+          "dias_previstos_restantes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dias Previstos Restantes"
+          },
+          "fecha_salida_prevista": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Salida Prevista"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "fase",
+          "observaciones",
+          "historial",
+          "dias_previstos_restantes",
+          "fecha_salida_prevista"
+        ],
+        "title": "EvaluacionEntrada"
+      },
+      "EvaluacionEntrada-Output": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "fase": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "INGRESO",
+                  "SEGUIMIENTO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fase"
+          },
+          "observaciones": {
+            "items": {
+              "$ref": "#/components/schemas/ObservacionEntrada"
+            },
+            "type": "array",
+            "title": "Observaciones"
+          },
+          "historial": {
+            "$ref": "#/components/schemas/HistorialEntrada"
+          },
+          "dias_previstos_restantes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dias Previstos Restantes"
+          },
+          "fecha_salida_prevista": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Salida Prevista"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "fase",
+          "observaciones",
+          "historial",
+          "dias_previstos_restantes",
+          "fecha_salida_prevista"
+        ],
+        "title": "EvaluacionEntrada"
+      },
+      "Evento": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "LIMPIEZA_GENERAL",
+              "APERTURA",
+              "RESELLADO",
+              "SECADO",
+              "ENFRIAMIENTO",
+              "EXPOSICION_AGUA",
+              "CARGA_DESCARGA"
+            ],
+            "title": "Tipo"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          },
+          "evidencia": {
+            "type": "string",
+            "title": "Evidencia"
+          },
+          "id_responsable": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Responsable"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "tipo",
+          "fecha",
+          "evidencia",
+          "id_responsable"
+        ],
+        "title": "Evento"
+      },
+      "EventoEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "LIMPIEZA_GENERAL",
+              "APERTURA",
+              "RESELLADO",
+              "SECADO",
+              "ENFRIAMIENTO",
+              "EXPOSICION_AGUA",
+              "CARGA_DESCARGA"
+            ],
+            "title": "Tipo"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          },
+          "evidencia": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Evidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "tipo",
+          "fecha",
+          "evidencia"
+        ],
+        "title": "EventoEntrada"
+      },
+      "EvidenciaMotivo": {
+        "properties": {
+          "campo": {
+            "type": "string",
+            "title": "Campo"
+          },
+          "valor_observado": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor Observado"
+          },
+          "unidad": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "PCT_BH",
+                  "PCT_HR",
+                  "PCT_MASA",
+                  "CELSIUS",
+                  "METROS",
+                  "DIAS",
+                  "FRACCION",
+                  "BOOLEANO",
+                  "TEXTO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unidad"
+          },
+          "fecha_observacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Observacion"
+          },
+          "operador": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "GT",
+                  "GTE",
+                  "LT",
+                  "LTE",
+                  "EQ",
+                  "NEQ",
+                  "PRESENCIA",
+                  "VIGENCIA"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operador"
+          },
+          "umbral": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Umbral"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campo",
+          "valor_observado",
+          "unidad",
+          "fecha_observacion",
+          "operador",
+          "umbral"
+        ],
+        "title": "EvidenciaMotivo"
+      },
+      "Fuente": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "referencia_markdown": {
+            "type": "string",
+            "title": "Referencia Markdown"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "referencia_markdown"
+        ],
+        "title": "Fuente"
+      },
+      "FuenteRef": {
+        "properties": {
+          "id_fuente": {
+            "type": "string",
+            "title": "Id Fuente"
+          },
+          "localizador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Localizador"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_fuente",
+          "localizador"
+        ],
+        "title": "FuenteRef"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HistorialEntrada": {
+        "properties": {
+          "fecha_inicio_historial": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Inicio Historial"
+          },
+          "vida_previa_documentada": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vida Previa Documentada"
+          },
+          "evidencia_vida_previa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidencia Vida Previa"
+          },
+          "intervalos_historial": {
+            "items": {
+              "$ref": "#/components/schemas/IntervaloEntrada"
+            },
+            "type": "array",
+            "title": "Intervalos Historial"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fecha_inicio_historial",
+          "vida_previa_documentada",
+          "evidencia_vida_previa",
+          "intervalos_historial"
+        ],
+        "title": "HistorialEntrada"
+      },
+      "Incidencia": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "CUARENTENA",
+              "REVISION_PLAGAS",
+              "REVISION_TERMICA",
+              "CORRECCION"
+            ],
+            "title": "Tipo"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "ABIERTA",
+              "CERRADA"
+            ],
+            "title": "Estado"
+          },
+          "causas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Causas"
+          },
+          "creada_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creada En"
+          },
+          "cerrada_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cerrada En"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "revision",
+          "tipo",
+          "estado",
+          "causas",
+          "creada_en",
+          "cerrada_en"
+        ],
+        "title": "Incidencia"
+      },
+      "Inicio": {
+        "properties": {
+          "unidades_total": {
+            "type": "integer",
+            "title": "Unidades Total"
+          },
+          "cuarentenas_abiertas": {
+            "type": "integer",
+            "title": "Cuarentenas Abiertas"
+          },
+          "correcciones_pendientes": {
+            "type": "integer",
+            "title": "Correcciones Pendientes"
+          },
+          "controles_proximos": {
+            "items": {
+              "$ref": "#/components/schemas/ControlProximo"
+            },
+            "type": "array",
+            "title": "Controles Proximos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "unidades_total",
+          "cuarentenas_abiertas",
+          "correcciones_pendientes",
+          "controles_proximos"
+        ],
+        "title": "Inicio"
+      },
+      "IntervaloEntrada": {
+        "properties": {
+          "inicio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Inicio"
+          },
+          "fin": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fin"
+          },
+          "humedad_grano": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Humedad Grano"
+          },
+          "temperatura_grano": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperatura Grano"
+          },
+          "metodo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metodo"
+          },
+          "evidencia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "inicio",
+          "fin",
+          "humedad_grano",
+          "temperatura_grano",
+          "metodo",
+          "evidencia"
+        ],
+        "title": "IntervaloEntrada"
+      },
+      "Lote": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Codigo"
+          },
+          "variedad": {
+            "type": "string",
+            "const": "MAIZ_CHULPI",
+            "title": "Variedad"
+          },
+          "uso_final": {
+            "type": "string",
+            "const": "ALIMENTACION",
+            "title": "Uso Final"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_propietario": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Propietario"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "codigo",
+          "variedad",
+          "uso_final",
+          "id",
+          "id_propietario",
+          "revision",
+          "creado_en"
+        ],
+        "title": "Lote"
+      },
+      "LoteEntrada": {
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Codigo"
+          },
+          "variedad": {
+            "type": "string",
+            "const": "MAIZ_CHULPI",
+            "title": "Variedad"
+          },
+          "uso_final": {
+            "type": "string",
+            "const": "ALIMENTACION",
+            "title": "Uso Final"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "codigo",
+          "variedad",
+          "uso_final"
+        ],
+        "title": "LoteEntrada"
+      },
+      "Motivo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "regla": {
+            "type": "string",
+            "title": "Regla"
+          },
+          "mensaje": {
+            "type": "string",
+            "title": "Mensaje"
+          },
+          "evidencias": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenciaMotivo"
+            },
+            "type": "array",
+            "title": "Evidencias"
+          },
+          "fuentes": {
+            "items": {
+              "$ref": "#/components/schemas/FuenteRef"
+            },
+            "type": "array",
+            "title": "Fuentes"
+          },
+          "fundamento": {
+            "type": "string",
+            "enum": [
+              "PUBLICADO",
+              "TRANSFERIDO",
+              "POLITICA_PROTOTIPO",
+              "MIXTO"
+            ],
+            "title": "Fundamento"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "regla",
+          "mensaje",
+          "evidencias",
+          "fuentes",
+          "fundamento"
+        ],
+        "title": "Motivo"
+      },
+      "ObservacionEntrada": {
+        "properties": {
+          "campo": {
+            "type": "string",
+            "title": "Campo"
+          },
+          "captura": {
+            "type": "string",
+            "enum": [
+              "APORTADO",
+              "DESCONOCIDO",
+              "NO_APLICA"
+            ],
+            "title": "Captura"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          },
+          "unidad": {
+            "type": "string",
+            "enum": [
+              "PCT_BH",
+              "PCT_HR",
+              "PCT_MASA",
+              "CELSIUS",
+              "METROS",
+              "DIAS",
+              "FRACCION",
+              "BOOLEANO",
+              "TEXTO"
+            ],
+            "title": "Unidad"
+          },
+          "valor_original": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor Original"
+          },
+          "fecha_observacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Observacion"
+          },
+          "metodo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metodo"
+          },
+          "evidencia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidencia"
+          },
+          "motivo_no_aplica": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo No Aplica"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campo",
+          "captura",
+          "valor",
+          "unidad",
+          "valor_original",
+          "fecha_observacion",
+          "metodo",
+          "evidencia",
+          "motivo_no_aplica"
+        ],
+        "title": "ObservacionEntrada",
+        "description": "Una omisión significa desconocido: no implica falso, cero ni no aplicable."
+      },
+      "ObservacionValidada": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "entrada": {
+            "$ref": "#/components/schemas/ObservacionEntrada"
+          },
+          "aplicabilidad": {
+            "type": "string",
+            "enum": [
+              "APLICA",
+              "NO_APLICA"
+            ],
+            "title": "Aplicabilidad"
+          },
+          "estado_dato": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "VALIDO",
+                  "DESCONOCIDO",
+                  "INVALIDO",
+                  "VENCIDO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estado Dato"
+          },
+          "id_responsable": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Responsable"
+          },
+          "procedencia": {
+            "type": "string",
+            "enum": [
+              "ACTUAL",
+              "HISTORICA",
+              "ESTIMADA"
+            ],
+            "title": "Procedencia"
+          },
+          "incidencias_validacion": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Incidencias Validacion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "entrada",
+          "aplicabilidad",
+          "estado_dato",
+          "id_responsable",
+          "procedencia",
+          "incidencias_validacion"
+        ],
+        "title": "ObservacionValidada"
+      },
+      "Pagina_Almacen_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Almacen"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Almacen]"
+      },
+      "Pagina_Control_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Control"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Control]"
+      },
+      "Pagina_Dictamen_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Dictamen"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Dictamen]"
+      },
+      "Pagina_Evento_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Evento"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Evento]"
+      },
+      "Pagina_Incidencia_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Incidencia"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Incidencia]"
+      },
+      "Pagina_Lote_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Lote"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Lote]"
+      },
+      "Pagina_Plan_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Plan"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Plan]"
+      },
+      "Pagina_Resolucion_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Resolucion"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Resolucion]"
+      },
+      "Pagina_ResultadoEvaluacion_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResultadoEvaluacion"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[ResultadoEvaluacion]"
+      },
+      "Pagina_Revision_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Revision"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Revision]"
+      },
+      "Pagina_Unidad_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Unidad"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "siguiente_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siguiente Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "siguiente_cursor"
+        ],
+        "title": "Pagina[Unidad]"
+      },
+      "Perfil": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "roles": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "PRODUCTOR",
+                "TECNICO",
+                "ADMINISTRADOR"
+              ]
+            },
+            "type": "array",
+            "title": "Roles"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "roles"
+        ],
+        "title": "Perfil"
+      },
+      "Plan": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "fecha_proximo_control": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Proximo Control"
+          },
+          "intervalo_dias": {
+            "type": "integer",
+            "title": "Intervalo Dias"
+          },
+          "fecha_salida_prevista": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Salida Prevista"
+          },
+          "actividades": {
+            "type": "string",
+            "title": "Actividades"
+          },
+          "vigente": {
+            "type": "boolean",
+            "title": "Vigente"
+          },
+          "id_responsable": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Responsable"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_unidad",
+          "fecha_proximo_control",
+          "intervalo_dias",
+          "fecha_salida_prevista",
+          "actividades",
+          "vigente",
+          "id_responsable"
+        ],
+        "title": "Plan"
+      },
+      "PlanEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "fecha_proximo_control": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Proximo Control"
+          },
+          "intervalo_dias": {
+            "type": "integer",
+            "maximum": 365.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Intervalo Dias"
+          },
+          "fecha_salida_prevista": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Salida Prevista"
+          },
+          "actividades": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Actividades"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "fecha_proximo_control",
+          "intervalo_dias",
+          "fecha_salida_prevista",
+          "actividades"
+        ],
+        "title": "PlanEntrada"
+      },
+      "Regla": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "antecedente": {
+            "type": "string",
+            "title": "Antecedente"
+          },
+          "consecuente": {
+            "type": "string",
+            "title": "Consecuente"
+          },
+          "accion": {
+            "type": "string",
+            "title": "Accion"
+          },
+          "fundamento_markdown": {
+            "type": "string",
+            "title": "Fundamento Markdown"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "antecedente",
+          "consecuente",
+          "accion",
+          "fundamento_markdown"
+        ],
+        "title": "Regla"
+      },
+      "Resolucion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_incidencia": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Incidencia"
+          },
+          "evidencia": {
+            "type": "string",
+            "title": "Evidencia"
+          },
+          "disposicion": {
+            "type": "string",
+            "title": "Disposicion"
+          },
+          "id_tecnico": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Tecnico"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_incidencia",
+          "evidencia",
+          "disposicion",
+          "id_tecnico",
+          "fecha"
+        ],
+        "title": "Resolucion"
+      },
+      "ResolucionEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "revision_incidencia": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Incidencia"
+          },
+          "evidencia": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Evidencia"
+          },
+          "disposicion": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Disposicion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "revision_incidencia",
+          "evidencia",
+          "disposicion"
+        ],
+        "title": "ResolucionEntrada"
+      },
+      "ResultadoEvaluacion": {
+        "properties": {
+          "evaluacion": {
+            "$ref": "#/components/schemas/Evaluacion"
+          },
+          "vigencia": {
+            "$ref": "#/components/schemas/Vigencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evaluacion",
+          "vigencia"
+        ],
+        "title": "ResultadoEvaluacion"
+      },
+      "Revision": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_incidencia": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Incidencia"
+          },
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "PENDIENTE",
+              "CONFIRMADA",
+              "DESCARTADA"
+            ],
+            "title": "Resultado"
+          },
+          "evidencia": {
+            "type": "string",
+            "title": "Evidencia"
+          },
+          "id_tecnico": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Tecnico"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "id_incidencia",
+          "resultado",
+          "evidencia",
+          "id_tecnico",
+          "fecha"
+        ],
+        "title": "Revision"
+      },
+      "RevisionEntrada": {
+        "properties": {
+          "revision_unidad": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Unidad"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Almacen"
+          },
+          "revision_incidencia": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision Incidencia"
+          },
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "PENDIENTE",
+              "CONFIRMADA",
+              "DESCARTADA"
+            ],
+            "title": "Resultado"
+          },
+          "evidencia": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Evidencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_unidad",
+          "revision_almacen",
+          "revision_incidencia",
+          "resultado",
+          "evidencia"
+        ],
+        "title": "RevisionEntrada"
+      },
+      "Unidad": {
+        "properties": {
+          "id_lote": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Lote"
+          },
+          "id_almacen": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Almacen"
+          },
+          "nombre_recipiente": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre Recipiente"
+          },
+          "tipo_almacenamiento": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "HERMETICO",
+                  "NO_HERMETICO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Almacenamiento"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "id_recipiente": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Recipiente"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "revision_almacen": {
+            "type": "integer",
+            "title": "Revision Almacen"
+          },
+          "id_evaluacion_actual": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Evaluacion Actual"
+          },
+          "creado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creado En"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_lote",
+          "id_almacen",
+          "nombre_recipiente",
+          "tipo_almacenamiento",
+          "id",
+          "id_recipiente",
+          "revision",
+          "revision_almacen",
+          "id_evaluacion_actual",
+          "creado_en"
+        ],
+        "title": "Unidad"
+      },
+      "UnidadEntrada": {
+        "properties": {
+          "id_lote": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Lote"
+          },
+          "id_almacen": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Almacen"
+          },
+          "nombre_recipiente": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Nombre Recipiente"
+          },
+          "tipo_almacenamiento": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "HERMETICO",
+                  "NO_HERMETICO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipo Almacenamiento"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_lote",
+          "id_almacen",
+          "nombre_recipiente",
+          "tipo_almacenamiento"
+        ],
+        "title": "UnidadEntrada"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Vigencia": {
+        "properties": {
+          "id_unidad": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Unidad"
+          },
+          "id_evaluacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Evaluacion"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "VIGENTE",
+              "VENCIDA",
+              "INVALIDADA",
+              "NO_AUTORIZADO",
+              "SIN_EVALUACION"
+            ],
+            "title": "Estado"
+          },
+          "consultada_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Consultada En"
+          },
+          "fecha_proximo_control": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Proximo Control"
+          },
+          "fecha_vencimiento_autorizacion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Vencimiento Autorizacion"
+          },
+          "causas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Causas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_unidad",
+          "id_evaluacion",
+          "estado",
+          "consultada_en",
+          "fecha_proximo_control",
+          "fecha_vencimiento_autorizacion",
+          "causas"
+        ],
+        "title": "Vigencia"
+      }
+    }
+  }
+}

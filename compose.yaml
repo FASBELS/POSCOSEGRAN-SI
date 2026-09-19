@@ -1,0 +1,79 @@
+x-entorno-backend-local: &entorno_backend_local
+  POSCOSEGRAN_ENTORNO: local
+  POSCOSEGRAN_BD_URL_APP: postgresql+psycopg://poscosegran_app:local_app_2026@bd:5432/poscosegran
+  POSCOSEGRAN_JWT_MODO: SECRETO_COMPARTIDO
+  POSCOSEGRAN_JWT_ALGORITMOS: HS256
+  POSCOSEGRAN_JWT_EMISOR: http://localhost/auth/v1
+  POSCOSEGRAN_JWT_SECRETO: ${POSCOSEGRAN_JWT_SECRETO:-}
+  POSCOSEGRAN_AUTH_LOCAL_HABILITADA: 'true'
+  POSCOSEGRAN_AUTH_LOCAL_PASSWORD: ${POSCOSEGRAN_AUTH_LOCAL_PASSWORD:-}
+  POSCOSEGRAN_LIMITE_PETICIONES_POR_MINUTO: 1000
+  POSCOSEGRAN_LIMITE_PETICIONES_ESCRITURA_POR_MINUTO: 300
+
+services:
+  bd:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: poscosegran
+      POSTGRES_PASSWORD: revision_local_2026
+    ports:
+      - "127.0.0.1:${POSCOSEGRAN_PUERTO_BD_LOCAL:-55432}:5432"
+    volumes:
+      - poscosegran_datos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d poscosegran"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  inicializar:
+    image: poscosegran-api:local
+    pull_policy: never
+    depends_on:
+      bd:
+        condition: service_healthy
+    environment:
+      <<: *entorno_backend_local
+      POSCOSEGRAN_BD_URL_ADMIN_LOCAL: postgresql+psycopg://postgres:revision_local_2026@bd:5432/poscosegran
+      POSCOSEGRAN_BD_URL_MIGRACIONES: postgresql+psycopg://poscosegran_migraciones:local_migraciones_2026@bd:5432/poscosegran
+    command: ["python", "scripts/preparar_local.py", "--contenedor"]
+    restart: "no"
+  api:
+    image: poscosegran-api:local
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      bd:
+        condition: service_healthy
+      inicializar:
+        condition: service_completed_successfully
+    environment:
+      <<: *entorno_backend_local
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8000/salud/bd')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+  web:
+    image: poscosegran-web:local
+    build:
+      context: .
+      args:
+        VITE_AUTH_MODE: local
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${POSCOSEGRAN_PUERTO_WEB_LOCAL:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+volumes:
+  poscosegran_datos:

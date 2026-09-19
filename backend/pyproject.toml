@@ -1,0 +1,51 @@
+[project]
+name = "poscosegran-backend"
+version = "0.6.0"
+description = "POSCOSEGRAN — persistencia y seguridad (etapa 6). El motor y la API del contrato corresponden a la etapa 7."
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi==0.115.6",
+  "uvicorn[standard]==0.34.0",
+  "pydantic==2.10.4",
+  "pydantic-settings==2.7.0",
+  "SQLAlchemy==2.0.36",
+  "alembic==1.14.0",
+  "psycopg[binary]==3.2.3",
+  "PyJWT==2.10.1",
+  "cryptography==44.0.0",
+  "httpx==0.28.1",
+  "PyYAML==6.0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.3.4",
+  "pytest-asyncio==0.25.0",
+  "ruff==0.8.4",
+  "mypy==1.14.0",
+  "types-PyYAML==6.0.12.20241230",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+  "bd: requiere una base PostgreSQL migrada (POSCOSEGRAN_BD_URL_PRUEBAS)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src/poscosegran"]
+plugins = ["pydantic.mypy"]

@@ -1,0 +1,85 @@
+name: Verificacion integrada
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: poscosegran
+          POSTGRES_PASSWORD: revision_local_2026
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d poscosegran"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.24.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pip install -e 'backend[dev]'
+      - run: pnpm install --frozen-lockfile
+      - run: python backend/scripts/preparar_local.py
+      - name: Backend y PostgreSQL
+        working-directory: backend
+        env:
+          POSCOSEGRAN_BD_URL_PRUEBAS: postgresql+psycopg://postgres:revision_local_2026@127.0.0.1:55432/poscosegran
+        run: |
+          ruff check src tests scripts
+          mypy
+          alembic check
+          pytest -q
+      - name: Privilegios de aplicacion
+        working-directory: backend
+        env:
+          POSCOSEGRAN_BD_URL_PRUEBAS: postgresql+psycopg://poscosegran_app:local_app_2026@127.0.0.1:55432/poscosegran
+        run: pytest -q tests/test_esquema_bd.py::test_la_credencial_de_aplicacion_no_puede_crear_tablas
+      - name: Contrato y frontend
+        run: |
+          python backend/scripts/exportar_contrato.py
+          pnpm api:types
+          git diff --exit-code -- docs/openapi.json src/api/contrato.ts src/campos.json
+          pnpm lint
+          pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Navegador contra API real
+        run: |
+          (cd backend && python -m uvicorn poscosegran.api.app:crear_app --factory --host 127.0.0.1 --port 8000) > /tmp/api.log 2>&1 &
+          pnpm dev > /tmp/vite.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/salud/bd && curl -fsS http://localhost:8443 >/dev/null; then break; fi
+            sleep 1
+          done
+          pnpm test:e2e
+      - name: Stack Docker completo
+        env:
+          POSCOSEGRAN_PUERTO_BD_LOCAL: '55433'
+        run: |
+          docker compose --project-name poscosegran_docker_ci --env-file backend/.env up -d --build
+          for i in $(seq 1 90); do
+            if curl -fsS http://localhost:8080/salud/bd >/dev/null; then break; fi
+            if [ "$i" = 90 ]; then
+              docker compose --project-name poscosegran_docker_ci --env-file backend/.env ps --all
+              docker compose --project-name poscosegran_docker_ci --env-file backend/.env logs inicializar api web
+              exit 1
+            fi
+            sleep 1
+          done
+          export POSCOSEGRAN_AUTH_LOCAL_PASSWORD="$(sed -n 's/^POSCOSEGRAN_AUTH_LOCAL_PASSWORD=//p' backend/.env)"
+          E2E_BASE_URL=http://localhost:8080 pnpm test:e2e
+          docker compose --project-name poscosegran_docker_ci --env-file backend/.env down --volumes
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: errores-navegador
+          path: test-results/

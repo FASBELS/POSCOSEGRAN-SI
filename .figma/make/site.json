@@ -1,0 +1,10 @@
+{
+  "description": "Streamlines project execution by guiding users through step-by-step instructions to efficiently complete tasks and achieve goals.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -1,0 +1,23 @@
+# Base de datos local para desarrollo de las etapas 6 y 7.
+# Requiere conexión a internet la primera vez, para descargar la imagen.
+services:
+  bd:
+    image: postgres:16-alpine
+    container_name: poscosegran_bd
+    environment:
+      POSTGRES_DB: poscosegran
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos_bd:/var/lib/postgresql/data
+      - ./sql/roles_privilegios.sql:/docker-entrypoint-initdb.d/10_roles.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d poscosegran"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  datos_bd:
