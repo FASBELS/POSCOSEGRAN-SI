@@ -26,6 +26,8 @@ from .esquema import Catalogo
 
 
 def cargar(carpeta: Path, *, activar: bool, notas: str | None) -> str:
+    if carpeta.is_file():  # compatibilidad: antes se pasaba knowledge/catalogo.yaml
+        carpeta = carpeta.parent
     contenido = base_conocimiento.leer_archivos(carpeta)
     Catalogo.model_validate(contenido["documental"])  # contrato del catálogo documental
     base = base_conocimiento.desde_contenido(contenido)

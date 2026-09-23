@@ -56,38 +56,49 @@ def variar(i):
     for campo in rnd.sample(list(NUM), rnd.randint(0, SUAVE_N)):
         lo, hi = NUM[campo]
         r = rnd.random()
-        if r < 0.2: d[campo] = desconocido(campo)
+        if r < 0.2:
+            d[campo] = desconocido(campo)
         else:
             unidad = "CELSIUS" if "temperatura" in campo else "PCT_HR" if "hr_" in campo else "METROS" if "distancia" in campo else "PCT_BH"
             d[campo] = num(campo, str(round(rnd.uniform(lo, hi), 2)), unidad)
-    if rnd.random() < 0.15: d["metodo_humedad"] = rnd.choice([txt("metodo_humedad","LABORATORIO"), txt("metodo_humedad","ESTIMACION_INDIRECTA"), desconocido("metodo_humedad")])
+    if rnd.random() < 0.15:
+        d["metodo_humedad"] = rnd.choice([txt("metodo_humedad","LABORATORIO"), txt("metodo_humedad","ESTIMACION_INDIRECTA"), desconocido("metodo_humedad")])
     if rnd.random() < 0.15:
         d["punto_medicion_previo"] = txt("punto_medicion_previo", rnd.choice(["CENTRO","BORDE"]))
         d["metodo_termico_previo"] = txt("metodo_termico_previo", "SONDA")
         pr = d.get("temperatura_grano_previa")
-        if pr is None or not pr.utilizable: d["temperatura_grano_previa"] = num("temperatura_grano_previa", "8", "CELSIUS")
+        if pr is None or not pr.utilizable:
+            d["temperatura_grano_previa"] = num("temperatura_grano_previa", "8", "CELSIUS")
         tp = d["temperatura_grano_previa"]
         d["temperatura_grano_previa"] = replace(tp, fecha_observacion=AHORA - timedelta(hours=rnd.choice([12, 200, 800])))
-    if rnd.random() < 0.15: d["tabla_equilibrio_id"] = txt("tabla_equilibrio_id", "EQ")
-    if rnd.random() < 0.1: d["fecha_limpieza_general"] = fec("fecha_limpieza_general", AHORA - timedelta(days=rnd.choice([10, 40])))
-    if rnd.random() < 0.08: d["granos_quebrados"] = Dato(campo="granos_quebrados", estado=EstadoDato.INVALIDO, valor=Decimal("-1"))
+    if rnd.random() < 0.15:
+        d["tabla_equilibrio_id"] = txt("tabla_equilibrio_id", "EQ")
+    if rnd.random() < 0.1:
+        d["fecha_limpieza_general"] = fec("fecha_limpieza_general", AHORA - timedelta(days=rnd.choice([10, 40])))
+    if rnd.random() < 0.08:
+        d["granos_quebrados"] = Dato(campo="granos_quebrados", estado=EstadoDato.INVALIDO, valor=Decimal("-1"))
     from poscosegran.dominio.valores import Conjunto
     inst = replace(inst, datos=Conjunto(d))
     cambios = {}
     cambios["fase"] = rnd.choice([Fase.INGRESO, Fase.SEGUIMIENTO, Fase.SEGUIMIENTO, None])
     cambios["tipo_almacenamiento"] = rnd.choice([Modalidad.NO_HERMETICO, Modalidad.NO_HERMETICO, Modalidad.HERMETICO, None])
     cambios["clima_calido"] = rnd.choice([F, F, V, D])
-    if rnd.random() < 0.3: cambios["historial"] = Historial(vida_previa_documentada=rnd.choice([None, Decimal("0.5"), Decimal("0.85"), Decimal("0.97"), Decimal("1.1")]))
+    if rnd.random() < 0.3:
+        cambios["historial"] = Historial(vida_previa_documentada=rnd.choice([None, Decimal("0.5"), Decimal("0.85"), Decimal("0.97"), Decimal("1.1")]))
     if rnd.random() < 0.15:
         cambios["historial"] = Historial(vida_previa_documentada=Decimal("0.1"), intervalos=(Intervalo(AHORA-timedelta(days=20), AHORA-timedelta(days=10), Decimal("13"), Decimal("12")), Intervalo(AHORA-timedelta(days=rnd.choice([10, 8, 12])), AHORA-timedelta(days=1), Decimal(rnd.choice(["14","16"])) if rnd.random()<0.8 else None, Decimal("15"))))
     if rnd.random() < 0.25:
         dias = rnd.choice([5, 20, 31, 60, None])
         cambios["dias_previstos_restantes"] = dias
         cambios["fecha_salida_prevista"] = (AHORA + timedelta(days=dias + rnd.choice([0,0,3]))) if dias else rnd.choice([None, AHORA+timedelta(days=10)])
-    if rnd.random() < 0.3: cambios["dias_almacenados"] = rnd.choice([0, 50, 89, 90, 120, None])
-    if rnd.random() < 0.3: cambios["plan"] = rnd.choice([plan_reforzado(), plan_reforzado(14), Plan(registrado=True, intervalo_dias=7, fecha_salida_prevista=None, vigente=True), Plan()])
-    if rnd.random() < 0.25: cambios["dictamen"] = rnd.choice([dictamen_vigente(), dictamen_vigente(10), None])
-    if rnd.random() < 0.2: cambios["episodios"] = (Episodio(id="e", tipo=rnd.choice(["CUARENTENA","REVISION_PLAGAS","REVISION_TERMICA","CORRECCION"])),)
+    if rnd.random() < 0.3:
+        cambios["dias_almacenados"] = rnd.choice([0, 50, 89, 90, 120, None])
+    if rnd.random() < 0.3:
+        cambios["plan"] = rnd.choice([plan_reforzado(), plan_reforzado(14), Plan(registrado=True, intervalo_dias=7, fecha_salida_prevista=None, vigente=True), Plan()])
+    if rnd.random() < 0.25:
+        cambios["dictamen"] = rnd.choice([dictamen_vigente(), dictamen_vigente(10), None])
+    if rnd.random() < 0.2:
+        cambios["episodios"] = (Episodio(id="e", tipo=rnd.choice(["CUARENTENA","REVISION_PLAGAS","REVISION_TERMICA","CORRECCION"])),)
     if rnd.random() < 0.2:
         cambios["resultado_revision_plagas"] = rnd.choice(list(ResultadoRevision))
         cambios["revision_plagas_cubre_indicios_actuales"] = rnd.random() < 0.5
@@ -99,8 +110,10 @@ def variar(i):
             ingreso_inspeccionado=rnd.choice([V, F, D]),
             hay_evento_que_invalida_control=rnd.choice([F, F, V, D]),
         )
-    if rnd.random() < 0.3: cambios["sensor_interno_hermetico"] = rnd.random() < 0.5
-    if rnd.random() < 0.3: cambios["temperatura_ambiente_maxima_intervalo"] = rnd.choice([None, Decimal("12"), Decimal("27")])
+    if rnd.random() < 0.3:
+        cambios["sensor_interno_hermetico"] = rnd.random() < 0.5
+    if rnd.random() < 0.3:
+        cambios["temperatura_ambiente_maxima_intervalo"] = rnd.choice([None, Decimal("12"), Decimal("27")])
     return replace(inst, **cambios)
 
 def dirigido(i):

@@ -124,7 +124,8 @@ class Calculadora:
     def tiempo(self) -> CalculosTiempo:
         if "tiempo" not in self._memoria:
             self._memoria["tiempo"] = self._calcular_tiempo()
-        return self._memoria["tiempo"]
+        resultado: CalculosTiempo = self._memoria["tiempo"]
+        return resultado
 
     def _calcular_tiempo(self) -> CalculosTiempo:
         inst = self._hechos.instantanea

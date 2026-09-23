@@ -243,6 +243,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/evaluaciones/{id_evaluacion}/explicacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Explicacion
+         * @description Módulo de explicación: ¿cómo se llegó a la decisión y qué faltó para autorizar?
+         *
+         *     Se reproduce la evaluación con los hechos iniciales guardados y la versión exacta
+         *     de la base con que se emitió. El motor es determinista y el reloj forma parte de
+         *     los hechos, así que la traza es la de la evaluación original; si la decisión
+         *     reproducida no coincide con la guardada, se rechaza en lugar de explicar otra cosa.
+         */
+        get: operations["explicacion_api_v1_evaluaciones__id_evaluacion__explicacion_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/unidades/{id_unidad}/controles": {
         parameters: {
             query?: never;
@@ -437,6 +462,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/adquisicion/versiones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Versiones */
+        get: operations["versiones_api_v1_adquisicion_versiones_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/adquisicion/versiones/{id_version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Detalle */
+        get: operations["detalle_api_v1_adquisicion_versiones__id_version__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/adquisicion/propuestas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Proponer
+         * @description Valida y mide una propuesta partiendo de la versión activa.
+         *
+         *     Con guardar=false solo simula. Con guardar=true y una propuesta válida, la
+         *     registra como PROPUESTA; activarla es un paso aparte.
+         */
+        post: operations["proponer_api_v1_adquisicion_propuestas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/adquisicion/versiones/{id_version}/activar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activar
+         * @description Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian.
+         */
+        post: operations["activar_api_v1_adquisicion_versiones__id_version__activar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/salud": {
         parameters: {
             query?: never;
@@ -488,6 +590,11 @@ export interface components {
             responsable_requerido: "PRODUCTOR" | "TECNICO";
             /** Id Incidencia */
             id_incidencia: string | null;
+        };
+        /** ActivacionEntrada */
+        ActivacionEntrada: {
+            /** Motivo */
+            motivo: string;
         };
         /** Admision */
         Admision: {
@@ -606,35 +713,6 @@ export interface components {
             tiempo_referencia_actual: number | null;
             celda_tabla: components["schemas"]["CeldaTabla"] | null;
         };
-        /** Catalogo */
-        Catalogo: {
-            /** Version Base */
-            version_base: string;
-            /** Reglas */
-            reglas: components["schemas"]["Regla"][];
-            /** Ramas R30 */
-            ramas_r30: components["schemas"]["Regla"][];
-            /** Fuentes */
-            fuentes: components["schemas"]["Fuente"][];
-            /** Version Parametros */
-            version_parametros?: string | null;
-            /** Hash Base */
-            hash_base?: string | null;
-            /** Parametros */
-            parametros?: components["schemas"]["Parametro"][];
-            /**
-             * Uso Campos
-             * @description Para cada campo, las reglas que lo usan: «¿por qué se pide este dato?»
-             */
-            uso_campos?: {
-                [key: string]: string[];
-            };
-        };
-        /** ActivacionEntrada */
-        ActivacionEntrada: {
-            /** Motivo */
-            motivo: string;
-        };
         /** CambioParametro */
         CambioParametro: {
             /** Nombre */
@@ -677,220 +755,29 @@ export interface components {
             /** Reglas Retiradas */
             reglas_retiradas: string[];
         };
-        /** DetalleVersion */
-        DetalleVersion: {
-            version: components["schemas"]["VersionConocimientoResumen"];
-            /** Parametros */
-            parametros: components["schemas"]["Parametro"][];
-            /**
-             * Reglas
-             * @description Reglas de producción tal como las ejecuta el motor.
-             */
-            reglas: {
-                [key: string]: unknown;
-            }[];
-            /** Cambios Respecto Origen */
-            cambios_respecto_origen: components["schemas"]["CambioParametro"][];
-        };
-        /** Explicacion */
-        Explicacion: {
-            /**
-             * Id Evaluacion
-             * Format: uuid
-             */
-            id_evaluacion: string;
-            /** Decision */
-            decision: string;
-            /** Etiqueta */
-            etiqueta: string;
-            /** Rama */
-            rama: string;
-            /** Resumen */
-            resumen: string;
-            /**
-             * Cadena
-             * @description ¿Cómo? Reglas que llevaron a la decisión.
-             */
-            cadena: components["schemas"]["PasoExplicacion"][];
-            /** Traza Completa */
-            traza_completa: components["schemas"]["PasoExplicacion"][];
-            /** Ramas */
-            ramas: components["schemas"]["RamaExplicada"][];
-            /**
-             * Por Que No
-             * @description Qué le faltó a cada autorización no concedida.
-             */
-            por_que_no: components["schemas"]["RamaExplicada"][];
-            /** Hechos Iniciales */
-            hechos_iniciales: components["schemas"]["HechoInicial"][];
-            /** Hechos Inferidos */
-            hechos_inferidos: string[];
-            /** No Aplicables */
-            no_aplicables: string[];
+        /** Catalogo */
+        Catalogo: {
             /** Version Base */
             version_base: string;
-            /** Version Parametros */
-            version_parametros: string;
-            /** Hash Base */
-            hash_base: string;
-        };
-        /** HechoInicial */
-        HechoInicial: {
-            /** Campo */
-            campo: string;
-            /** Valor */
-            valor: string | number | boolean | null;
-            /** Procedencia */
-            procedencia: string;
-        };
-        /** Impacto */
-        Impacto: {
-            /** Evaluados */
-            evaluados: number;
-            /** Cambian */
-            cambian: number;
-            /** Transiciones */
-            transiciones: {
-                [key: string]: number;
-            };
-            /** Casos */
-            casos: components["schemas"]["CasoAfectado"][];
-            /** Nuevas Autorizaciones */
-            nuevas_autorizaciones: number;
-        };
-        /** Parametro */
-        Parametro: {
-            /** Nombre */
-            nombre: string;
-            /** Valor */
-            valor: number;
-            /** Unidad */
-            unidad: string;
-            /**
-             * Fundamento
-             * @enum {string}
-             */
-            fundamento: "PUBLICADO" | "TRANSFERIDO" | "POLITICA_PROTOTIPO" | "MIXTO";
+            /** Reglas */
+            reglas: components["schemas"]["Regla"][];
+            /** Ramas R30 */
+            ramas_r30: components["schemas"]["Regla"][];
             /** Fuentes */
-            fuentes: string[];
-            /** Descripcion */
-            descripcion: string;
-        };
-        /** PasoExplicacion */
-        PasoExplicacion: {
-            /** Orden */
-            orden: number;
-            /** Regla */
-            regla: string;
-            /** Etapa */
-            etapa: string;
-            /** Pasada */
-            pasada: number;
-            /** Conclusion */
-            conclusion: string | null;
-            /** Solicitudes */
-            solicitudes: string[];
-            /** Porque */
-            porque: string[];
-            /** Antecedente */
-            antecedente: string | null;
-        };
-        /** PropuestaEntrada */
-        PropuestaEntrada: {
-            /** Motivo */
-            motivo: string;
+            fuentes: components["schemas"]["Fuente"][];
             /** Version Parametros */
             version_parametros?: string | null;
-            /** Version Base */
-            version_base?: string | null;
-            /** Parametros */
-            parametros?: {
-                [key: string]: number;
-            };
-            /**
-             * Reglas
-             * @description Id de regla de producción → nueva definición completa; null la retira.
-             */
-            reglas?: {
-                [key: string]: {
-                    [key: string]: unknown;
-                } | null;
-            };
-            /**
-             * Guardar
-             * @description false: solo simular; true: registrar como PROPUESTA si es válida.
-             * @default false
-             */
-            guardar?: boolean;
-        };
-        /** PropuestaResultado */
-        PropuestaResultado: {
-            /** Valida */
-            valida: boolean;
-            /** Errores */
-            errores: string[];
-            /** Advertencias */
-            advertencias: string[];
-            /** Version Base */
-            version_base: string;
-            /** Version Parametros */
-            version_parametros: string;
-            /** Cambios Parametros */
-            cambios_parametros: components["schemas"]["CambioParametro"][];
-            /** Cambios Reglas */
-            cambios_reglas: components["schemas"]["CambioRegla"][];
-            impacto: components["schemas"]["Impacto"] | null;
-            version?: components["schemas"]["VersionConocimientoResumen"] | null;
-        };
-        /** RamaExplicada */
-        RamaExplicada: {
-            /** Rama */
-            rama: string;
-            /** Decision */
-            decision: string;
-            /** Aplicada */
-            aplicada: boolean;
-            /**
-             * Valor
-             * @enum {string}
-             */
-            valor: "VERDADERO" | "FALSO" | "DESCONOCIDO" | "NO_APLICA";
-            /** Faltan */
-            faltan: string[];
-        };
-        /** VersionConocimientoResumen */
-        VersionConocimientoResumen: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Version Base */
-            version_base: string;
-            /** Version Parametros */
-            version_parametros: string;
-            /** Version Motor */
-            version_motor: string;
             /** Hash Base */
-            hash_base: string;
+            hash_base?: string | null;
+            /** Parametros */
+            parametros?: components["schemas"]["Parametro"][];
             /**
-             * Estado
-             * @enum {string}
+             * Uso Campos
+             * @description Para cada campo, las reglas que lo usan: «¿por qué se pide este dato?»
              */
-            estado: "PROPUESTA" | "ACTIVADA" | "DESCARTADA";
-            /** Activa */
-            activa: boolean;
-            /** Motivo */
-            motivo: string | null;
-            /** Id Version Origen */
-            id_version_origen: string | null;
-            /**
-             * Cargada En
-             * Format: date-time
-             */
-            cargada_en: string;
-            /** Activada En */
-            activada_en: string | null;
+            uso_campos?: {
+                [key: string]: string[];
+            };
         };
         /** CeldaTabla */
         CeldaTabla: {
@@ -989,6 +876,19 @@ export interface components {
              * @enum {integer}
              */
             paso: 1 | 2 | 3 | 4 | 5 | 6;
+        };
+        /** DetalleVersion */
+        DetalleVersion: {
+            version: components["schemas"]["VersionConocimientoResumen"];
+            /** Parametros */
+            parametros: components["schemas"]["Parametro"][];
+            /**
+             * Reglas
+             * @description Reglas de producción tal como las ejecuta el motor.
+             */
+            reglas: Record<string, never>[];
+            /** Cambios Respecto Origen */
+            cambios_respecto_origen: components["schemas"]["CambioParametro"][];
         };
         /** Dictamen */
         Dictamen: {
@@ -1230,6 +1130,48 @@ export interface components {
             /** Umbral */
             umbral: number | boolean | string | null;
         };
+        /** Explicacion */
+        Explicacion: {
+            /**
+             * Id Evaluacion
+             * Format: uuid
+             */
+            id_evaluacion: string;
+            /** Decision */
+            decision: string;
+            /** Etiqueta */
+            etiqueta: string;
+            /** Rama */
+            rama: string;
+            /** Resumen */
+            resumen: string;
+            /**
+             * Cadena
+             * @description ¿Cómo? Reglas que llevaron a la decisión.
+             */
+            cadena: components["schemas"]["PasoExplicacion"][];
+            /** Traza Completa */
+            traza_completa: components["schemas"]["PasoExplicacion"][];
+            /** Ramas */
+            ramas: components["schemas"]["RamaExplicada"][];
+            /**
+             * Por Que No
+             * @description Qué le faltó a cada autorización no concedida.
+             */
+            por_que_no: components["schemas"]["RamaExplicada"][];
+            /** Hechos Iniciales */
+            hechos_iniciales: components["schemas"]["HechoInicial"][];
+            /** Hechos Inferidos */
+            hechos_inferidos: string[];
+            /** No Aplicables */
+            no_aplicables: string[];
+            /** Version Base */
+            version_base: string;
+            /** Version Parametros */
+            version_parametros: string;
+            /** Hash Base */
+            hash_base: string;
+        };
         /** Fuente */
         Fuente: {
             /** Id */
@@ -1249,6 +1191,15 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HechoInicial */
+        HechoInicial: {
+            /** Campo */
+            campo: string;
+            /** Valor */
+            valor: string | number | boolean | null;
+            /** Procedencia */
+            procedencia: string;
+        };
         /** HistorialEntrada */
         HistorialEntrada: {
             /** Fecha Inicio Historial */
@@ -1259,6 +1210,21 @@ export interface components {
             evidencia_vida_previa: string | null;
             /** Intervalos Historial */
             intervalos_historial: components["schemas"]["IntervaloEntrada"][];
+        };
+        /** Impacto */
+        Impacto: {
+            /** Evaluados */
+            evaluados: number;
+            /** Cambian */
+            cambian: number;
+            /** Transiciones */
+            transiciones: {
+                [key: string]: number;
+            };
+            /** Casos */
+            casos: components["schemas"]["CasoAfectado"][];
+            /** Nuevas Autorizaciones */
+            nuevas_autorizaciones: number;
         };
         /** Incidencia */
         Incidencia: {
@@ -1526,6 +1492,43 @@ export interface components {
             /** Siguiente Cursor */
             siguiente_cursor: string | null;
         };
+        /** Parametro */
+        Parametro: {
+            /** Nombre */
+            nombre: string;
+            /** Valor */
+            valor: number;
+            /** Unidad */
+            unidad: string;
+            /**
+             * Fundamento
+             * @enum {string}
+             */
+            fundamento: "PUBLICADO" | "TRANSFERIDO" | "POLITICA_PROTOTIPO" | "MIXTO";
+            /** Fuentes */
+            fuentes: string[];
+            /** Descripcion */
+            descripcion: string;
+        };
+        /** PasoExplicacion */
+        PasoExplicacion: {
+            /** Orden */
+            orden: number;
+            /** Regla */
+            regla: string;
+            /** Etapa */
+            etapa: string;
+            /** Pasada */
+            pasada: number;
+            /** Conclusion */
+            conclusion: string | null;
+            /** Solicitudes */
+            solicitudes: string[];
+            /** Porque */
+            porque: string[];
+            /** Antecedente */
+            antecedente: string | null;
+        };
         /** Perfil */
         Perfil: {
             /**
@@ -1592,6 +1595,67 @@ export interface components {
             fecha_salida_prevista: string;
             /** Actividades */
             actividades: string;
+        };
+        /** PropuestaEntrada */
+        PropuestaEntrada: {
+            /** Motivo */
+            motivo: string;
+            /** Version Parametros */
+            version_parametros?: string | null;
+            /** Version Base */
+            version_base?: string | null;
+            /** Parametros */
+            parametros?: {
+                [key: string]: number;
+            };
+            /**
+             * Reglas
+             * @description Id de regla de producción → nueva definición completa; null la retira.
+             */
+            reglas?: {
+                [key: string]: Record<string, never> | null;
+            };
+            /**
+             * Guardar
+             * @description false: solo simular; true: registrar como PROPUESTA si es válida.
+             * @default false
+             */
+            guardar: boolean;
+        };
+        /** PropuestaResultado */
+        PropuestaResultado: {
+            /** Valida */
+            valida: boolean;
+            /** Errores */
+            errores: string[];
+            /** Advertencias */
+            advertencias: string[];
+            /** Version Base */
+            version_base: string;
+            /** Version Parametros */
+            version_parametros: string;
+            /** Cambios Parametros */
+            cambios_parametros: components["schemas"]["CambioParametro"][];
+            /** Cambios Reglas */
+            cambios_reglas: components["schemas"]["CambioRegla"][];
+            impacto: components["schemas"]["Impacto"] | null;
+            version?: components["schemas"]["VersionConocimientoResumen"] | null;
+        };
+        /** RamaExplicada */
+        RamaExplicada: {
+            /** Rama */
+            rama: string;
+            /** Decision */
+            decision: string;
+            /** Aplicada */
+            aplicada: boolean;
+            /**
+             * Valor
+             * @enum {string}
+             */
+            valor: "VERDADERO" | "FALSO" | "DESCONOCIDO" | "NO_APLICA";
+            /** Faltan */
+            faltan: string[];
         };
         /** Regla */
         Regla: {
@@ -1760,6 +1824,40 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** VersionConocimientoResumen */
+        VersionConocimientoResumen: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Version Base */
+            version_base: string;
+            /** Version Parametros */
+            version_parametros: string;
+            /** Version Motor */
+            version_motor: string;
+            /** Hash Base */
+            hash_base: string;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "PROPUESTA" | "ACTIVADA" | "DESCARTADA";
+            /** Activa */
+            activa: boolean;
+            /** Motivo */
+            motivo: string | null;
+            /** Id Version Origen */
+            id_version_origen: string | null;
+            /**
+             * Cargada En
+             * Format: date-time
+             */
+            cargada_en: string;
+            /** Activada En */
+            activada_en: string | null;
         };
         /** Vigencia */
         Vigencia: {
@@ -2497,6 +2595,39 @@ export interface operations {
             };
         };
     };
+    explicacion_api_v1_evaluaciones__id_evaluacion__explicacion_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                id_evaluacion: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Explicacion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     listar_controles_api_v1_unidades__id_unidad__controles_get: {
         parameters: {
             query?: {
@@ -3067,6 +3198,142 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Catalogo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    versiones_api_v1_adquisicion_versiones_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionConocimientoResumen"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    detalle_api_v1_adquisicion_versiones__id_version__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                id_version: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DetalleVersion"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    proponer_api_v1_adquisicion_propuestas_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PropuestaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PropuestaResultado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    activar_api_v1_adquisicion_versiones__id_version__activar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                id_version: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivacionEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionConocimientoResumen"];
                 };
             };
             /** @description Validation Error */

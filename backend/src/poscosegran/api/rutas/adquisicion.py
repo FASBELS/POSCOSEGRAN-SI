@@ -12,8 +12,10 @@ import uuid
 
 import sqlalchemy as sa
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy.orm import Session
 
 from ...db.modelos import Evaluacion, VersionConocimiento
+from ...dominio.hechos import Instantanea
 from ...esquemas import contrato as api
 from ...seguridad.dependencias import IdentidadDep, SesionDep
 from ...seguridad.permisos import AccesoDenegado, RecursoInaccesible
@@ -38,7 +40,7 @@ def _resumen(v: VersionConocimiento) -> api.VersionConocimientoResumen:
         version_parametros=v.version_parametros,
         version_motor=v.version_motor,
         hash_base=v.hash_contenido,
-        estado=v.estado,  # type: ignore[arg-type]
+        estado=v.estado,
         activa=v.activa,
         motivo=v.motivo or v.notas,
         id_version_origen=v.id_version_origen,
@@ -50,19 +52,19 @@ def _resumen(v: VersionConocimiento) -> api.VersionConocimientoResumen:
 def _parametros(base) -> list[api.Parametro]:  # type: ignore[no-untyped-def]
     return [
         api.Parametro(
-            nombre=p.nombre, valor=float(p.valor), unidad=p.unidad, fundamento=p.fundamento,  # type: ignore[arg-type]
+            nombre=p.nombre, valor=float(p.valor), unidad=p.unidad, fundamento=p.fundamento,
             fuentes=list(p.fuentes), descripcion=p.descripcion,
         )
         for p in base.parametros.values()
     ]
 
 
-def _casos_historicos(sesion) -> list[tuple[str, str, object]]:  # type: ignore[no-untyped-def]
+def _casos_historicos(sesion: Session) -> list[tuple[str, str, Instantanea]]:
     """Últimas evaluaciones emitidas con hechos reproducibles."""
     filas = sesion.scalars(
         sa.select(Evaluacion).order_by(Evaluacion.fecha_evaluacion.desc()).limit(EVALUACIONES_HISTORICAS)
     ).all()
-    casos = []
+    casos: list[tuple[str, str, Instantanea]] = []
     for fila in filas:
         hechos = (fila.entrada_efectiva or {}).get("_hechos_iniciales")
         if hechos is not None:
@@ -169,7 +171,7 @@ def proponer(entrada: api.PropuestaEntrada, sesion: SesionDep, identidad: Identi
             api.CambioParametro(nombre=c.nombre, anterior=float(c.anterior), nuevo=float(c.nuevo), unidad=c.unidad)
             for c in propuesta.cambios_parametros
         ],
-        cambios_reglas=[api.CambioRegla(produccion=c.produccion, regla=c.regla, tipo=c.tipo) for c in propuesta.cambios_reglas],  # type: ignore[arg-type]
+        cambios_reglas=[api.CambioRegla(produccion=c.produccion, regla=c.regla, tipo=c.tipo) for c in propuesta.cambios_reglas],
         impacto=None if impacto is None else api.Impacto(
             evaluados=impacto.evaluados,
             cambian=impacto.cambian,

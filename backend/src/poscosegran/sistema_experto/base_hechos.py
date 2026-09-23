@@ -174,10 +174,10 @@ class BaseHechos:
 
     def iniciales(self) -> list[tuple[str, object, str]]:
         """Observaciones utilizables con su procedencia: el punto de partida del caso."""
-        salida = []
+        salida: list[tuple[str, object, str]] = []
         for campo, dato in sorted(self.instantanea.datos.datos.items()):
             if dato.utilizable:
-                valor = dato.valor
+                valor: object = dato.valor
                 if isinstance(valor, Decimal):
                     valor = float(valor)
                 salida.append((campo, valor, dato.procedencia.value))

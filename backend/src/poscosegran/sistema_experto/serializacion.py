@@ -59,9 +59,13 @@ def _desde_valor(codificado: dict[str, Any] | None) -> Any:
     if codificado is None:
         return None
     tipo, v = codificado["tipo"], codificado["v"]
-    return {"B": lambda: bool(v), "N": lambda: Decimal(v), "F": lambda: datetime.fromisoformat(v)}.get(
-        tipo, lambda: v
-    )()
+    if tipo == "B":
+        return bool(v)
+    if tipo == "N":
+        return Decimal(v)
+    if tipo == "F":
+        return datetime.fromisoformat(v)
+    return v
 
 
 def a_json(inst: Instantanea) -> dict[str, Any]:
