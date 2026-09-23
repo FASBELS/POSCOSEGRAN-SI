@@ -8,7 +8,7 @@ un campo desconocido es un error de estructura, no un valor por omisión.
 from __future__ import annotations
 
 import uuid
-from typing import Generic, Literal, TypeVar
+from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import AwareDatetime, StrictBool, StrictFloat, StrictInt, StrictStr, BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -600,7 +600,7 @@ class PropuestaEntrada(Base):
     version_parametros: str | None = Field(default=None, max_length=40)
     version_base: str | None = Field(default=None, max_length=40)
     parametros: dict[str, StrictFloat | StrictInt] = Field(default_factory=dict)
-    reglas: dict[str, dict | None] = Field(
+    reglas: dict[str, dict[str, Any] | None] = Field(
         default_factory=dict, description="Id de regla de producción → nueva definición completa; null la retira."
     )
     guardar: bool = Field(default=False, description="false: solo simular; true: registrar como PROPUESTA si es válida.")
@@ -625,7 +625,7 @@ class ActivacionEntrada(Base):
 class DetalleVersion(Base):
     version: VersionConocimientoResumen
     parametros: list[Parametro]
-    reglas: list[dict] = Field(description="Reglas de producción tal como las ejecuta el motor.")
+    reglas: list[dict[str, Any]] = Field(description="Reglas de producción tal como las ejecuta el motor.")
     cambios_respecto_origen: list[CambioParametro]
 
 

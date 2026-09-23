@@ -71,7 +71,7 @@ def api_real(url_bd, monkeypatch):
     seguridad._verificador = seguridad._limitador_lectura = seguridad._limitador_escritura = None
     from poscosegran.api.app import crear_app
     from poscosegran.conocimiento.cargar import cargar
-    cargar(Path(__file__).parents[2] / "knowledge/catalogo.yaml", activar=True, notas=None)
+    cargar(Path(__file__).parents[2] / "knowledge", activar=True, notas=None)
     users = {}
     with Session(create_engine(url_bd)) as session, session.begin():
         for rol in ("PRODUCTOR", "TECNICO", "ADMINISTRADOR", "AJENO"):

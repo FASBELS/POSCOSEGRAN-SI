@@ -45,7 +45,7 @@ def catalogo(sesion: SesionDep, identidad: IdentidadDep) -> api.Catalogo:
     base = servicio_conocimiento.base_de(version) if version.contenido is not None else None
     parametros = [] if base is None else [
         api.Parametro(
-            nombre=p.nombre, valor=float(p.valor), unidad=p.unidad, fundamento=p.fundamento,  # type: ignore[arg-type]
+            nombre=p.nombre, valor=float(p.valor), unidad=p.unidad, fundamento=p.fundamento,
             fuentes=list(p.fuentes), descripcion=p.descripcion,
         )
         for p in base.parametros.values()

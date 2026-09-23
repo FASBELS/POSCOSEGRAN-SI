@@ -1526,6 +1526,66 @@
         }
       }
     },
+    "/api/v1/evaluaciones/{id_evaluacion}/explicacion": {
+      "get": {
+        "tags": [
+          "evaluacion"
+        ],
+        "summary": "Explicacion",
+        "description": "Módulo de explicación: ¿cómo se llegó a la decisión y qué faltó para autorizar?\n\nSe reproduce la evaluación con los hechos iniciales guardados y la versión exacta\nde la base con que se emitió. El motor es determinista y el reloj forma parte de\nlos hechos, así que la traza es la de la evaluación original; si la decisión\nreproducida no coincide con la guardada, se rechaza en lugar de explicar otra cosa.",
+        "operationId": "explicacion_api_v1_evaluaciones__id_evaluacion__explicacion_get",
+        "parameters": [
+          {
+            "name": "id_evaluacion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Evaluacion"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Explicacion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/unidades/{id_unidad}/controles": {
       "get": {
         "tags": [
@@ -2898,6 +2958,248 @@
         }
       }
     },
+    "/api/v1/adquisicion/versiones": {
+      "get": {
+        "tags": [
+          "adquisicion"
+        ],
+        "summary": "Versiones",
+        "operationId": "versiones_api_v1_adquisicion_versiones_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionConocimientoResumen"
+                  },
+                  "title": "Response Versiones Api V1 Adquisicion Versiones Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/adquisicion/versiones/{id_version}": {
+      "get": {
+        "tags": [
+          "adquisicion"
+        ],
+        "summary": "Detalle",
+        "operationId": "detalle_api_v1_adquisicion_versiones__id_version__get",
+        "parameters": [
+          {
+            "name": "id_version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Version"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetalleVersion"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/adquisicion/propuestas": {
+      "post": {
+        "tags": [
+          "adquisicion"
+        ],
+        "summary": "Proponer",
+        "description": "Valida y mide una propuesta partiendo de la versión activa.\n\nCon guardar=false solo simula. Con guardar=true y una propuesta válida, la\nregistra como PROPUESTA; activarla es un paso aparte.",
+        "operationId": "proponer_api_v1_adquisicion_propuestas_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PropuestaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropuestaResultado"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/adquisicion/versiones/{id_version}/activar": {
+      "post": {
+        "tags": [
+          "adquisicion"
+        ],
+        "summary": "Activar",
+        "description": "Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian.",
+        "operationId": "activar_api_v1_adquisicion_versiones__id_version__activar_post",
+        "parameters": [
+          {
+            "name": "id_version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Version"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivacionEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionConocimientoResumen"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/salud": {
       "get": {
         "tags": [
@@ -2991,6 +3293,22 @@
           "id_incidencia"
         ],
         "title": "Accion"
+      },
+      "ActivacionEntrada": {
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 15,
+            "title": "Motivo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "motivo"
+        ],
+        "title": "ActivacionEntrada"
       },
       "Admision": {
         "properties": {
@@ -3291,6 +3609,119 @@
         ],
         "title": "CalculosTiempo"
       },
+      "CambioParametro": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "anterior": {
+            "type": "number",
+            "title": "Anterior"
+          },
+          "nuevo": {
+            "type": "number",
+            "title": "Nuevo"
+          },
+          "unidad": {
+            "type": "string",
+            "title": "Unidad"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "anterior",
+          "nuevo",
+          "unidad"
+        ],
+        "title": "CambioParametro"
+      },
+      "CambioRegla": {
+        "properties": {
+          "produccion": {
+            "type": "string",
+            "title": "Produccion"
+          },
+          "regla": {
+            "type": "string",
+            "title": "Regla"
+          },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "MODIFICADA",
+              "NUEVA",
+              "RETIRADA"
+            ],
+            "title": "Tipo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "produccion",
+          "regla",
+          "tipo"
+        ],
+        "title": "CambioRegla"
+      },
+      "CasoAfectado": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "origen": {
+            "type": "string",
+            "title": "Origen"
+          },
+          "decision_antes": {
+            "type": "string",
+            "title": "Decision Antes"
+          },
+          "decision_despues": {
+            "type": "string",
+            "title": "Decision Despues"
+          },
+          "rama_antes": {
+            "type": "string",
+            "title": "Rama Antes"
+          },
+          "rama_despues": {
+            "type": "string",
+            "title": "Rama Despues"
+          },
+          "reglas_nuevas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reglas Nuevas"
+          },
+          "reglas_retiradas": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reglas Retiradas"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "origen",
+          "decision_antes",
+          "decision_despues",
+          "rama_antes",
+          "rama_despues",
+          "reglas_nuevas",
+          "reglas_retiradas"
+        ],
+        "title": "CasoAfectado"
+      },
       "Catalogo": {
         "properties": {
           "version_base": {
@@ -3317,6 +3748,46 @@
             },
             "type": "array",
             "title": "Fuentes"
+          },
+          "version_parametros": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Parametros"
+          },
+          "hash_base": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hash Base"
+          },
+          "parametros": {
+            "items": {
+              "$ref": "#/components/schemas/Parametro"
+            },
+            "type": "array",
+            "title": "Parametros"
+          },
+          "uso_campos": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Uso Campos",
+            "description": "Para cada campo, las reglas que lo usan: «¿por qué se pide este dato?»"
           }
         },
         "additionalProperties": false,
@@ -3538,6 +4009,44 @@
           "paso"
         ],
         "title": "DatoPendiente"
+      },
+      "DetalleVersion": {
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/VersionConocimientoResumen"
+          },
+          "parametros": {
+            "items": {
+              "$ref": "#/components/schemas/Parametro"
+            },
+            "type": "array",
+            "title": "Parametros"
+          },
+          "reglas": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Reglas",
+            "description": "Reglas de producción tal como las ejecuta el motor."
+          },
+          "cambios_respecto_origen": {
+            "items": {
+              "$ref": "#/components/schemas/CambioParametro"
+            },
+            "type": "array",
+            "title": "Cambios Respecto Origen"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "parametros",
+          "reglas",
+          "cambios_respecto_origen"
+        ],
+        "title": "DetalleVersion"
       },
       "Dictamen": {
         "properties": {
@@ -4252,6 +4761,114 @@
         ],
         "title": "EvidenciaMotivo"
       },
+      "Explicacion": {
+        "properties": {
+          "id_evaluacion": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id Evaluacion"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision"
+          },
+          "etiqueta": {
+            "type": "string",
+            "title": "Etiqueta"
+          },
+          "rama": {
+            "type": "string",
+            "title": "Rama"
+          },
+          "resumen": {
+            "type": "string",
+            "title": "Resumen"
+          },
+          "cadena": {
+            "items": {
+              "$ref": "#/components/schemas/PasoExplicacion"
+            },
+            "type": "array",
+            "title": "Cadena",
+            "description": "¿Cómo? Reglas que llevaron a la decisión."
+          },
+          "traza_completa": {
+            "items": {
+              "$ref": "#/components/schemas/PasoExplicacion"
+            },
+            "type": "array",
+            "title": "Traza Completa"
+          },
+          "ramas": {
+            "items": {
+              "$ref": "#/components/schemas/RamaExplicada"
+            },
+            "type": "array",
+            "title": "Ramas"
+          },
+          "por_que_no": {
+            "items": {
+              "$ref": "#/components/schemas/RamaExplicada"
+            },
+            "type": "array",
+            "title": "Por Que No",
+            "description": "Qué le faltó a cada autorización no concedida."
+          },
+          "hechos_iniciales": {
+            "items": {
+              "$ref": "#/components/schemas/HechoInicial"
+            },
+            "type": "array",
+            "title": "Hechos Iniciales"
+          },
+          "hechos_inferidos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Hechos Inferidos"
+          },
+          "no_aplicables": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "No Aplicables"
+          },
+          "version_base": {
+            "type": "string",
+            "title": "Version Base"
+          },
+          "version_parametros": {
+            "type": "string",
+            "title": "Version Parametros"
+          },
+          "hash_base": {
+            "type": "string",
+            "title": "Hash Base"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id_evaluacion",
+          "decision",
+          "etiqueta",
+          "rama",
+          "resumen",
+          "cadena",
+          "traza_completa",
+          "ramas",
+          "por_que_no",
+          "hechos_iniciales",
+          "hechos_inferidos",
+          "no_aplicables",
+          "version_base",
+          "version_parametros",
+          "hash_base"
+        ],
+        "title": "Explicacion"
+      },
       "Fuente": {
         "properties": {
           "id": {
@@ -4310,6 +4927,43 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HechoInicial": {
+        "properties": {
+          "campo": {
+            "type": "string",
+            "title": "Campo"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          },
+          "procedencia": {
+            "type": "string",
+            "title": "Procedencia"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "campo",
+          "valor",
+          "procedencia"
+        ],
+        "title": "HechoInicial"
+      },
       "HistorialEntrada": {
         "properties": {
           "fecha_inicio_historial": {
@@ -4363,6 +5017,46 @@
           "intervalos_historial"
         ],
         "title": "HistorialEntrada"
+      },
+      "Impacto": {
+        "properties": {
+          "evaluados": {
+            "type": "integer",
+            "title": "Evaluados"
+          },
+          "cambian": {
+            "type": "integer",
+            "title": "Cambian"
+          },
+          "transiciones": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Transiciones"
+          },
+          "casos": {
+            "items": {
+              "$ref": "#/components/schemas/CasoAfectado"
+            },
+            "type": "array",
+            "title": "Casos"
+          },
+          "nuevas_autorizaciones": {
+            "type": "integer",
+            "title": "Nuevas Autorizaciones"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evaluados",
+          "cambian",
+          "transiciones",
+          "casos",
+          "nuevas_autorizaciones"
+        ],
+        "title": "Impacto"
       },
       "Incidencia": {
         "properties": {
@@ -5180,6 +5874,123 @@
         ],
         "title": "Pagina[Unidad]"
       },
+      "Parametro": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "valor": {
+            "type": "number",
+            "title": "Valor"
+          },
+          "unidad": {
+            "type": "string",
+            "title": "Unidad"
+          },
+          "fundamento": {
+            "type": "string",
+            "enum": [
+              "PUBLICADO",
+              "TRANSFERIDO",
+              "POLITICA_PROTOTIPO",
+              "MIXTO"
+            ],
+            "title": "Fundamento"
+          },
+          "fuentes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fuentes"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "nombre",
+          "valor",
+          "unidad",
+          "fundamento",
+          "fuentes",
+          "descripcion"
+        ],
+        "title": "Parametro"
+      },
+      "PasoExplicacion": {
+        "properties": {
+          "orden": {
+            "type": "integer",
+            "title": "Orden"
+          },
+          "regla": {
+            "type": "string",
+            "title": "Regla"
+          },
+          "etapa": {
+            "type": "string",
+            "title": "Etapa"
+          },
+          "pasada": {
+            "type": "integer",
+            "title": "Pasada"
+          },
+          "conclusion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conclusion"
+          },
+          "solicitudes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Solicitudes"
+          },
+          "porque": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Porque"
+          },
+          "antecedente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Antecedente"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "orden",
+          "regla",
+          "etapa",
+          "pasada",
+          "conclusion",
+          "solicitudes",
+          "porque",
+          "antecedente"
+        ],
+        "title": "PasoExplicacion"
+      },
       "Perfil": {
         "properties": {
           "id": {
@@ -5197,7 +6008,8 @@
               "enum": [
                 "PRODUCTOR",
                 "TECNICO",
-                "ADMINISTRADOR"
+                "ADMINISTRADOR",
+                "INGENIERO_CONOCIMIENTO"
               ]
             },
             "type": "array",
@@ -5312,6 +6124,201 @@
           "actividades"
         ],
         "title": "PlanEntrada"
+      },
+      "PropuestaEntrada": {
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 15,
+            "title": "Motivo"
+          },
+          "version_parametros": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Parametros"
+          },
+          "version_base": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Base"
+          },
+          "parametros": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Parametros"
+          },
+          "reglas": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Reglas",
+            "description": "Id de regla de producción → nueva definición completa; null la retira."
+          },
+          "guardar": {
+            "type": "boolean",
+            "title": "Guardar",
+            "description": "false: solo simular; true: registrar como PROPUESTA si es válida.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "motivo"
+        ],
+        "title": "PropuestaEntrada"
+      },
+      "PropuestaResultado": {
+        "properties": {
+          "valida": {
+            "type": "boolean",
+            "title": "Valida"
+          },
+          "errores": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errores"
+          },
+          "advertencias": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Advertencias"
+          },
+          "version_base": {
+            "type": "string",
+            "title": "Version Base"
+          },
+          "version_parametros": {
+            "type": "string",
+            "title": "Version Parametros"
+          },
+          "cambios_parametros": {
+            "items": {
+              "$ref": "#/components/schemas/CambioParametro"
+            },
+            "type": "array",
+            "title": "Cambios Parametros"
+          },
+          "cambios_reglas": {
+            "items": {
+              "$ref": "#/components/schemas/CambioRegla"
+            },
+            "type": "array",
+            "title": "Cambios Reglas"
+          },
+          "impacto": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Impacto"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "version": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionConocimientoResumen"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "valida",
+          "errores",
+          "advertencias",
+          "version_base",
+          "version_parametros",
+          "cambios_parametros",
+          "cambios_reglas",
+          "impacto"
+        ],
+        "title": "PropuestaResultado"
+      },
+      "RamaExplicada": {
+        "properties": {
+          "rama": {
+            "type": "string",
+            "title": "Rama"
+          },
+          "decision": {
+            "type": "string",
+            "title": "Decision"
+          },
+          "aplicada": {
+            "type": "boolean",
+            "title": "Aplicada"
+          },
+          "valor": {
+            "type": "string",
+            "enum": [
+              "VERDADERO",
+              "FALSO",
+              "DESCONOCIDO",
+              "NO_APLICA"
+            ],
+            "title": "Valor"
+          },
+          "faltan": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Faltan"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rama",
+          "decision",
+          "aplicada",
+          "valor",
+          "faltan"
+        ],
+        "title": "RamaExplicada"
       },
       "Regla": {
         "properties": {
@@ -5698,6 +6705,100 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VersionConocimientoResumen": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "version_base": {
+            "type": "string",
+            "title": "Version Base"
+          },
+          "version_parametros": {
+            "type": "string",
+            "title": "Version Parametros"
+          },
+          "version_motor": {
+            "type": "string",
+            "title": "Version Motor"
+          },
+          "hash_base": {
+            "type": "string",
+            "title": "Hash Base"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "PROPUESTA",
+              "ACTIVADA",
+              "DESCARTADA"
+            ],
+            "title": "Estado"
+          },
+          "activa": {
+            "type": "boolean",
+            "title": "Activa"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "id_version_origen": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Version Origen"
+          },
+          "cargada_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Cargada En"
+          },
+          "activada_en": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activada En"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "version_base",
+          "version_parametros",
+          "version_motor",
+          "hash_base",
+          "estado",
+          "activa",
+          "motivo",
+          "id_version_origen",
+          "cargada_en",
+          "activada_en"
+        ],
+        "title": "VersionConocimientoResumen"
       },
       "Vigencia": {
         "properties": {
