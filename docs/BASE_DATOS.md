@@ -111,6 +111,19 @@ alembic revision --autogenerate -m "descripcion"
 Las migraciones usan su propia credencial. La de aplicación no puede ejecutar
 DDL; ver `backend/sql/roles_privilegios.sql`.
 
+### 0003_sistema_experto
+
+Añade a `version_conocimiento` el contenido completo de la base (`contenido`,
+JSONB), su ciclo de vida (`estado`: PROPUESTA, ACTIVADA o DESCARTADA), `motivo`,
+`id_version_origen`, `activada_en` y `activada_por`, y el rol
+`INGENIERO_CONOCIMIENTO`. Es idempotente porque 0001 crea el esquema desde los
+modelos actuales: en una base nueva no hace nada y en una anterior añade las
+columnas. Las versiones registradas antes de 0003 no tienen contenido; vuelve a
+cargar la semilla con `python -m poscosegran.conocimiento.cargar knowledge --activar`.
+
+Cada evaluación guarda además, en `entrada_efectiva`, `_hechos_iniciales` (la base
+de hechos serializada, reproducible) y `_hash_base`.
+
 ## Tipos cerrados
 
 Los valores cerrados se implementan como `VARCHAR` con `CHECK`, no como tipos

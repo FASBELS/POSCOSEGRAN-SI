@@ -4,6 +4,9 @@ import {
   IconClipboard,
   IconActivity,
   IconBook,
+  IconPackage,
+  IconShield,
+  IconTrending,
   IconSettings,
   IconChevronLeft,
   IconChevronRight,
@@ -14,17 +17,23 @@ interface SidebarProps {
   onNavigate: (view: View) => void
   collapsed: boolean
   onToggle: () => void
+  roles: string[]
 }
 
-const NAV_ITEMS: { id: View; label: string; Icon: React.FC<{ size?: number; className?: string }> }[] = [
+// `roles` vacío: visible para todos. Si no, solo para esos roles.
+const NAV_ITEMS: { id: View; label: string; Icon: React.FC<{ size?: number; className?: string }>; roles?: string[] }[] = [
   { id: 'dashboard', label: 'Inicio', Icon: IconHome },
-  { id: 'evaluacion', label: 'Evaluaciones', Icon: IconClipboard },
-  { id: 'seguimiento', label: 'Seguimiento', Icon: IconActivity },
+  { id: 'almacenes', label: 'Almacenes y lotes', Icon: IconPackage, roles: ['PRODUCTOR', 'TECNICO'] },
+  { id: 'evaluacion', label: 'Evaluaciones', Icon: IconClipboard, roles: ['PRODUCTOR', 'TECNICO'] },
+  { id: 'seguimiento', label: 'Seguimiento', Icon: IconActivity, roles: ['PRODUCTOR', 'TECNICO'] },
+  { id: 'revision', label: 'Revisión técnica', Icon: IconShield, roles: ['TECNICO'] },
   { id: 'conocimiento', label: 'Base de Conocimiento', Icon: IconBook },
+  { id: 'adquisicion', label: 'Adquisición', Icon: IconTrending, roles: ['INGENIERO_CONOCIMIENTO'] },
   { id: 'configuracion', label: 'Configuración', Icon: IconSettings },
 ]
 
-export default function Sidebar({ activeView, onNavigate, collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ activeView, onNavigate, collapsed, onToggle, roles }: SidebarProps) {
+  const visibles = NAV_ITEMS.filter(item => !item.roles || item.roles.some(r => roles.includes(r)))
   return (
     <div
       className="sidebar fixed left-0 top-0 h-screen flex flex-col z-30 transition-all duration-300"
@@ -58,7 +67,7 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onToggle }:
 
       {/* Navigation */}
       <nav className="flex-1 py-4 px-2 overflow-y-auto">
-        {NAV_ITEMS.map(({ id, label, Icon }) => {
+        {visibles.map(({ id, label, Icon }) => {
           const active = activeView === id
           return (
             <button
@@ -98,7 +107,7 @@ export default function Sidebar({ activeView, onNavigate, collapsed, onToggle }:
       {/* Version */}
       {!collapsed && (
         <div className="px-4 py-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Base 2.0 · Prototipo académico</p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Sistema experto · Prototipo académico</p>
         </div>
       )}
 

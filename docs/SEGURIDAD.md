@@ -51,6 +51,15 @@ Cada comando sobre una unidad declara las revisiones de unidad y de almacén que
 creyó estar usando, y ambas se comprueban dentro de la transacción. Así no se
 decide sobre condiciones que cambiaron mientras el formulario estaba abierto.
 
+### Ingeniería del conocimiento
+
+`INGENIERO_CONOCIMIENTO` propone, simula y activa versiones de la base de
+conocimiento desde el módulo de adquisición. No concede acceso a unidades ni
+competencia técnica, igual que `ADMINISTRADOR`. Cada propuesta y cada activación
+quedan en auditoría con motivo, versiones y cambios. La base de datos refuerza el
+límite: la cuenta de aplicación puede insertar versiones y cambiar cuál está
+activa, pero no modificar el contenido de una versión ya registrada.
+
 ## RLS
 
 `backend/sql/rls_opcional.sql` contiene políticas de fila como defensa en

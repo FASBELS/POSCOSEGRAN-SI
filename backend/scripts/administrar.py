@@ -13,7 +13,7 @@ from poscosegran.db.modelos import Usuario, UsuarioRol, AsignacionLote, Asignaci
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--usuario", type=uuid.UUID, required=True, help="UUID sub de Supabase o usuario local")
 parser.add_argument("--nombre")
-parser.add_argument("--rol", choices=["PRODUCTOR", "TECNICO", "ADMINISTRADOR"])
+parser.add_argument("--rol", choices=["PRODUCTOR", "TECNICO", "ADMINISTRADOR", "INGENIERO_CONOCIMIENTO"])
 parser.add_argument("--lote", type=uuid.UUID)
 parser.add_argument("--almacen", type=uuid.UUID)
 parser.add_argument("--responsable", type=uuid.UUID, help="Usuario administrador que autoriza la asignación")

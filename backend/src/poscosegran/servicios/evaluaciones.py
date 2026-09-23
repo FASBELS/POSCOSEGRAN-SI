@@ -32,6 +32,7 @@ from ..db.modelos import (
     VersionConocimiento,
 )
 from ..dominio import motor
+from ..sistema_experto import serializacion
 from ..dominio.hechos import (
     Controles,
     Dictamen,
@@ -301,6 +302,10 @@ def persistir(
     calculos = resultado.calculos
     efectiva = entrada.model_dump(mode="json")
     efectiva["_instantanea"] = jsonable_encoder(instantanea, custom_encoder={Decimal: str})
+    # Base de hechos iniciales en forma reproducible y huella de la base usada:
+    # permiten explicar y volver a evaluar esta decisión con la misma versión.
+    efectiva["_hechos_iniciales"] = serializacion.a_json(instantanea)
+    efectiva["_hash_base"] = resultado.hash_base
     efectiva["_observaciones_aplicadas"] = [
         obs.a_validada(fila).model_copy(update={"procedencia":
             "ACTUAL" if sa.inspect(fila).transient else "HISTORICA"}).model_dump(mode="json")

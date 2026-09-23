@@ -2,7 +2,7 @@
 # Generado por scripts/transcribir_base.py. No editar a mano: regenerar.
 version_base: "2.0"
 version_parametros: "1.0"
-version_motor: "0.7.0"
+version_motor: "0.8.0"
 
 fuentes:
   - id: "S01"

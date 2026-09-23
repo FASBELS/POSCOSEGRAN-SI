@@ -167,7 +167,9 @@ def registrar_control(
         dias_previstos_restantes=None, fecha_salida_prevista=None)
     instantanea, _ = evaluaciones.construir_instantanea(sesion, unidad=unidad, almacen=almacen,
         entrada=comando, filas_actuales=filas_obs, ahora=datetime.now(UTC))
-    evaluaciones.sincronizar_incidencias(sesion, id_unidad, motor.evaluar(instantanea), None)
+    from ...servicios import conocimiento as servicio_conocimiento
+    _, base = servicio_conocimiento.base_activa(sesion)
+    evaluaciones.sincronizar_incidencias(sesion, id_unidad, motor.evaluar(instantanea, base), None)
     sesion.add_all(filas_obs)
 
     salida = _control(fila)

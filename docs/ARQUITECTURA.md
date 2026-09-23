@@ -1,5 +1,9 @@
 # Arquitectura e integración
 
+Este documento describe la arquitectura web. La arquitectura del **sistema experto**
+(base de conocimiento, base de hechos, motor, explicación y adquisición) está en
+[`ARQUITECTURA_SE.md`](ARQUITECTURA_SE.md).
+
 ```mermaid
 flowchart LR
     U[React / Vite / TanStack Router] --> Q[TanStack Query y cliente tipado]
@@ -7,9 +11,9 @@ flowchart LR
     S[Supabase Auth o acceso local] --> Q
     A --> P[PostgreSQL: historial y auditoría]
     A --> I[Construcción de instantánea efectiva]
-    I --> M[Motor puro: lógica ternaria y R01–R30]
+    I --> M[Motor de inferencia genérico: lógica ternaria]
     M --> A
-    K[Documento 2.0 / catálogo versionado] --> I
+    K[Base de conocimiento versionada<br/>version_conocimiento.contenido] --> M
 ```
 
 Se conserva React/Vite y el lenguaje visual de Figma. Se incorporan rutas, datos reales, estados de carga/error y captura guiada. No se realizó la migración a TanStack Start/SSR sugerida en la guía: esta aplicación autenticada funciona como SPA, servida por Vite en desarrollo o Nginx en contenedor. No se afirma identidad visual píxel por píxel con el ZIP original.

@@ -12,7 +12,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 
-from .parametros import PARAMETROS, Parametros
 from .valores import Conjunto, Evidencia, Tri
 
 
@@ -134,7 +133,6 @@ class Instantanea:
     temperatura_ambiente_maxima_intervalo: Decimal | None = None
     datos_inconsistentes: tuple[str, ...] = ()
 
-    parametros: Parametros = PARAMETROS
     version_base: str = "2.0"
 
     @property

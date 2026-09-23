@@ -129,3 +129,24 @@ a { color:#245c3e; text-decoration:underline; }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none !important; scroll-behavior:auto !important; } }
 
 .form-grid { align-items: start; }
+
+/* Sistema experto: explicación, "¿por qué se pide?" y adquisición */
+.decision .codigo { font-size:12px; letter-spacing:.04em; opacity:.7; }
+.nota-prototipo { font-size:13px; padding:10px 14px; border-left:3px solid #E5A93C; background:#fffaf0; border-radius:6px; }
+.cadena { list-style:none; margin:0; padding:0; counter-reset:paso; }
+.cadena li { position:relative; padding:10px 12px 10px 44px; border-left:2px solid #cfdcd3; margin-left:14px; }
+.cadena li::before { counter-increment:paso; content:counter(paso); position:absolute; left:-14px; top:10px; width:26px; height:26px; border-radius:50%; background:#1B3B2B; color:#fff; font-size:12px; display:grid; place-items:center; }
+.cadena li.decision-final::before { background:#E5A93C; color:#1B3B2B; content:"✓"; }
+.cadena small { display:block; color:#5f6b63; }
+.falta { color:#8a4b12; }
+.why { font-size:12px; margin-top:4px; }
+.why summary { cursor:pointer; color:#2f6f4f; }
+.why p { margin:4px 0 0; color:#5f6b63; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chip { font-size:12px; padding:2px 8px; border-radius:999px; background:#eef3ef; border:1px solid #d3e0d7; }
+.chip.cambio { background:#fdf3e0; border-color:#ead4a6; }
+.parametros td input { width:7em; }
+.parametros tr.modificado { background:#fffaf0; }
+.aviso { padding:10px 14px; border-radius:8px; background:#fff0ed; border:1px solid #e5b7b0; }
+.filtros { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
+.filtros .field { min-width:180px; }

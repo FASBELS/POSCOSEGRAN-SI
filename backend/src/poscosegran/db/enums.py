@@ -9,7 +9,10 @@ from __future__ import annotations
 
 from typing import Final
 
-ROL: Final = ("PRODUCTOR", "TECNICO", "ADMINISTRADOR")
+# INGENIERO_CONOCIMIENTO se añadió en la migración 0003: opera el módulo de adquisición.
+ROL: Final = ("PRODUCTOR", "TECNICO", "ADMINISTRADOR", "INGENIERO_CONOCIMIENTO")
+# Ciclo de vida de una versión de la base de conocimiento (migración 0003).
+ESTADO_VERSION: Final = ("PROPUESTA", "ACTIVADA", "DESCARTADA")
 FASE: Final = ("INGRESO", "SEGUIMIENTO")
 MODALIDAD: Final = ("HERMETICO", "NO_HERMETICO")
 VARIEDAD: Final = ("MAIZ_CHULPI",)

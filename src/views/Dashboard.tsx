@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { list, request, write, nombre, fecha, type Schema, type Unidad } from '../api/client'
+import { list, request, write, nombre, fecha, NOTA_PROTOTIPO, type Schema, type Unidad } from '../api/client'
 import Panel, { Empty, ErrorMessage, Field, Loading } from '../components/Shared'
 import { useAppNavigate } from '../App'
 
@@ -32,7 +32,7 @@ export default function Dashboard() {
   if (data.isLoading) return <Loading />
   if (!data.data) return <ErrorMessage error={data.error} />
   const d = data.data
-  return <div className="stack"><div className="page-heading"><div><p className="eyebrow">Control del almacenamiento</p><h1>Inicio</h1><p className="muted">Tus unidades, sus condiciones y el próximo paso.</p></div>
+  return <div className="stack"><div className="page-heading"><div><p className="eyebrow">Control del almacenamiento</p><h1>Inicio</h1><p className="muted">Tus unidades, sus condiciones y el próximo paso.</p><p className="nota-prototipo">{NOTA_PROTOTIPO}</p></div>
     <button className="primary" onClick={() => setShow(!show)}>{show ? 'Cerrar registro' : 'Registrar unidad'}</button></div>
     <div className="metrics"><Panel><span>Unidades registradas</span><strong>{d.inicio.unidades_total}</strong></Panel><Panel><span>Cuarentenas abiertas</span><strong>{d.inicio.cuarentenas_abiertas}</strong></Panel><Panel><span>Correcciones pendientes</span><strong>{d.inicio.correcciones_pendientes}</strong></Panel></div>
     <ErrorMessage error={error || data.error} />

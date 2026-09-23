@@ -54,3 +54,42 @@ El mismo recorrido se ejecutó contra el stack Docker en `http://localhost:8080`
 ## Límites
 
 No se verificó Supabase real porque aún no existe el proyecto, ni un despliegue público, carga sostenida o recuperación del proveedor. La validación técnica no sustituye la revisión del conocimiento por especialistas del dominio. La base restaurada de esta revisión se llama `poscosegran_revision_restore_20260916`; se conserva separada del original.
+
+## Revisión del sistema experto (23 de septiembre de 2026)
+
+Ejecutada en un entorno sin red, sin PostgreSQL y sin dependencias de Node. Se
+distingue lo que se ejecutó de lo que queda por ejecutar.
+
+**Ejecutado**
+
+| Comprobación | Resultado |
+| --- | --- |
+| C01–C40 con el motor genérico (`tests/casos/test_aceptacion.py`) | 65 asertos aprobados |
+| Arquitectura del sistema experto (`tests/test_base_conocimiento.py`) | 31 pruebas aprobadas |
+| Regresión de historial sin base de datos | Aprobada |
+| Equivalencia con el motor anterior: 67 instantáneas de prueba | 0 diferencias |
+| Equivalencia con el motor anterior: 48 000 casos aleatorios en modo intenso, suave y dirigido | 0 diferencias en 12 dimensiones |
+| Casos de referencia (`knowledge/casos_referencia.json`) reproducidos desde el archivo | 242 de 242 |
+| Compilación de todo el backend, migraciones, scripts y pruebas | Correcta |
+| Referencias del backend al contrato (`api.X`) e importaciones internas | Sin referencias rotas |
+| TypeScript con dependencias simuladas: propiedades del contrato usadas por las vistas nuevas | Sin errores |
+
+**Pendiente de ejecutar en el entorno completo**
+
+```powershell
+cd backend
+.venv/Scripts/python.exe -m pytest                 # suite completa con PostgreSQL
+.venv/Scripts/python.exe -m alembic upgrade head   # incluye 0003_sistema_experto
+.venv/Scripts/python.exe -m alembic check          # debe salir limpio
+.venv/Scripts/python.exe -m mypy src
+.venv/Scripts/python.exe -m ruff check src tests scripts
+.venv/Scripts/python.exe scripts/exportar_contrato.py
+cd ..
+pnpm.cmd api:types; pnpm.cmd typecheck; pnpm.cmd lint; pnpm.cmd build
+pnpm.cmd exec playwright test
+```
+
+Tras `api:types`, `src/api/contrato.ts` debe quedar igual que la versión escrita a
+mano en esta revisión, salvo el orden de los esquemas. El recorrido de Playwright
+se actualizó: el encabezado de la decisión es ahora la etiqueta oficial *Separar y
+solicitar evaluación técnica*.

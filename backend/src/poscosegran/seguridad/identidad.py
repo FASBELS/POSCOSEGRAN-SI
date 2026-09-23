@@ -28,3 +28,8 @@ class Identidad:
     @property
     def es_administrador(self) -> bool:
         return "ADMINISTRADOR" in self.roles
+
+    @property
+    def es_ingeniero_conocimiento(self) -> bool:
+        """Propone y activa versiones de la base; no evalúa unidades por ese rol."""
+        return "INGENIERO_CONOCIMIENTO" in self.roles

@@ -15,23 +15,14 @@ from ...esquemas import contrato as api
 from ...seguridad.dependencias import IdentidadDep, SesionDep
 from ...seguridad.permisos import RecursoInaccesible, exigir_acceso_unidad
 from ...servicios import auditoria, concurrencia, evaluaciones, observaciones, presentacion
+from ...servicios import conocimiento as servicio_conocimiento
+from ...sistema_experto import serializacion
+from ...sistema_experto.explicacion import explicar
 from ...servicios import vigencia as servicio_vigencia
 from .. import paginacion
 from ..dependencias import ClaveIdempotencia, IfMatch, IfNoneMatch, completar, etiquetar, reservar
 
 enrutador = APIRouter(prefix="/api/v1", tags=["evaluacion"])
-
-
-def _version_activa(sesion: SesionDep) -> VersionConocimiento:
-    version = sesion.scalar(
-        sa.select(VersionConocimiento).where(VersionConocimiento.activa.is_(True))
-    )
-    if version is None:
-        raise HTTPException(503,
-            "no hay una versión de la base de conocimiento activa: cargue el catálogo "
-            "antes de evaluar"
-        )
-    return version
 
 
 @enrutador.get("/unidades/{id_unidad}/borrador", response_model=api.Borrador)
@@ -155,7 +146,7 @@ def evaluar(
     unidad = sesion.get(Unidad, id_unidad, with_for_update=True)
     almacen = sesion.get(Almacen, ambito.id_almacen)
     assert unidad is not None and almacen is not None
-    version = _version_activa(sesion)
+    version, base = servicio_conocimiento.base_activa(sesion)
 
     filas = [
         observaciones.a_fila(
@@ -169,7 +160,7 @@ def evaluar(
     instantanea, aplicadas = evaluaciones.construir_instantanea(
         sesion, unidad=unidad, almacen=almacen, entrada=entrada, filas_actuales=filas, ahora=ahora
     )
-    resultado = motor.evaluar(instantanea)
+    resultado = motor.evaluar(instantanea, base)
     # Una nueva declaración no puede borrar consumo documentado anteriormente.
     from dataclasses import replace
     previa = sesion.get(Evaluacion, unidad.id_evaluacion_actual) if unidad.id_evaluacion_actual else None
@@ -177,7 +168,7 @@ def evaluar(
         instantanea = replace(instantanea, historial=replace(instantanea.historial,
             vida_previa_documentada=previa.vida_minima_documentada, intervalos=()),
             datos_inconsistentes=(*instantanea.datos_inconsistentes, "vida_previa_menor_al_historial_persistido"))
-        resultado = motor.evaluar(instantanea)
+        resultado = motor.evaluar(instantanea, base)
 
     unidad.revision += 1
     fila_evaluacion = evaluaciones.persistir(
@@ -295,3 +286,56 @@ def consultar_vigencia(
 ) -> api.Vigencia:
     exigir_acceso_unidad(sesion, identidad, id_unidad)
     return servicio_vigencia.calcular(sesion, id_unidad)
+
+
+@enrutador.get("/evaluaciones/{id_evaluacion}/explicacion", response_model=api.Explicacion)
+def explicacion(id_evaluacion: uuid.UUID, sesion: SesionDep, identidad: IdentidadDep) -> api.Explicacion:
+    """Módulo de explicación: ¿cómo se llegó a la decisión y qué faltó para autorizar?
+
+    Se reproduce la evaluación con los hechos iniciales guardados y la versión exacta
+    de la base con que se emitió. El motor es determinista y el reloj forma parte de
+    los hechos, así que la traza es la de la evaluación original; si la decisión
+    reproducida no coincide con la guardada, se rechaza en lugar de explicar otra cosa.
+    """
+    fila = sesion.get(Evaluacion, id_evaluacion)
+    if fila is None:
+        raise RecursoInaccesible(str(id_evaluacion))
+    exigir_acceso_unidad(sesion, identidad, fila.id_unidad)
+    hechos = (fila.entrada_efectiva or {}).get("_hechos_iniciales")
+    version = sesion.get(VersionConocimiento, fila.id_version_conocimiento)
+    if hechos is None or version is None:
+        raise HTTPException(
+            409, "evaluación emitida antes de que el motor guardara sus hechos iniciales: no tiene traza reproducible"
+        )
+    base = servicio_conocimiento.base_de(version)
+    resultado = motor.evaluar(serializacion.desde_json(hechos), base)
+    if (resultado.decision_final, resultado.rama_r30) != (fila.decision_final, fila.rama_r30):
+        raise HTTPException(409, "la evaluación no se reproduce con su versión de la base: revise la integridad del registro")
+    e = explicar(resultado, base)
+
+    def paso(p) -> api.PasoExplicacion:  # type: ignore[no-untyped-def]
+        return api.PasoExplicacion(
+            orden=p.orden, regla=p.regla, etapa=p.etapa, pasada=p.pasada, conclusion=p.conclusion,
+            solicitudes=list(p.solicitudes), porque=list(p.porque), antecedente=p.antecedente,
+        )
+
+    def rama(r) -> api.RamaExplicada:  # type: ignore[no-untyped-def]
+        return api.RamaExplicada(rama=r.rama, decision=r.decision, aplicada=r.aplicada, valor=r.valor, faltan=list(r.faltan))
+
+    return api.Explicacion(
+        id_evaluacion=fila.id,
+        decision=e.decision,
+        etiqueta=e.etiqueta,
+        rama=e.rama,
+        resumen=e.resumen,
+        cadena=[paso(p) for p in e.cadena],
+        traza_completa=[paso(p) for p in e.traza_completa],
+        ramas=[rama(r) for r in e.ramas],
+        por_que_no=[rama(r) for r in e.por_que_no],
+        hechos_iniciales=[api.HechoInicial(campo=c, valor=v, procedencia=p) for c, v, p in e.hechos_iniciales],
+        hechos_inferidos=list(e.hechos_inferidos),
+        no_aplicables=list(e.no_aplicables),
+        version_base=base.version_base,
+        version_parametros=base.version_parametros,
+        hash_base=base.hash,
+    )

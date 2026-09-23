@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { list, request, write, revisiones, fecha, nombre, type Schema, type Unidad, type Resultado } from '../api/client'
+import { list, request, write, revisiones, fecha, nombre, decision, type Schema, type Unidad, type Resultado } from '../api/client'
 import Panel, { Empty, ErrorMessage, Field, Loading } from '../components/Shared'
 import Captura, { ahoraLocal, convertir, type CapturaDatos } from '../components/Captura'
 import { useAppNavigate, useId } from '../App'
@@ -74,7 +74,7 @@ function Detalle({ id }: { id: string }) {
     </div>{action === 'controles' && <><p>Registra los campos inspeccionados. El servidor identifica si el control está completo. En hermético usa el control exterior sin abrir rutinariamente.</p><Captura datos={datos} onChange={setDatos} /></>}
     <button className="primary" disabled={busy || (action === 'admisiones' && d.vigencia.estado !== 'VIGENTE')}>{busy ? 'Guardando…' : 'Guardar actuación'}</button></form></Panel>}
     <Panel title="Incidencias">{d.incidencias.length ? d.incidencias.map(i => <div key={i.id} className="reason"><strong>{nombre(i.tipo)} · {nombre(i.estado)}</strong><p>{i.causas.join(', ')} · {fecha(i.creada_en)}</p><IncidenciaHistorial id={i.id} /></div>) : <Empty>No hay incidencias registradas.</Empty>}</Panel>
-    <Panel title="Historial de evaluaciones">{d.historial.length ? d.historial.map(r => <div className="row" key={r.evaluacion.id}><div><strong>{nombre(r.evaluacion.decision_final)}</strong><small>{fecha(r.evaluacion.fecha_evaluacion)} · {nombre(r.vigencia.estado)}</small></div><button onClick={() => navigate('resultado',r.evaluacion.id)}>Ver explicación</button></div>) : <Empty>No hay evaluaciones registradas.</Empty>}</Panel>
+    <Panel title="Historial de evaluaciones">{d.historial.length ? d.historial.map(r => <div className="row" key={r.evaluacion.id}><div><strong>{decision(r.evaluacion.decision_final)}</strong><small>{fecha(r.evaluacion.fecha_evaluacion)} · {nombre(r.vigencia.estado)}</small></div><button onClick={() => navigate('resultado',r.evaluacion.id)}>Ver explicación</button></div>) : <Empty>No hay evaluaciones registradas.</Empty>}</Panel>
     <Panel title="Controles">{d.controles.length ? d.controles.map(c => <div className="row" key={c.id}><span>{nombre(c.tipo)} · {fecha(c.fecha)}<small>{c.completo ? 'Completo' : `Parcial: ${c.campos_pendientes.map(nombre).join(', ')}`}</small></span><p>{c.evidencia}</p></div>) : <Empty>No hay controles.</Empty>}</Panel>
     <Panel title="Planes de monitoreo">{d.planes.map(p => <div className="row" key={p.id}><p>{p.actividades}<small>{p.vigente ? 'Activo' : 'Sustituido'} · cada {p.intervalo_dias} días · control {fecha(p.fecha_proximo_control)}</small></p></div>)}{!d.planes.length && <Empty>No hay planes.</Empty>}</Panel>
     <Panel title="Dictámenes técnicos">{d.dictamenes.map(d => <div className="row" key={d.id}><p>{d.condiciones}<small>{d.humedad_min}–{d.humedad_max} % · plazo {d.plazo_maximo_dias} días · vence {fecha(d.vence_en)} · {d.vigente ? 'Vigente' : 'Vencido'}</small></p></div>)}{!d.dictamenes.length && <Empty>No hay dictámenes.</Empty>}</Panel>

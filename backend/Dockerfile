@@ -13,6 +13,8 @@ COPY backend/migrations ./migrations
 COPY backend/alembic.ini ./
 COPY backend/scripts ./scripts
 COPY knowledge /knowledge
+# Semilla de la base de conocimiento y casos de referencia del módulo de adquisición.
+ENV POSCOSEGRAN_KNOWLEDGE=/knowledge
 
 RUN useradd --create-home --uid 10001 aplicacion && chown -R aplicacion:aplicacion /app
 USER aplicacion

@@ -18,6 +18,15 @@ USUARIOS = {
     "productor": uuid.UUID("00000000-0000-4000-8000-000000000001"),
     "tecnico": uuid.UUID("00000000-0000-4000-8000-000000000002"),
     "administrador": uuid.UUID("00000000-0000-4000-8000-000000000003"),
+    "ingeniero": uuid.UUID("00000000-0000-4000-8000-000000000004"),
+}
+
+# Rol de cada usuario local; el nombre de usuario no siempre coincide con el rol.
+ROLES_LOCALES = {
+    "productor": "PRODUCTOR",
+    "tecnico": "TECNICO",
+    "administrador": "ADMINISTRADOR",
+    "ingeniero": "INGENIERO_CONOCIMIENTO",
 }
 
 

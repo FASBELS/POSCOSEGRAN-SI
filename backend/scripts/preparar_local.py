@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
-from poscosegran.api.local import USUARIOS
+from poscosegran.api.local import ROLES_LOCALES, USUARIOS
 from poscosegran.db.modelos import Usuario, UsuarioRol
 from poscosegran.config import obtener_configuracion
 from poscosegran.conocimiento.cargar import cargar
@@ -59,18 +59,22 @@ with Session(admin) as db, db.begin():
         if db.get(Usuario, identificador) is None:
             db.add(Usuario(id=identificador, nombre=f"{nombre.capitalize()} local"))
             db.flush()
-            db.add(UsuarioRol(id_usuario=identificador, rol=nombre.upper(), otorgado_por="preparar_local.py"))
-# Carga administrativa: la API solo necesita leer el catálogo.
+            db.add(UsuarioRol(id_usuario=identificador, rol=ROLES_LOCALES[nombre], otorgado_por="preparar_local.py"))
+# Carga administrativa de la semilla de knowledge/.
 os.environ["POSCOSEGRAN_BD_URL_APP"] = str(admin.url.render_as_string(hide_password=False))
 obtener_configuracion.cache_clear()
-print(cargar(BACKEND.parent / "knowledge/catalogo.yaml", activar=True, notas="Desarrollo local"))
+print(cargar(BACKEND.parent / "knowledge", activar=True, notas="Desarrollo local"))
 with admin.begin() as conn:
     conn.exec_driver_sql("GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA poscosegran TO poscosegran_app")
     conn.exec_driver_sql("GRANT DELETE ON poscosegran.borrador, poscosegran.idempotencia TO poscosegran_app")
     conn.exec_driver_sql("REVOKE INSERT, UPDATE ON poscosegran.usuario, poscosegran.usuario_rol, poscosegran.asignacion_lote, poscosegran.asignacion_almacen, poscosegran.version_conocimiento, poscosegran.regla, poscosegran.fuente FROM poscosegran_app")
+    # Módulo de adquisición: la API registra versiones nuevas y cambia cuál está
+    # activa, pero no puede reescribir el contenido de una versión existente.
+    conn.exec_driver_sql("GRANT INSERT ON poscosegran.version_conocimiento, poscosegran.regla, poscosegran.fuente TO poscosegran_app")
+    conn.exec_driver_sql("GRANT UPDATE (activa, estado, activada_en, activada_por) ON poscosegran.version_conocimiento TO poscosegran_app")
 frontend = BACKEND.parent / ".env.local"
 if not argumentos.contenedor and not frontend.exists():
     frontend.write_text("VITE_AUTH_MODE=local\nVITE_API_URL=/api/v1\n", encoding="utf-8")
-print("Entorno listo. Usuarios: productor / tecnico / administrador.")
+print("Entorno listo. Usuarios: productor / tecnico / administrador / ingeniero.")
 if not argumentos.contenedor:
     print("Contraseña local: consulte POSCOSEGRAN_AUTH_LOCAL_PASSWORD en backend/.env.")

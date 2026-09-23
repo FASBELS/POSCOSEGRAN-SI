@@ -1,31 +1,44 @@
 # Motor de inferencia
 
-Etapa 7. Encadenamiento hacia adelante sobre la base 2.0, determinista y sin
-estado compartido entre evaluaciones.
+Encadenamiento hacia adelante sobre la base 2.0, determinista y sin estado
+compartido entre evaluaciones. Motor 0.8.0: genérico, con la base como datos.
 
 ## Forma
 
-El motor es una función pura: recibe una `Instantanea` y devuelve un
-`Resultado`. No abre la base de datos ni el reloj del sistema. Eso permite
-ejecutar los 40 casos de aceptación sin PostgreSQL y garantiza que el resultado
-dependa solo de los hechos declarados, no del orden en que llegaron.
+Desde la versión 0.8.0 el motor es **genérico**: no contiene reglas, umbrales ni
+prioridades del dominio. Interpreta la base de conocimiento que recibe. La
+arquitectura completa, con el diagrama de componentes, está en
+[`ARQUITECTURA_SE.md`](ARQUITECTURA_SE.md).
 
 ```
+knowledge/
+  base_conocimiento.yaml  reglas SI–ENTONCES, parámetros, definiciones, tabla,
+                          datos exigibles, resolución R30 y restricciones
+  catalogo.yaml           texto documental de cada regla (transcrito del documento 2.0)
+  casos_referencia.json   242 casos congelados: regresión e impacto de cambios
+
+poscosegran/sistema_experto/
+  base_conocimiento.py    carga, validación, consulta y huella de la base
+  base_hechos.py          hechos iniciales, hechos inferidos y traza
+  lenguaje.py             evaluador de condiciones en lógica de tres estados
+  calculos.py             procedimientos invocables: tiempo, tabla, plazos, fechas
+  motor.py                ciclo reconocer–actuar y resolución por prioridad
+  explicacion.py          ¿cómo?, ¿por qué no?, ¿por qué se pide?
+  adquisicion.py          propuesta, validación e impacto de nuevas versiones
+  serializacion.py        hechos iniciales a JSON y de vuelta
+
 poscosegran/dominio/
-  valores.py         lógica de tres estados y acceso a datos
-  campos.py          campos capturables con su tipo, unidad y paso
-  parametros.py      parámetros de la sección 3.1
-  tablas.py          tabla de tiempo y selección determinista
-  comprobaciones.py  hechos favorables explícitos de la sección 3.2
-  reglas.py          R01–R26 declarativas
-  tiempo.py          vida consumida, proyección y plazo compatible
-  resolucion.py      riesgo, plazos de control, R27–R29
-  motor.py           ciclo de la sección 8 y tabla R30
-  catalogo.py        fuentes y naturaleza del fundamento por regla
+  valores.py, campos.py, hechos.py   tipos del dominio y lógica de tres estados
+  motor.py                           punto de entrada: evaluar(instantánea, base)
 ```
 
-No hay `eval` ni un lenguaje de reglas propio: cada antecedente es código Python
-que se lee junto a su fila de la sección 4.
+El motor es una función pura: recibe una `Instantanea` y una `BaseConocimiento` y
+devuelve un `Resultado`. No abre la base de datos ni el reloj del sistema. En
+producción el servicio pasa la versión activa guardada en la base de datos; en las
+pruebas se usa la de los archivos de `knowledge/`.
+
+No hay `eval`: el lenguaje de condiciones es cerrado y cada operador tiene una
+implementación explícita.
 
 ## Lógica de tres estados
 
@@ -40,23 +53,28 @@ desconocido en verdadero.
 
 ## Ciclo
 
-1. Validar: unidades, dominios, fechas no futuras y contradicciones de la sección
-   2.3. Un dato fuera de dominio se conserva como inválido, produce corrección y
-   no participa en comparaciones.
-2. Construir las comprobaciones auxiliares: `medicion_confirmada`,
-   `integridad_hermetica_verificada` y la temperatura aplicable.
-3. Ejecutar R01–R26 hasta punto fijo. El recorrido se repite completo para que un
-   hecho tardío active una regla ya evaluada: es lo que permite que R20 dispare
-   R19 aunque R19 se haya evaluado antes. Si en una pasada no aparece ningún
-   hallazgo nuevo, termina; si no converge en doce pasadas, falla en voz alta en
-   lugar de devolver un resultado a medias.
-4. Calcular el historial de vida y aplicar R28–R29, después el riesgo activo.
-5. Calcular los plazos de control de la sección 5 y aplicar R27.
-6. Consolidar las cinco solicitudes de la sección 7.1.
-7. Resolver R30 una sola vez con la tabla ordenada.
+Las etapas se declaran en la base (`etapas:`); el motor las recorre en orden:
 
-La refracción funciona por hallazgo: registrar dos veces el mismo hecho no
-duplica motivos ni tareas.
+1. **Validación.** Datos inválidos o vencidos, contradicciones de la sección 2.3 y
+   las detectadas al consolidar el historial.
+2. **Encadenamiento.** R01–R26 hasta punto fijo. Un hecho tardío activa una regla
+   ya evaluada: R20 dispara R19 en la pasada siguiente.
+3. **Tiempo.** Vida consumida y proyectada, R29 y después R28.
+4. **Control.** Plazos de la sección 5, acortados con riesgo activo o desconocido, y R27.
+5. **Consolidación.** Solicitudes de la sección 7.1: plazo incompatible, estimación
+   hermética, banda condicional, incidencias abiertas, plan de monitoreo ausente,
+   fase desconocida con suspensión.
+
+Después se calculan los datos exigibles que siguen desconocidos y se resuelve R30
+una sola vez.
+
+**Refracción.** Cada regla de producción se dispara como mucho una vez por
+evaluación. Toda pasada que no alcanza el punto fijo dispara al menos una regla
+nueva, así que cada etapa termina en, como mucho, tantas pasadas como reglas tiene.
+
+**Traza.** Cada disparo registra orden, etapa, pasada, regla, conclusión,
+solicitudes y soportes: las condiciones concretas que lo hicieron verdadero. El
+módulo de explicación la usa para responder "¿cómo?".
 
 ## Decisión
 

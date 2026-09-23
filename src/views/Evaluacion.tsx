@@ -2,10 +2,19 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ApiError, list, request, write, revisiones, type Unidad, type EvaluacionEntrada, type Resultado, type Schema } from '../api/client'
 import Panel, { ErrorMessage, Field, Loading } from '../components/Shared'
-import Captura, { convertir, desdeObservaciones, fechaLocal, type CapturaDatos } from '../components/Captura'
+import Captura, { convertir, desdeObservaciones, etiqueta, fechaLocal, type CapturaDatos } from '../components/Captura'
+import campos from '../campos.json'
 import { useAppNavigate, useId } from '../App'
 import EditarUnidad from '../components/EditarUnidad'
 
+const textoCaptura = { APORTADO: 'Aportado', DESCONOCIDO: 'No se sabe', NO_APLICA: 'No aplica' } as const
+function mostrar(campo: string, v: CapturaDatos[string]) {
+  if (v.captura !== 'APORTADO') return v.captura === 'NO_APLICA' && v.causa ? `No aplica (${v.causa})` : textoCaptura[v.captura]
+  const def = campos[campo as keyof typeof campos]
+  if (def?.tipo === 'B') return v.valor === 'true' ? 'Sí' : 'No'
+  if (def?.tipo === 'F') return new Date(v.valor).toLocaleString('es-PE', { timeZone: 'America/Lima' })
+  return `${v.valor}${def?.tipo === 'N' && def.unidad ? ' ' + ({ PCT_BH: '% b.h.', PCT_HR: '% HR', PCT_MASA: '% masa', CELSIUS: '°C', METROS: 'm', DIAS: 'días', FRACCION: '' } as Record<string, string>)[def.unidad] : ''}`
+}
 const steps = ['Identificación', 'Mediciones', 'Inspección biológica', 'Recipiente y almacén', 'Historial y plan', 'Revisión final']
 const blank = () => ({ datos: {} as CapturaDatos, fase: '' as '' | 'INGRESO' | 'SEGUIMIENTO', dias: '', salida: '', inicio: '', vida: '', evidencia: '', intervalos: [] as { inicio: string; fin: string; humedad: string; temperatura: string; metodo: string; evidencia: string }[] })
 export default function Evaluacion() {
@@ -71,7 +80,7 @@ function Formulario({ id }: { id: string }) {
         <Field label="Inicio del historial"><input type="datetime-local" value={form.inicio.slice(0,16)} onChange={e => set('inicio', e.target.value)} /></Field><Field label="Vida previa documentada (fracción)"><input inputMode="decimal" value={form.vida} onChange={e => set('vida', e.target.value)} /></Field><Field label="Evidencia de la vida previa"><input value={form.evidencia} onChange={e => set('evidencia', e.target.value)} /></Field><Field label="Días previstos restantes"><input inputMode="numeric" value={form.dias} onChange={e => set('dias', e.target.value)} /></Field><Field label="Salida prevista"><input type="datetime-local" value={form.salida.slice(0,16)} onChange={e => set('salida', e.target.value)} /></Field></div>
         <h3>Intervalos del historial</h3>{form.intervalos.map((item, i) => <div className="panel form-grid" key={i}>{Object.entries(item).map(([k, v]) => <Field key={k} label={`${k} · intervalo ${i + 1}`}><input type={k === 'inicio' || k === 'fin' ? 'datetime-local' : 'text'} value={v} onChange={e => setForm(f => ({ ...f, intervalos: f.intervalos.map((it, n) => n === i ? { ...it, [k]: e.target.value } : it) }))} /></Field>)}<button onClick={() => setForm(f => ({ ...f, intervalos: f.intervalos.filter((_, n) => n !== i) }))}>Quitar intervalo</button></div>)}
         <button onClick={() => setForm(f => ({ ...f, intervalos: [...f.intervalos, { inicio: '', fin: '', humedad: '', temperatura: '', metodo: '', evidencia: '' }] }))}>Añadir intervalo</button><p>Los planes de monitoreo y dictámenes se registran desde Seguimiento.</p></div>}
-      {step === 6 && <><p>{Object.values(form.datos).filter(d => d.captura === 'APORTADO').length} observaciones aportadas. Los campos omitidos permanecen desconocidos o conservan su dato histórico identificado por el servidor.</p><div className="review-list">{Object.entries(form.datos).map(([k,v]) => <p key={k}><strong>{k.replaceAll('_', ' ')}:</strong> {v.captura === 'APORTADO' ? v.valor : v.captura}</p>)}</div><p>La decisión y su vigencia se calcularán en el servidor.</p></>}
+      {step === 6 && <><p>{Object.values(form.datos).filter(d => d.captura === 'APORTADO').length} observaciones aportadas. Los campos omitidos permanecen desconocidos o conservan su dato histórico identificado por el servidor.</p><div className="review-list">{Object.entries(form.datos).map(([k,v]) => <p key={k}><strong>{etiqueta(k)}:</strong> {mostrar(k, v)}</p>)}</div><p>La decisión y su vigencia se calcularán en el servidor.</p></>}
     </Panel><div className="actions sticky-actions"><button disabled={step === 1} onClick={() => setStep(s => s - 1)}>Anterior</button>{step < 6 && <button onClick={() => setStep(s => s + 1)}>Siguiente</button>}<button className="primary" disabled={busy || !unidad.data} onClick={() => void submit(false)}>{busy ? 'Guardando…' : 'Enviar y evaluar'}</button></div>
   </div>
 }

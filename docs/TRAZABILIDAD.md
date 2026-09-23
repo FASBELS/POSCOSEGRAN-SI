@@ -23,12 +23,15 @@ Una evaluación es una instantánea inmutable. Guarda:
 
 Cambiar un parámetro o corregir el catálogo produce una versión nueva; las
 evaluaciones anteriores siguen apuntando a la suya. Una decisión de marzo se
-puede volver a explicar con los umbrales de marzo.
+puede volver a explicar con los umbrales de marzo: cada evaluación guarda sus
+hechos iniciales y la huella de la base, y `GET /evaluaciones/{id}/explicacion`
+la reproduce con esa versión exacta y reconstruye la cadena de reglas.
 
 ## De la regla a la fuente
 
-`dominio/catalogo.py` asigna a cada regla sus fuentes y la naturaleza de su
-fundamento:
+La sección `fundamentos:` de `knowledge/base_conocimiento.yaml` asigna a cada regla
+sus fuentes y la naturaleza de su fundamento; cada parámetro declara también el
+suyo:
 
 | Fundamento | Significado |
 |---|---|

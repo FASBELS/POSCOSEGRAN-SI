@@ -88,3 +88,46 @@ Controles adversos abren incidencias inmediatamente. Eventos, planes, actuacione
 El borrador del autor se consume dentro de la transacción de evaluación; la evaluación conserva la captura inmutable. La interfaz espera a recuperar el borrador antes de permitir editar y convierte fechas de forma explícita entre UTC y hora local. Las capturas pendientes y las claves de operaciones inciertas se conservan en la pestaña.
 
 Se separan preparación de roles, migraciones y permisos posteriores; la imagen API arranca con cuenta sin DDL. La revisión ahora incluye PostgreSQL real y navegador, superando la validación sintáctica descrita para las etapas anteriores. Los resultados y las limitaciones se registran en PRUEBAS.md.
+
+## Sistema experto: base de conocimiento como datos (septiembre de 2026)
+
+**D-SE-1. Reglas como datos y motor genérico.** El diagrama de arquitectura de la
+asignatura separa base de conocimiento, base de hechos, motor de inferencia,
+módulo de explicación y módulo de adquisición. El motor anterior tenía las reglas
+escritas en Python: no había una base de conocimiento separada ni una vía para
+adquirir conocimiento. Las 30 reglas, sus parámetros, la tabla de tiempo y la
+resolución R30 pasan a `knowledge/base_conocimiento.yaml`, y el motor se reduce a
+un intérprete genérico. Alternativa descartada: sacar solo los umbrales a un
+archivo y dejar las reglas en código, porque seguía mezclando conocimiento y motor.
+
+**D-SE-2. Lenguaje de condiciones cerrado.** Un evaluador con operadores
+explícitos en lugar de `eval` o de un motor externo (CLIPS, Drools, Experta). Da
+control completo sobre la lógica de tres estados y deja cada operador probado. La
+negación se llama `negar` porque YAML 1.1 lee `no:` como `False`.
+
+**D-SE-3. Extensión del contrato del anexo A.** Nuevos endpoints
+`GET /evaluaciones/{id}/explicacion` y `/adquisicion/*`. `Catalogo` añade
+`version_parametros`, `hash_base`, `parametros` y `uso_campos`, todos opcionales
+para no romper clientes. Nuevo rol `INGENIERO_CONOCIMIENTO`.
+
+**D-SE-4. Reproducir en lugar de almacenar la traza.** Cada evaluación guarda sus
+hechos iniciales serializados y la huella de la base en `entrada_efectiva`, que ya
+es inmutable. La explicación se obtiene reevaluando con esa versión: el motor es
+determinista y la fecha forma parte de los hechos. Si la decisión reproducida no
+coincide con la almacenada, se responde 409. Así no hace falta una tabla de trazas.
+
+**D-SE-5. Versiones de conocimiento en la base de datos.** `version_conocimiento`
+guarda el contenido completo y su ciclo de vida (PROPUESTA, ACTIVADA, DESCARTADA).
+La aplicación puede insertar versiones y cambiar cuál está activa (UPDATE
+restringido a `activa`, `estado`, `activada_en`, `activada_por`), pero no reescribir
+el contenido de una versión existente. La migración 0003 es idempotente porque la
+0001 crea el esquema desde los modelos actuales.
+
+**D-SE-6. Impacto antes de activar.** Una propuesta se evalúa contra 242 casos de
+referencia congelados y las últimas 200 evaluaciones con hechos reproducibles. Se
+advierte de toda autorización nueva y de todo cambio de umbral publicado. La
+simulación es síncrona y tarda unos segundos: las propuestas son infrecuentes.
+
+**D-SE-7. Etiquetas oficiales de decisión.** La interfaz muestra las siete
+etiquetas del Prompt 1 ("Separar y solicitar evaluación técnica", etc.). El código
+técnico se conserva en la API y en el fundamento técnico.

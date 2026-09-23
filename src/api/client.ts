@@ -76,3 +76,21 @@ export async function list<T>(path: string): Promise<T[]> {
 export const revisiones = (u: Unidad) => ({ revision_unidad: u.revision, revision_almacen: u.revision_almacen })
 export const fecha = (value: string | null) => value ? new Date(value).toLocaleString('es-PE', { timeZone: 'America/Lima' }) : 'Sin registro'
 export const nombre = (value: string) => value.toLowerCase().replaceAll('_', ' ').replace(/^./, c => c.toUpperCase())
+
+// Etiquetas oficiales de las siete decisiones (Prompt 1). El código técnico se
+// conserva en la API y en la explicación; al usuario se le muestra la etiqueta.
+export const DECISIONES: Record<string, string> = {
+  CUARENTENA: 'Separar y solicitar evaluación técnica',
+  BLOQUEAR_INGRESO: 'Ingreso no autorizado',
+  RETIRAR_LOTE: 'Suspender almacenamiento en las condiciones actuales',
+  CORREGIR_Y_REEVALUAR: 'Corregir y volver a evaluar',
+  SIN_CONCLUSION_AUTOMATICA: 'Faltan datos o revisión',
+  AUTORIZAR_CON_MONITOREO: 'Almacenamiento autorizado con seguimiento reforzado',
+  AUTORIZAR_ALMACENAMIENTO: 'Almacenamiento autorizado con controles ordinarios',
+}
+export const decision = (codigo: string) => DECISIONES[codigo] || nombre(codigo)
+export const tonoDecision = (codigo: string) =>
+  codigo === 'CUARENTENA' || codigo === 'BLOQUEAR_INGRESO' || codigo === 'RETIRAR_LOTE' ? 'danger'
+    : codigo.startsWith('AUTORIZAR') ? 'authorized' : 'warning'
+export const NOTA_PROTOTIPO = 'Prototipo académico. Evalúa condiciones de almacenamiento; no certifica inocuidad ni aptitud para consumo.'
+export const tieneRol = (perfil: Schema['Perfil'] | undefined, rol: string) => !!perfil?.roles.includes(rol as never)

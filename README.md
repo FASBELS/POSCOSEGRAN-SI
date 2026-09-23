@@ -2,6 +2,9 @@
 
 Sistema experto para evaluar condiciones de almacenamiento de maíz chulpi. React + Vite, FastAPI, motor Python y PostgreSQL 16. La interfaz consume la API real; las decisiones, permisos e incidencias se calculan en el servidor.
 
+
+**Sistema experto.** El conocimiento del dominio —las 30 reglas, sus umbrales y la resolución R30— está en [`knowledge/base_conocimiento.yaml`](knowledge/base_conocimiento.yaml), separado de un motor de inferencia genérico, con módulos de explicación y de adquisición. Ver [`docs/ARQUITECTURA_SE.md`](docs/ARQUITECTURA_SE.md).
+
 ## Ejecutar todo con Docker
 
 Solo requiere Docker Desktop. Desde la raíz:
@@ -32,7 +35,7 @@ backend/.venv/Scripts/python.exe backend/scripts/preparar_local.py
 
 Si usas uv: `uv venv backend/.venv --python 3.13` y `uv pip install --python backend/.venv/Scripts/python.exe -e "backend[dev]"`. No recrees el entorno si ya existe.
 
-El preparador aplica migraciones, carga la base 2.0 y crea tres usuarios de desarrollo: `productor`, `tecnico`, `administrador`. La contraseña está en `POSCOSEGRAN_AUTH_LOCAL_PASSWORD` de `backend/.env`; se genera al preparar el entorno y no se publica. Los archivos existentes no se sobrescriben.
+El preparador aplica migraciones, carga la base 2.0 y crea cuatro usuarios de desarrollo: `productor`, `tecnico`, `administrador` e `ingeniero` (ingeniería del conocimiento, para el módulo de adquisición). La contraseña está en `POSCOSEGRAN_AUTH_LOCAL_PASSWORD` de `backend/.env`; se genera al preparar el entorno y no se publica. Los archivos existentes no se sobrescriben.
 
 En dos terminales:
 
@@ -45,7 +48,7 @@ cd backend
 pnpm.cmd dev
 ```
 
-Abre [la aplicación local](http://localhost:8443). API interactiva: [documentación local](http://127.0.0.1:8000/documentacion). El técnico necesita una asignación al lote o almacén para ver sus unidades; el administrador no obtiene acceso general a datos de producción.
+Abre [la aplicación local](http://localhost:8443). API interactiva: [documentación local](http://127.0.0.1:8000/documentacion). El técnico necesita una asignación al lote o almacén para ver sus unidades; el administrador no obtiene acceso general a datos de producción. El ingeniero del conocimiento mantiene la base desde *Adquisición* y tampoco ve unidades.
 
 ## Documentación
 

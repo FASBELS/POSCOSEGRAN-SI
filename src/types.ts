@@ -3,6 +3,9 @@ export type View =
   | 'evaluacion'
   | 'resultado'
   | 'seguimiento'
+  | 'almacenes'
+  | 'revision'
   | 'conocimiento'
+  | 'adquisicion'
   | 'configuracion'
 

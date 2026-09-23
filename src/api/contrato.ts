@@ -616,6 +616,281 @@ export interface components {
             ramas_r30: components["schemas"]["Regla"][];
             /** Fuentes */
             fuentes: components["schemas"]["Fuente"][];
+            /** Version Parametros */
+            version_parametros?: string | null;
+            /** Hash Base */
+            hash_base?: string | null;
+            /** Parametros */
+            parametros?: components["schemas"]["Parametro"][];
+            /**
+             * Uso Campos
+             * @description Para cada campo, las reglas que lo usan: «¿por qué se pide este dato?»
+             */
+            uso_campos?: {
+                [key: string]: string[];
+            };
+        };
+        /** ActivacionEntrada */
+        ActivacionEntrada: {
+            /** Motivo */
+            motivo: string;
+        };
+        /** CambioParametro */
+        CambioParametro: {
+            /** Nombre */
+            nombre: string;
+            /** Anterior */
+            anterior: number;
+            /** Nuevo */
+            nuevo: number;
+            /** Unidad */
+            unidad: string;
+        };
+        /** CambioRegla */
+        CambioRegla: {
+            /** Produccion */
+            produccion: string;
+            /** Regla */
+            regla: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "MODIFICADA" | "NUEVA" | "RETIRADA";
+        };
+        /** CasoAfectado */
+        CasoAfectado: {
+            /** Id */
+            id: string;
+            /** Origen */
+            origen: string;
+            /** Decision Antes */
+            decision_antes: string;
+            /** Decision Despues */
+            decision_despues: string;
+            /** Rama Antes */
+            rama_antes: string;
+            /** Rama Despues */
+            rama_despues: string;
+            /** Reglas Nuevas */
+            reglas_nuevas: string[];
+            /** Reglas Retiradas */
+            reglas_retiradas: string[];
+        };
+        /** DetalleVersion */
+        DetalleVersion: {
+            version: components["schemas"]["VersionConocimientoResumen"];
+            /** Parametros */
+            parametros: components["schemas"]["Parametro"][];
+            /**
+             * Reglas
+             * @description Reglas de producción tal como las ejecuta el motor.
+             */
+            reglas: {
+                [key: string]: unknown;
+            }[];
+            /** Cambios Respecto Origen */
+            cambios_respecto_origen: components["schemas"]["CambioParametro"][];
+        };
+        /** Explicacion */
+        Explicacion: {
+            /**
+             * Id Evaluacion
+             * Format: uuid
+             */
+            id_evaluacion: string;
+            /** Decision */
+            decision: string;
+            /** Etiqueta */
+            etiqueta: string;
+            /** Rama */
+            rama: string;
+            /** Resumen */
+            resumen: string;
+            /**
+             * Cadena
+             * @description ¿Cómo? Reglas que llevaron a la decisión.
+             */
+            cadena: components["schemas"]["PasoExplicacion"][];
+            /** Traza Completa */
+            traza_completa: components["schemas"]["PasoExplicacion"][];
+            /** Ramas */
+            ramas: components["schemas"]["RamaExplicada"][];
+            /**
+             * Por Que No
+             * @description Qué le faltó a cada autorización no concedida.
+             */
+            por_que_no: components["schemas"]["RamaExplicada"][];
+            /** Hechos Iniciales */
+            hechos_iniciales: components["schemas"]["HechoInicial"][];
+            /** Hechos Inferidos */
+            hechos_inferidos: string[];
+            /** No Aplicables */
+            no_aplicables: string[];
+            /** Version Base */
+            version_base: string;
+            /** Version Parametros */
+            version_parametros: string;
+            /** Hash Base */
+            hash_base: string;
+        };
+        /** HechoInicial */
+        HechoInicial: {
+            /** Campo */
+            campo: string;
+            /** Valor */
+            valor: string | number | boolean | null;
+            /** Procedencia */
+            procedencia: string;
+        };
+        /** Impacto */
+        Impacto: {
+            /** Evaluados */
+            evaluados: number;
+            /** Cambian */
+            cambian: number;
+            /** Transiciones */
+            transiciones: {
+                [key: string]: number;
+            };
+            /** Casos */
+            casos: components["schemas"]["CasoAfectado"][];
+            /** Nuevas Autorizaciones */
+            nuevas_autorizaciones: number;
+        };
+        /** Parametro */
+        Parametro: {
+            /** Nombre */
+            nombre: string;
+            /** Valor */
+            valor: number;
+            /** Unidad */
+            unidad: string;
+            /**
+             * Fundamento
+             * @enum {string}
+             */
+            fundamento: "PUBLICADO" | "TRANSFERIDO" | "POLITICA_PROTOTIPO" | "MIXTO";
+            /** Fuentes */
+            fuentes: string[];
+            /** Descripcion */
+            descripcion: string;
+        };
+        /** PasoExplicacion */
+        PasoExplicacion: {
+            /** Orden */
+            orden: number;
+            /** Regla */
+            regla: string;
+            /** Etapa */
+            etapa: string;
+            /** Pasada */
+            pasada: number;
+            /** Conclusion */
+            conclusion: string | null;
+            /** Solicitudes */
+            solicitudes: string[];
+            /** Porque */
+            porque: string[];
+            /** Antecedente */
+            antecedente: string | null;
+        };
+        /** PropuestaEntrada */
+        PropuestaEntrada: {
+            /** Motivo */
+            motivo: string;
+            /** Version Parametros */
+            version_parametros?: string | null;
+            /** Version Base */
+            version_base?: string | null;
+            /** Parametros */
+            parametros?: {
+                [key: string]: number;
+            };
+            /**
+             * Reglas
+             * @description Id de regla de producción → nueva definición completa; null la retira.
+             */
+            reglas?: {
+                [key: string]: {
+                    [key: string]: unknown;
+                } | null;
+            };
+            /**
+             * Guardar
+             * @description false: solo simular; true: registrar como PROPUESTA si es válida.
+             * @default false
+             */
+            guardar?: boolean;
+        };
+        /** PropuestaResultado */
+        PropuestaResultado: {
+            /** Valida */
+            valida: boolean;
+            /** Errores */
+            errores: string[];
+            /** Advertencias */
+            advertencias: string[];
+            /** Version Base */
+            version_base: string;
+            /** Version Parametros */
+            version_parametros: string;
+            /** Cambios Parametros */
+            cambios_parametros: components["schemas"]["CambioParametro"][];
+            /** Cambios Reglas */
+            cambios_reglas: components["schemas"]["CambioRegla"][];
+            impacto: components["schemas"]["Impacto"] | null;
+            version?: components["schemas"]["VersionConocimientoResumen"] | null;
+        };
+        /** RamaExplicada */
+        RamaExplicada: {
+            /** Rama */
+            rama: string;
+            /** Decision */
+            decision: string;
+            /** Aplicada */
+            aplicada: boolean;
+            /**
+             * Valor
+             * @enum {string}
+             */
+            valor: "VERDADERO" | "FALSO" | "DESCONOCIDO" | "NO_APLICA";
+            /** Faltan */
+            faltan: string[];
+        };
+        /** VersionConocimientoResumen */
+        VersionConocimientoResumen: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Version Base */
+            version_base: string;
+            /** Version Parametros */
+            version_parametros: string;
+            /** Version Motor */
+            version_motor: string;
+            /** Hash Base */
+            hash_base: string;
+            /**
+             * Estado
+             * @enum {string}
+             */
+            estado: "PROPUESTA" | "ACTIVADA" | "DESCARTADA";
+            /** Activa */
+            activa: boolean;
+            /** Motivo */
+            motivo: string | null;
+            /** Id Version Origen */
+            id_version_origen: string | null;
+            /**
+             * Cargada En
+             * Format: date-time
+             */
+            cargada_en: string;
+            /** Activada En */
+            activada_en: string | null;
         };
         /** CeldaTabla */
         CeldaTabla: {
@@ -1261,7 +1536,7 @@ export interface components {
             /** Nombre */
             nombre: string;
             /** Roles */
-            roles: ("PRODUCTOR" | "TECNICO" | "ADMINISTRADOR")[];
+            roles: ("PRODUCTOR" | "TECNICO" | "ADMINISTRADOR" | "INGENIERO_CONOCIMIENTO")[];
         };
         /** Plan */
         Plan: {

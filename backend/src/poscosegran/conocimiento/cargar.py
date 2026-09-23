@@ -1,105 +1,78 @@
-"""Carga y activación de una versión del catálogo.
+"""Carga y activación de la base de conocimiento desde knowledge/.
 
 Uso:
-    python -m poscosegran.conocimiento.cargar knowledge/catalogo.yaml --activar
+    python -m poscosegran.conocimiento.cargar [knowledge/] --activar
 
-No inventa contenido: si el archivo no cubre las 30 reglas, las nueve ramas y
-sus fuentes, la validación falla y no se registra ninguna versión.
+Lee base_conocimiento.yaml (operativa) y catalogo.yaml (documental), los valida
+juntos con el mismo cargador que usa el motor y los registra como una versión.
+Si la validación falla no se registra nada: el conocimiento no se completa por
+inferencia. Volver a cargar el mismo contenido no duplica la versión.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import sys
 from pathlib import Path
 
 import sqlalchemy as sa
-import yaml
 
-from ..db.modelos import Fuente, Regla, VersionConocimiento
+from ..db.modelos import VersionConocimiento
 from ..db.sesion import unidad_de_trabajo
+from ..servicios import conocimiento as servicio
+from ..sistema_experto import base_conocimiento
+from ..sistema_experto.base_conocimiento import BaseInvalida
 from .esquema import Catalogo
 
 
-def leer(ruta: Path) -> tuple[Catalogo, str]:
-    contenido = ruta.read_bytes()
-    digestion = hashlib.sha256(contenido).hexdigest()
-    datos = yaml.safe_load(contenido.decode("utf-8"))
-    return Catalogo.model_validate(datos), digestion
+def cargar(carpeta: Path, *, activar: bool, notas: str | None) -> str:
+    contenido = base_conocimiento.leer_archivos(carpeta)
+    Catalogo.model_validate(contenido["documental"])  # contrato del catálogo documental
+    base = base_conocimiento.desde_contenido(contenido)
 
-
-def cargar(ruta: Path, *, activar: bool, notas: str | None) -> str:
-    catalogo, digestion = leer(ruta)
     with unidad_de_trabajo() as sesion:
-        duplicada = sesion.scalar(
-            sa.select(VersionConocimiento).where(VersionConocimiento.hash_contenido == digestion)
+        existente = sesion.scalar(
+            sa.select(VersionConocimiento).where(VersionConocimiento.hash_contenido == base.hash)
         )
-        if duplicada is not None:
-            if activar and not duplicada.activa:
-                sesion.execute(sa.update(VersionConocimiento).where(VersionConocimiento.activa.is_(True)).values(activa=False))
-                duplicada.activa = True
-            return f"ya registrada: {duplicada.version_base} ({digestion[:12]})"
+        if existente is not None:
+            if activar and not existente.activa:
+                servicio.activar(sesion, existente, None)
+            return f"ya registrada: {base.version_base}/{base.version_parametros} ({base.hash[:12]})"
 
+        version = servicio.registrar(
+            sesion,
+            base=base,
+            contenido=contenido,
+            estado="ACTIVADA",
+            motivo=notas or "Carga desde los archivos de knowledge/",
+            ruta_archivo=str(carpeta),
+        )
         if activar:
-            sesion.execute(
-                sa.update(VersionConocimiento)
-                .where(VersionConocimiento.activa.is_(True))
-                .values(activa=False)
-            )
-
-        version = VersionConocimiento(
-            version_base=catalogo.version_base,
-            version_parametros=catalogo.version_parametros,
-            version_motor=catalogo.version_motor,
-            hash_contenido=digestion,
-            ruta_archivo=str(ruta),
-            notas=notas,
-            activa=activar,
-        )
-        sesion.add(version)
-        sesion.flush()
-
-        for orden, fuente in enumerate(catalogo.fuentes, start=1):
-            sesion.add(
-                Fuente(
-                    id_version=version.id,
-                    codigo=fuente.id,
-                    referencia_markdown=fuente.referencia_markdown,
-                )
-            )
-        for orden, regla in enumerate(catalogo.reglas, start=1):
-            sesion.add(_fila(version.id, regla, es_rama=False, orden=orden))
-        for orden, rama in enumerate(catalogo.ramas_r30, start=1):
-            sesion.add(_fila(version.id, rama, es_rama=True, orden=orden))
-
-        return f"registrada {catalogo.version_base} ({digestion[:12]}), activa={activar}"
-
-
-def _fila(id_version, regla, *, es_rama: bool, orden: int) -> Regla:  # type: ignore[no-untyped-def]
-    return Regla(
-        id_version=id_version,
-        codigo=regla.id,
-        es_rama=es_rama,
-        orden=orden,
-        antecedente=regla.antecedente,
-        consecuente=regla.consecuente,
-        accion=regla.accion,
-        fundamento_markdown=regla.fundamento_markdown,
-    )
+            servicio.activar(sesion, version, None)
+        return f"registrada {base.version_base}/{base.version_parametros} ({base.hash[:12]}), activa={activar}"
 
 
 def main(argumentos: list[str] | None = None) -> int:
-    analizador = argparse.ArgumentParser(description="Carga una versión del catálogo.")
-    analizador.add_argument("ruta", type=Path)
+    analizador = argparse.ArgumentParser(description="Carga una versión de la base de conocimiento.")
+    analizador.add_argument("ruta", type=Path, nargs="?", default=None,
+                            help="carpeta knowledge/ (por defecto, la del repositorio)")
     analizador.add_argument("--activar", action="store_true")
     analizador.add_argument("--notas", default=None)
     opciones = analizador.parse_args(argumentos)
 
-    if not opciones.ruta.exists():
-        print(f"no existe: {opciones.ruta}", file=sys.stderr)
+    carpeta = opciones.ruta or base_conocimiento.ruta_por_defecto()
+    if carpeta.is_file():  # compatibilidad: antes se pasaba knowledge/catalogo.yaml
+        carpeta = carpeta.parent
+    if not (carpeta / "base_conocimiento.yaml").exists():
+        print(f"no existe {carpeta / 'base_conocimiento.yaml'}", file=sys.stderr)
         return 2
-    print(cargar(opciones.ruta, activar=opciones.activar, notas=opciones.notas))
+    try:
+        print(cargar(carpeta, activar=opciones.activar, notas=opciones.notas))
+    except BaseInvalida as error:
+        print("la base de conocimiento no es válida:", file=sys.stderr)
+        for mensaje in error.errores:
+            print(f"  - {mensaje}", file=sys.stderr)
+        return 1
     return 0
 
 

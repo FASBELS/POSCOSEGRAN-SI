@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from ..config import obtener_configuracion
 from ..db.sesion import obtener_motor
 from .errores import registrar_manejadores
-from .rutas import conocimiento, evaluacion, recursos, seguimiento
+from .rutas import conocimiento, evaluacion, recursos, seguimiento, adquisicion
 
 
 def crear_app() -> FastAPI:
@@ -54,7 +54,7 @@ def crear_app() -> FastAPI:
         from .local import enrutador
         app.include_router(enrutador)
 
-    for modulo in (recursos, evaluacion, seguimiento, conocimiento):
+    for modulo in (recursos, evaluacion, seguimiento, conocimiento, adquisicion):
         app.include_router(modulo.enrutador)
 
     @app.get("/salud", tags=["operacion"])

@@ -16,7 +16,7 @@ from ..dominio.campos import CAMPOS
 
 T = TypeVar("T")
 
-Rol = Literal["PRODUCTOR", "TECNICO", "ADMINISTRADOR"]
+Rol = Literal["PRODUCTOR", "TECNICO", "ADMINISTRADOR", "INGENIERO_CONOCIMIENTO"]
 Fase = Literal["INGRESO", "SEGUIMIENTO"]
 Modalidad = Literal["HERMETICO", "NO_HERMETICO"]
 Decision = Literal[
@@ -477,11 +477,156 @@ class Regla(Base):
     fundamento_markdown: str
 
 
+class Parametro(Base):
+    nombre: str
+    valor: float
+    unidad: str
+    fundamento: Literal["PUBLICADO", "TRANSFERIDO", "POLITICA_PROTOTIPO", "MIXTO"]
+    fuentes: list[str]
+    descripcion: str
+
+
 class Catalogo(Base):
     version_base: str
     reglas: list[Regla]
     ramas_r30: list[Regla]
     fuentes: list[Fuente]
+    # Extensión del contrato (docs/DECISIONES.md, D-SE-3): la base como datos.
+    version_parametros: str | None = None
+    hash_base: str | None = None
+    parametros: list[Parametro] = Field(default_factory=list)
+    uso_campos: dict[str, list[str]] = Field(
+        default_factory=dict, description="Para cada campo, las reglas que lo usan: «¿por qué se pide este dato?»"
+    )
+
+
+# --- Módulo de explicación ----------------------------------------------------------
+
+
+class HechoInicial(Base):
+    campo: str
+    valor: str | float | bool | None
+    procedencia: str
+
+
+class PasoExplicacion(Base):
+    orden: int
+    regla: str
+    etapa: str
+    pasada: int
+    conclusion: str | None
+    solicitudes: list[str]
+    porque: list[str]
+    antecedente: str | None
+
+
+class RamaExplicada(Base):
+    rama: str
+    decision: str
+    aplicada: bool
+    valor: Literal["VERDADERO", "FALSO", "DESCONOCIDO", "NO_APLICA"]
+    faltan: list[str]
+
+
+class Explicacion(Base):
+    id_evaluacion: uuid.UUID
+    decision: str
+    etiqueta: str
+    rama: str
+    resumen: str
+    cadena: list[PasoExplicacion] = Field(description="¿Cómo? Reglas que llevaron a la decisión.")
+    traza_completa: list[PasoExplicacion]
+    ramas: list[RamaExplicada]
+    por_que_no: list[RamaExplicada] = Field(description="Qué le faltó a cada autorización no concedida.")
+    hechos_iniciales: list[HechoInicial]
+    hechos_inferidos: list[str]
+    no_aplicables: list[str]
+    version_base: str
+    version_parametros: str
+    hash_base: str
+
+
+# --- Módulo de adquisición ------------------------------------------------------------
+
+
+class VersionConocimientoResumen(Base):
+    id: uuid.UUID
+    version_base: str
+    version_parametros: str
+    version_motor: str
+    hash_base: str
+    estado: Literal["PROPUESTA", "ACTIVADA", "DESCARTADA"]
+    activa: bool
+    motivo: str | None
+    id_version_origen: uuid.UUID | None
+    cargada_en: AwareDatetime
+    activada_en: AwareDatetime | None
+
+
+class CambioParametro(Base):
+    nombre: str
+    anterior: float
+    nuevo: float
+    unidad: str
+
+
+class CambioRegla(Base):
+    produccion: str
+    regla: str
+    tipo: Literal["MODIFICADA", "NUEVA", "RETIRADA"]
+
+
+class CasoAfectado(Base):
+    id: str
+    origen: str
+    decision_antes: str
+    decision_despues: str
+    rama_antes: str
+    rama_despues: str
+    reglas_nuevas: list[str]
+    reglas_retiradas: list[str]
+
+
+class Impacto(Base):
+    evaluados: int
+    cambian: int
+    transiciones: dict[str, int]
+    casos: list[CasoAfectado]
+    nuevas_autorizaciones: int
+
+
+class PropuestaEntrada(Base):
+    motivo: str = Field(min_length=15, max_length=2000)
+    version_parametros: str | None = Field(default=None, max_length=40)
+    version_base: str | None = Field(default=None, max_length=40)
+    parametros: dict[str, StrictFloat | StrictInt] = Field(default_factory=dict)
+    reglas: dict[str, dict | None] = Field(
+        default_factory=dict, description="Id de regla de producción → nueva definición completa; null la retira."
+    )
+    guardar: bool = Field(default=False, description="false: solo simular; true: registrar como PROPUESTA si es válida.")
+
+
+class PropuestaResultado(Base):
+    valida: bool
+    errores: list[str]
+    advertencias: list[str]
+    version_base: str
+    version_parametros: str
+    cambios_parametros: list[CambioParametro]
+    cambios_reglas: list[CambioRegla]
+    impacto: Impacto | None
+    version: VersionConocimientoResumen | None = None
+
+
+class ActivacionEntrada(Base):
+    motivo: str = Field(min_length=15, max_length=2000)
+
+
+class DetalleVersion(Base):
+    version: VersionConocimientoResumen
+    parametros: list[Parametro]
+    reglas: list[dict] = Field(description="Reglas de producción tal como las ejecuta el motor.")
+    cambios_respecto_origen: list[CambioParametro]
 
 
 class ControlProximo(Base):
