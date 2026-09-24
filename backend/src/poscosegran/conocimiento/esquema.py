@@ -11,7 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-CODIGO_REGLA = re.compile(r"^R(0[1-9]|[1-4][0-9]|5[0-2])$")
+CODIGO_REGLA = re.compile(r"^R[0-9]{2,}$")
 CODIGO_RAMA = re.compile(r"^R30\.[1-9]$")
 CODIGO_FUENTE = re.compile(r"^S0[1-9]$")
 
@@ -43,7 +43,7 @@ class ReglaCatalogo(BaseModel):
 
 
 class Catalogo(BaseModel):
-    """R01–R30 completas, las nueve ramas de R30 y las fuentes que las respaldan."""
+    """R01–R30 completas, reglas adicionales y las nueve ramas de R30."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -58,13 +58,19 @@ class Catalogo(BaseModel):
     def _completitud(self) -> "Catalogo":
         codigos = [regla.id for regla in self.reglas]
         esperados_30 = [f"R{numero:02d}" for numero in range(1, 31)]
-        esperados_52 = [f"R{numero:02d}" for numero in range(1, 53)]
-        if codigos not in (esperados_30, esperados_52):
+        adicionales = codigos[30:]
+        validos = all(
+            CODIGO_REGLA.fullmatch(codigo)
+            and int(codigo[1:]) >= 31
+            and codigo == f"R{int(codigo[1:]):02d}"
+            for codigo in adicionales
+        )
+        ordenados = validos and adicionales == sorted(adicionales, key=lambda codigo: int(codigo[1:]))
+        if codigos[:30] != esperados_30 or not validos or not ordenados or len(set(codigos)) != len(codigos):
             faltan = sorted(set(esperados_30) - set(codigos))
-            sobran = sorted(set(codigos) - set(esperados_52))
             raise ValueError(
-                f"las reglas deben ser R01…R30 o R01…R52 en orden consecutivo. "
-                f"Faltan: {faltan or 'ninguna'}. No reconocidas: {sobran or 'ninguna'}"
+                "las reglas deben conservar R01…R30 en orden y añadir códigos R31+ "
+                f"únicos y ordenados. Faltan reglas base: {faltan or 'ninguna'}"
             )
 
         ramas = [rama.id for rama in self.ramas_r30]

@@ -2958,6 +2958,66 @@
         }
       }
     },
+    "/api/v1/adquisicion/validar-regla": {
+      "post": {
+        "tags": [
+          "adquisicion"
+        ],
+        "summary": "Validar Regla",
+        "description": "Comprueba la sintaxis y semántica de una regla aislada contra la base activa.\n\nNo modifica la base ni registra nada: solo devuelve los errores encontrados.\nSe usa para dar retroalimentación en tiempo real al cognimático mientras edita.",
+        "operationId": "validar_regla_api_v1_adquisicion_validar_regla_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarReglaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidarReglaResultado"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/adquisicion/versiones": {
       "get": {
         "tags": [
@@ -4117,6 +4177,14 @@
             "title": "Reglas",
             "description": "Reglas de producción tal como las ejecuta el motor."
           },
+          "fichas": {
+            "items": {
+              "$ref": "#/components/schemas/FichaRegla"
+            },
+            "type": "array",
+            "title": "Fichas",
+            "description": "Fichas documentales completas de la versión."
+          },
           "cambios_respecto_origen": {
             "items": {
               "$ref": "#/components/schemas/CambioParametro"
@@ -4131,6 +4199,7 @@
           "version",
           "parametros",
           "reglas",
+          "fichas",
           "cambios_respecto_origen"
         ],
         "title": "DetalleVersion"
@@ -4955,6 +5024,62 @@
           "hash_base"
         ],
         "title": "Explicacion"
+      },
+      "FichaRegla": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "antecedente": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Antecedente"
+          },
+          "consecuente": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Consecuente"
+          },
+          "accion": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Accion"
+          },
+          "fundamento_markdown": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Fundamento Markdown"
+          },
+          "fundamento": {
+            "type": "string",
+            "enum": [
+              "PUBLICADO",
+              "TRANSFERIDO",
+              "POLITICA_PROTOTIPO",
+              "MIXTO"
+            ],
+            "title": "Fundamento"
+          },
+          "fuentes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fuentes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "antecedente",
+          "consecuente",
+          "accion",
+          "fundamento_markdown",
+          "fundamento"
+        ],
+        "title": "FichaRegla"
       },
       "Fuente": {
         "properties": {
@@ -6273,6 +6398,14 @@
             "title": "Reglas",
             "description": "Id de regla de producción → nueva definición completa; null la retira."
           },
+          "fichas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FichaRegla"
+            },
+            "type": "object",
+            "title": "Fichas",
+            "description": "Código documental → ficha completa de una regla añadida o editada."
+          },
           "guardar": {
             "type": "boolean",
             "title": "Guardar",
@@ -6759,6 +6892,43 @@
           "tipo_almacenamiento"
         ],
         "title": "UnidadEntrada"
+      },
+      "ValidarReglaEntrada": {
+        "properties": {
+          "definicion": {
+            "type": "object",
+            "title": "Definicion",
+            "description": "Definición completa de la regla de producción a validar."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "definicion"
+        ],
+        "title": "ValidarReglaEntrada"
+      },
+      "ValidarReglaResultado": {
+        "properties": {
+          "valida": {
+            "type": "boolean",
+            "title": "Valida"
+          },
+          "errores": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errores"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "valida",
+          "errores"
+        ],
+        "title": "ValidarReglaResultado"
       },
       "ValidationError": {
         "properties": {

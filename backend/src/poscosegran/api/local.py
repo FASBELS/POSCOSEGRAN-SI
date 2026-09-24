@@ -19,6 +19,7 @@ USUARIOS = {
     "tecnico": uuid.UUID("00000000-0000-4000-8000-000000000002"),
     "administrador": uuid.UUID("00000000-0000-4000-8000-000000000003"),
     "ingeniero": uuid.UUID("00000000-0000-4000-8000-000000000004"),
+    "revisor": uuid.UUID("00000000-0000-4000-8000-000000000005"),
 }
 ALIAS_USUARIOS = {"testeo": "productor"}
 
@@ -28,6 +29,7 @@ ROLES_LOCALES = {
     "tecnico": "TECNICO",
     "administrador": "ADMINISTRADOR",
     "ingeniero": "INGENIERO_CONOCIMIENTO",
+    "revisor": "INGENIERO_CONOCIMIENTO",
 }
 
 

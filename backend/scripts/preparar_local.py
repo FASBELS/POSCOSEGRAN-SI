@@ -71,10 +71,10 @@ with admin.begin() as conn:
     # Módulo de adquisición: la API registra versiones nuevas y cambia cuál está
     # activa, pero no puede reescribir el contenido de una versión existente.
     conn.exec_driver_sql("GRANT INSERT ON poscosegran.version_conocimiento, poscosegran.regla, poscosegran.fuente TO poscosegran_app")
-    conn.exec_driver_sql("GRANT UPDATE (activa, estado, activada_en, activada_por) ON poscosegran.version_conocimiento TO poscosegran_app")
+    conn.exec_driver_sql("GRANT UPDATE (activa, estado, activada_en, activada_por, motivo) ON poscosegran.version_conocimiento TO poscosegran_app")
 frontend = BACKEND.parent / ".env.local"
 if not argumentos.contenedor and not frontend.exists():
     frontend.write_text("VITE_AUTH_MODE=local\nVITE_API_URL=/api/v1\n", encoding="utf-8")
-print("Entorno listo. Usuarios: testeo (productor), productor, tecnico, administrador e ingeniero.")
+print("Entorno listo. Usuarios: testeo (productor), productor, tecnico, administrador, ingeniero y revisor.")
 if not argumentos.contenedor:
     print("Contraseña local: consulte POSCOSEGRAN_AUTH_LOCAL_PASSWORD en backend/.env.")

@@ -576,6 +576,16 @@ class CambioRegla(Base):
     tipo: Literal["MODIFICADA", "NUEVA", "RETIRADA"]
 
 
+class FichaRegla(Base):
+    id: str
+    antecedente: str = Field(min_length=1)
+    consecuente: str = Field(min_length=1)
+    accion: str = Field(min_length=1)
+    fundamento_markdown: str = Field(min_length=1)
+    fundamento: Fundamento
+    fuentes: list[str] = Field(default_factory=list)
+
+
 class CasoAfectado(Base):
     id: str = Field(
         description="Identificador del caso dentro de la simulación. Los casos de "
@@ -607,6 +617,9 @@ class PropuestaEntrada(Base):
     reglas: dict[str, dict[str, Any] | None] = Field(
         default_factory=dict, description="Id de regla de producción → nueva definición completa; null la retira."
     )
+    fichas: dict[str, FichaRegla] = Field(
+        default_factory=dict, description="Código documental → ficha completa de una regla añadida o editada."
+    )
     guardar: bool = Field(default=False, description="false: solo simular; true: registrar como PROPUESTA si es válida.")
 
 
@@ -634,6 +647,7 @@ class DetalleVersion(Base):
     version: VersionConocimientoResumen
     parametros: list[Parametro]
     reglas: list[dict[str, Any]] = Field(description="Reglas de producción tal como las ejecuta el motor.")
+    fichas: list[FichaRegla] = Field(description="Fichas documentales completas de la versión.")
     cambios_respecto_origen: list[CambioParametro]
 
 

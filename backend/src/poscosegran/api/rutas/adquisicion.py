@@ -164,6 +164,7 @@ def detalle(id_version: uuid.UUID, sesion: SesionDep, identidad: IdentidadDep) -
         version=_resumen(version),
         parametros=_parametros(base),
         reglas=list(version.contenido["operativa"]["reglas"]),  # type: ignore[index]
+        fichas=[api.FichaRegla.model_validate(f) for f in version.contenido["documental"]["reglas"]],  # type: ignore[index]
         cambios_respecto_origen=cambios,
     )
 
@@ -185,6 +186,7 @@ def proponer(entrada: api.PropuestaEntrada, sesion: SesionDep, identidad: Identi
         version_parametros=entrada.version_parametros,
         parametros=entrada.parametros,
         reglas=entrada.reglas,
+        fichas={codigo: ficha.model_dump() for codigo, ficha in entrada.fichas.items()},
         casos=casos,
     )
     errores = list(propuesta.errores)

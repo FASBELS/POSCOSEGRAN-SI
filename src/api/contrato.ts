@@ -462,6 +462,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/adquisicion/validar-regla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validar Regla
+         * @description Comprueba la sintaxis y semántica de una regla aislada contra la base activa.
+         *
+         *     No modifica la base ni registra nada: solo devuelve los errores encontrados.
+         *     Se usa para dar retroalimentación en tiempo real al cognimático mientras edita.
+         */
+        post: operations["validar_regla_api_v1_adquisicion_validar_regla_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/adquisicion/versiones": {
         parameters: {
             query?: never;
@@ -924,6 +947,11 @@ export interface components {
              * @description Reglas de producción tal como las ejecuta el motor.
              */
             reglas: Record<string, never>[];
+            /**
+             * Fichas
+             * @description Fichas documentales completas de la versión.
+             */
+            fichas: components["schemas"]["FichaRegla"][];
             /** Cambios Respecto Origen */
             cambios_respecto_origen: components["schemas"]["CambioParametro"][];
         };
@@ -1208,6 +1236,26 @@ export interface components {
             version_parametros: string;
             /** Hash Base */
             hash_base: string;
+        };
+        /** FichaRegla */
+        FichaRegla: {
+            /** Id */
+            id: string;
+            /** Antecedente */
+            antecedente: string;
+            /** Consecuente */
+            consecuente: string;
+            /** Accion */
+            accion: string;
+            /** Fundamento Markdown */
+            fundamento_markdown: string;
+            /**
+             * Fundamento
+             * @enum {string}
+             */
+            fundamento: "PUBLICADO" | "TRANSFERIDO" | "POLITICA_PROTOTIPO" | "MIXTO";
+            /** Fuentes */
+            fuentes?: string[];
         };
         /** Fuente */
         Fuente: {
@@ -1653,6 +1701,13 @@ export interface components {
                 [key: string]: Record<string, never> | null;
             };
             /**
+             * Fichas
+             * @description Código documental → ficha completa de una regla añadida o editada.
+             */
+            fichas?: {
+                [key: string]: components["schemas"]["FichaRegla"];
+            };
+            /**
              * Guardar
              * @description false: solo simular; true: registrar como PROPUESTA si es válida.
              * @default false
@@ -1852,6 +1907,21 @@ export interface components {
             nombre_recipiente: string;
             /** Tipo Almacenamiento */
             tipo_almacenamiento: ("HERMETICO" | "NO_HERMETICO") | null;
+        };
+        /** ValidarReglaEntrada */
+        ValidarReglaEntrada: {
+            /**
+             * Definicion
+             * @description Definición completa de la regla de producción a validar.
+             */
+            definicion: Record<string, never>;
+        };
+        /** ValidarReglaResultado */
+        ValidarReglaResultado: {
+            /** Valida */
+            valida: boolean;
+            /** Errores */
+            errores: string[];
         };
         /** ValidationError */
         ValidationError: {
@@ -3235,6 +3305,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Catalogo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validar_regla_api_v1_adquisicion_validar_regla_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValidarReglaEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidarReglaResultado"];
                 };
             };
             /** @description Validation Error */

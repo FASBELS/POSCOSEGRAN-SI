@@ -35,7 +35,7 @@ backend/.venv/Scripts/python.exe backend/scripts/preparar_local.py
 
 Si usas uv: `uv venv backend/.venv --python 3.13` y `uv pip install --python backend/.venv/Scripts/python.exe -e "backend[dev]"`. No recrees el entorno si ya existe.
 
-El preparador aplica migraciones, carga la base 2.0 y crea cuatro usuarios de desarrollo: `productor`, `tecnico`, `administrador` e `ingeniero` (ingeniería del conocimiento, para el módulo de adquisición). Para probar el inicio de sesión usa `testeo` como usuario y contraseña; corresponde al perfil PRODUCTOR. También puedes usar los nombres de usuario de los otros roles con esa misma contraseña. Esta credencial se limita al entorno local.
+El preparador aplica migraciones, carga la base 2.0 y crea cinco usuarios de desarrollo: `productor`, `tecnico`, `administrador`, `ingeniero` y `revisor` (los dos últimos con el rol de ingeniería del conocimiento). Para probar el inicio de sesión usa `testeo` como usuario y contraseña; corresponde al perfil PRODUCTOR. También puedes usar los nombres de usuario de los otros roles con esa misma contraseña. Esta credencial se limita al entorno local.
 
 En dos terminales:
 
@@ -50,7 +50,7 @@ pnpm.cmd dev
 
 Abre [la aplicación local](http://localhost:8443). API interactiva: [documentación local](http://127.0.0.1:8000/documentacion). El técnico necesita una asignación al lote o almacén para ver sus unidades; el administrador no obtiene acceso general a datos de producción. El ingeniero del conocimiento mantiene la base desde *Adquisición* y tampoco ve unidades.
 
-> Activar una versión de conocimiento exige **cuatro ojos**: quien la propuso no puede activarla. Para recorrer el ciclo completo con la única cuenta `ingeniero` de desarrollo, añade `POSCOSEGRAN_ADQUISICION_PERMITIR_AUTOACTIVACION=true` a `backend/.env`. La configuración rechaza esa opción si el entorno es `produccion`.
+> Activar una versión de conocimiento exige **cuatro ojos**: quien la propuso no puede activarla. En local, registra la propuesta como `ingeniero` y actívala como `revisor`. La contraseña de ambas cuentas es `testeo`.
 
 ## Verificar antes de subir
 
