@@ -2,6 +2,11 @@ name: Verificacion integrada
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
+env:
+  # Una prueba de integración omitida por falta de base es un fallo, no un verde.
+  POSCOSEGRAN_EXIGIR_BD: '1'
+  BD_MIGRACIONES: postgresql+psycopg://postgres:revision_local_2026@127.0.0.1:55432/poscosegran
+  BD_APLICACION: postgresql+psycopg://poscosegran_app:local_app_2026@127.0.0.1:55432/poscosegran
 jobs:
   verificar:
     runs-on: ubuntu-latest
@@ -29,28 +34,53 @@ jobs:
           cache: pnpm
       - run: pip install -e 'backend[dev]'
       - run: pnpm install --frozen-lockfile
-      - run: python backend/scripts/preparar_local.py
-      - name: Backend y PostgreSQL
+
+      - name: Preparar y migrar PostgreSQL
+        run: python backend/scripts/preparar_local.py
+
+      - name: Cargar la base de conocimiento (idempotente)
         working-directory: backend
         env:
-          POSCOSEGRAN_BD_URL_PRUEBAS: postgresql+psycopg://postgres:revision_local_2026@127.0.0.1:55432/poscosegran
+          POSCOSEGRAN_BD_URL_MIGRACIONES: ${{ env.BD_MIGRACIONES }}
+        run: |
+          python -m poscosegran.conocimiento.cargar --activar
+          python -m poscosegran.conocimiento.cargar --activar
+
+      - name: Analisis estatico
+        working-directory: backend
         run: |
           ruff check src tests scripts
           mypy
-          alembic check
-          pytest -q
-      - name: Privilegios de aplicacion
+
+      - name: Migraciones al dia
         working-directory: backend
         env:
-          POSCOSEGRAN_BD_URL_PRUEBAS: postgresql+psycopg://poscosegran_app:local_app_2026@127.0.0.1:55432/poscosegran
+          POSCOSEGRAN_BD_URL_PRUEBAS: ${{ env.BD_MIGRACIONES }}
+        run: alembic check
+
+      - name: Pruebas con PostgreSQL
+        working-directory: backend
+        env:
+          POSCOSEGRAN_BD_URL_PRUEBAS: ${{ env.BD_MIGRACIONES }}
+        run: pytest -q -rs
+
+      - name: Privilegios de la credencial restringida
+        working-directory: backend
+        env:
+          POSCOSEGRAN_BD_URL_PRUEBAS: ${{ env.BD_APLICACION }}
         run: pytest -q tests/test_esquema_bd.py::test_la_credencial_de_aplicacion_no_puede_crear_tablas
-      - name: Contrato y frontend
+
+      - name: Contrato generado
         run: |
           python backend/scripts/exportar_contrato.py
           pnpm api:types
           git diff --exit-code -- docs/openapi.json src/api/contrato.ts src/campos.json
+
+      - name: Lint y build del frontend
+        run: |
           pnpm lint
           pnpm build
+
       - run: pnpm exec playwright install --with-deps chromium
       - name: Navegador contra API real
         run: |
@@ -61,6 +91,7 @@ jobs:
             sleep 1
           done
           pnpm test:e2e
+
       - name: Stack Docker completo
         env:
           POSCOSEGRAN_PUERTO_BD_LOCAL: '55433'
@@ -77,9 +108,19 @@ jobs:
           done
           export POSCOSEGRAN_AUTH_LOCAL_PASSWORD="$(sed -n 's/^POSCOSEGRAN_AUTH_LOCAL_PASSWORD=//p' backend/.env)"
           E2E_BASE_URL=http://localhost:8080 pnpm test:e2e
-          docker compose --project-name poscosegran_docker_ci --env-file backend/.env down --volumes
+
+      - name: Desmontar el stack Docker
+        if: always()
+        run: |
+          docker compose --project-name poscosegran_docker_ci --env-file backend/.env logs --no-color > /tmp/docker.log 2>&1 || true
+          docker compose --project-name poscosegran_docker_ci --env-file backend/.env down --volumes || true
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: errores-navegador
-          path: test-results/
+          name: diagnostico
+          path: |
+            test-results/
+            /tmp/api.log
+            /tmp/vite.log
+            /tmp/docker.log

@@ -15,6 +15,10 @@ dependencies = [
   "cryptography==44.0.0",
   "httpx==0.28.1",
   "PyYAML==6.0.2",
+  # La usa scripts/preparar_local.py. Llegaba solo de forma transitiva a través de
+  # pydantic-settings: declararla evita que una actualización de esa dependencia
+  # rompa la preparación del entorno.
+  "python-dotenv==1.0.1",
 ]
 
 [project.optional-dependencies]
