@@ -519,6 +519,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/adquisicion/versiones/{id_version}/descartar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Descartar
+         * @description Cierra una propuesta que no se va a activar, con su motivo.
+         *
+         *     Solo se descarta lo que todavía es PROPUESTA. Repetir el descarte devuelve la
+         *     misma versión sin volver a auditarla, para que un reintento del cliente no
+         *     genere dos registros; una versión que llegó a activarse ya no se descarta.
+         */
+        post: operations["descartar_api_v1_adquisicion_versiones__id_version__descartar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/adquisicion/versiones/{id_version}/activar": {
         parameters: {
             query?: never;
@@ -531,6 +555,11 @@ export interface paths {
         /**
          * Activar
          * @description Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian.
+         *
+         *     Entre proponer y activar puede haber pasado tiempo y haberse emitido evaluaciones
+         *     nuevas, así que el impacto se vuelve a medir aquí contra los casos de referencia y
+         *     la muestra histórica vigente. La medición de la propuesta es informativa; esta es
+         *     la que decide.
          */
         post: operations["activar_api_v1_adquisicion_versiones__id_version__activar_post"];
         delete?: never;
@@ -738,7 +767,10 @@ export interface components {
         };
         /** CasoAfectado */
         CasoAfectado: {
-            /** Id */
+            /**
+             * Id
+             * @description Identificador del caso dentro de la simulación. Los casos de referencia usan su nombre; las evaluaciones reales usan un índice opaco, porque el ingeniero del conocimiento no accede a unidades concretas.
+             */
             id: string;
             /** Origen */
             origen: string;
@@ -876,6 +908,11 @@ export interface components {
              * @enum {integer}
              */
             paso: 1 | 2 | 3 | 4 | 5 | 6;
+        };
+        /** DescarteEntrada */
+        DescarteEntrada: {
+            /** Motivo */
+            motivo: string;
         };
         /** DetalleVersion */
         DetalleVersion: {
@@ -1844,7 +1881,7 @@ export interface components {
              * Estado
              * @enum {string}
              */
-            estado: "PROPUESTA" | "ACTIVADA" | "DESCARTADA";
+            estado: "PROPUESTA" | "ACTIVADA" | "DESCARTADA" | "SUPERADA";
             /** Activa */
             activa: boolean;
             /** Motivo */
@@ -3297,6 +3334,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PropuestaResultado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    descartar_api_v1_adquisicion_versiones__id_version__descartar_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                id_version: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DescarteEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionConocimientoResumen"];
                 };
             };
             /** @description Validation Error */

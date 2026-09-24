@@ -14,6 +14,7 @@ import sqlalchemy as sa
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy.orm import Session
 
+from ...config import obtener_configuracion
 from ...db.modelos import Evaluacion, VersionConocimiento
 from ...dominio.hechos import Instantanea
 from ...esquemas import contrato as api
@@ -22,6 +23,7 @@ from ...seguridad.permisos import AccesoDenegado, RecursoInaccesible
 from ...servicios import auditoria
 from ...servicios import conocimiento as servicio
 from ...sistema_experto import adquisicion, serializacion
+from ...sistema_experto.base_conocimiento import BaseConocimiento
 
 enrutador = APIRouter(prefix="/api/v1/adquisicion", tags=["adquisicion"])
 
@@ -60,7 +62,13 @@ def _parametros(base) -> list[api.Parametro]:  # type: ignore[no-untyped-def]
 
 
 def _casos_historicos(sesion: Session) -> list[tuple[str, str, Instantanea]]:
-    """Últimas evaluaciones emitidas con hechos reproducibles."""
+    """Últimas evaluaciones emitidas con hechos reproducibles.
+
+    El caso se identifica por su posición en la muestra, nunca por el id de la
+    evaluación: el ingeniero del conocimiento mide el efecto de un cambio sobre el
+    conjunto, no accede a las unidades de otras personas. Sin esto, la simulación
+    filtraría identificadores de evaluaciones fuera de su alcance.
+    """
     filas = sesion.scalars(
         sa.select(Evaluacion).order_by(Evaluacion.fecha_evaluacion.desc()).limit(EVALUACIONES_HISTORICAS)
     ).all()
@@ -68,8 +76,48 @@ def _casos_historicos(sesion: Session) -> list[tuple[str, str, Instantanea]]:
     for fila in filas:
         hechos = (fila.entrada_efectiva or {}).get("_hechos_iniciales")
         if hechos is not None:
-            casos.append((f"historica:{fila.id}", "historica", serializacion.desde_json(hechos)))
+            casos.append(
+                (f"historica:{len(casos) + 1:04d}", "historica", serializacion.desde_json(hechos))
+            )
     return casos
+
+
+def _puede_activar(identidad, version: VersionConocimiento) -> bool:  # type: ignore[no-untyped-def]
+    """Separación de funciones: quien propuso una versión no la activa.
+
+    La excepción existe para poder recorrer el ciclo completo con una sola cuenta en
+    desarrollo; la configuración la prohíbe en producción.
+    """
+    if version.cargada_por is None or version.cargada_por != identidad.id:
+        return True
+    return obtener_configuracion().adquisicion_permitir_autoactivacion
+
+
+def _medir_al_activar(
+    sesion: Session, activa: BaseConocimiento, propuesta: BaseConocimiento
+) -> adquisicion.Impacto:
+    """Vuelve a medir el impacto en el momento de activar y aborta si algo no cuadra.
+
+    Un error aquí significa que la propuesta no evalúa sobre la evidencia vigente;
+    en ese caso no se cambia la versión activa.
+    """
+    casos = adquisicion.cargar_casos_referencia() + _casos_historicos(sesion)
+    try:
+        impacto = adquisicion.medir_impacto(activa, propuesta, casos)
+    except Exception as error:  # la propuesta no evalúa: no se activa nada
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"la propuesta no se pudo medir contra la evidencia vigente: {error}",
+        ) from error
+    fuera = sorted(
+        {c.decision_despues for c in impacto.casos} - set(propuesta.decisiones_autorizadas)
+    )
+    if fuera:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"la propuesta produce decisiones no autorizadas por su propia base: {fuera}",
+        )
+    return impacto
 
 
 @enrutador.get("/versiones", response_model=list[api.VersionConocimientoResumen])
@@ -190,21 +238,76 @@ def proponer(entrada: api.PropuestaEntrada, sesion: SesionDep, identidad: Identi
     )
 
 
+@enrutador.post("/versiones/{id_version}/descartar", response_model=api.VersionConocimientoResumen)
+def descartar(
+    id_version: uuid.UUID, entrada: api.DescarteEntrada, sesion: SesionDep, identidad: IdentidadDep
+) -> api.VersionConocimientoResumen:
+    """Cierra una propuesta que no se va a activar, con su motivo.
+
+    Solo se descarta lo que todavía es PROPUESTA. Repetir el descarte devuelve la
+    misma versión sin volver a auditarla, para que un reintento del cliente no
+    genere dos registros; una versión que llegó a activarse ya no se descarta.
+    """
+    _exigir_ingeniero(identidad)
+    version = sesion.get(VersionConocimiento, id_version, with_for_update=True)
+    if version is None:
+        raise RecursoInaccesible(str(id_version))
+    if version.estado == "DESCARTADA":
+        return _resumen(version)  # idempotente frente a un reintento
+    if version.estado != "PROPUESTA":
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"solo se descarta una propuesta; esta versión está en {version.estado}",
+        )
+    servicio.descartar(sesion, version, entrada.motivo)
+    auditoria.registrar(
+        sesion, identidad, accion="descartar_version_conocimiento", recurso_tipo="version_conocimiento",
+        recurso_id=version.id, metodo="POST", ruta=f"/adquisicion/versiones/{id_version}/descartar",
+        estado_http=200,
+        resumen={
+            "descartada": f"{version.version_base}/{version.version_parametros}",
+            "motivo": entrada.motivo,
+        },
+    )
+    return _resumen(version)
+
+
 @enrutador.post("/versiones/{id_version}/activar", response_model=api.VersionConocimientoResumen)
 def activar(
     id_version: uuid.UUID, entrada: api.ActivacionEntrada, sesion: SesionDep, identidad: IdentidadDep
 ) -> api.VersionConocimientoResumen:
-    """Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian."""
+    """Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian.
+
+    Entre proponer y activar puede haber pasado tiempo y haberse emitido evaluaciones
+    nuevas, así que el impacto se vuelve a medir aquí contra los casos de referencia y
+    la muestra histórica vigente. La medición de la propuesta es informativa; esta es
+    la que decide.
+    """
     _exigir_ingeniero(identidad)
+    # El candado se toma antes de leer la versión vigente: dos activaciones
+    # simultáneas se serializan y la segunda ve el estado ya actualizado.
+    servicio.bloquear_activacion(sesion)
     version = sesion.get(VersionConocimiento, id_version, with_for_update=True)
     if version is None:
         raise RecursoInaccesible(str(id_version))
     if version.activa:
         raise HTTPException(status.HTTP_409_CONFLICT, "la versión ya está activa")
-    if version.estado == "DESCARTADA":
-        raise HTTPException(status.HTTP_409_CONFLICT, "una versión descartada no se activa: proponga una nueva")
-    servicio.base_de(version)  # revalida el contenido antes de activarlo
-    anterior = servicio.version_activa(sesion)
+    if version.estado != "PROPUESTA":
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"solo se activa una propuesta; esta versión está en {version.estado}",
+        )
+    if not _puede_activar(identidad, version):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "quien propone una versión no puede activarla: debe revisarla otra persona "
+            "con el rol INGENIERO_CONOCIMIENTO",
+        )
+
+    propuesta = servicio.base_de(version)  # revalida el contenido antes de activarlo
+    anterior, base_anterior = servicio.base_activa(sesion)
+    impacto = _medir_al_activar(sesion, base_anterior, propuesta)
+
     servicio.activar(sesion, version, identidad.id)
     auditoria.registrar(
         sesion, identidad, accion="activar_version_conocimiento", recurso_tipo="version_conocimiento",
@@ -213,7 +316,14 @@ def activar(
         resumen={
             "activada": f"{version.version_base}/{version.version_parametros}",
             "anterior": f"{anterior.version_base}/{anterior.version_parametros}",
+            "superada": str(anterior.id),
             "motivo": entrada.motivo,
+            "impacto": {
+                "evaluados": impacto.evaluados,
+                "cambian": impacto.cambian,
+                "transiciones": impacto.transiciones,
+                "nuevas_autorizaciones": impacto.nuevas_autorizaciones,
+            },
         },
     )
     return _resumen(version)

@@ -21,6 +21,16 @@ from ..sistema_experto.motor import VERSION_MOTOR
 
 _bases: dict[uuid.UUID, BaseConocimiento] = {}
 
+# Candado de transacción con el que se serializan las activaciones. Dos peticiones
+# simultáneas no pueden medir el impacto contra la misma versión vigente y dejar dos
+# activas: la segunda espera y vuelve a leer el estado ya actualizado.
+CANDADO_ACTIVACION = 0x504F5343
+
+
+def bloquear_activacion(sesion: Session) -> None:
+    """Toma el candado de activación hasta el final de la transacción."""
+    sesion.execute(sa.select(sa.func.pg_advisory_xact_lock(CANDADO_ACTIVACION)))
+
 
 def version_activa(sesion: Session) -> VersionConocimiento:
     version = sesion.scalar(sa.select(VersionConocimiento).where(VersionConocimiento.activa.is_(True)))
@@ -101,13 +111,26 @@ def registrar(
 
 
 def activar(sesion: Session, version: VersionConocimiento, id_responsable: uuid.UUID | None) -> None:
-    """Deja una sola versión activa. Las evaluaciones emitidas no se recalculan."""
+    """Deja una sola versión activa. Las evaluaciones emitidas no se recalculan.
+
+    La versión que deja de estar vigente pasa a SUPERADA: su estado dice por sí solo
+    que ya no manda, sin tener que cruzarlo con `activa`.
+    """
     sesion.execute(
-        sa.update(VersionConocimiento).where(VersionConocimiento.activa.is_(True)).values(activa=False)
+        sa.update(VersionConocimiento)
+        .where(VersionConocimiento.activa.is_(True))
+        .values(activa=False, estado="SUPERADA")
     )
     sesion.flush()
     version.activa = True
     version.estado = "ACTIVADA"
     version.activada_en = datetime.now(UTC)
     version.activada_por = id_responsable
+    sesion.flush()
+
+
+def descartar(sesion: Session, version: VersionConocimiento, motivo: str) -> None:
+    """Cierra una propuesta que no se va a activar. No toca ninguna otra versión."""
+    version.estado = "DESCARTADA"
+    version.motivo = motivo
     sesion.flush()

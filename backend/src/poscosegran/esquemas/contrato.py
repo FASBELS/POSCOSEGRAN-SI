@@ -555,7 +555,7 @@ class VersionConocimientoResumen(Base):
     version_parametros: str
     version_motor: str
     hash_base: str
-    estado: Literal["PROPUESTA", "ACTIVADA", "DESCARTADA"]
+    estado: Literal["PROPUESTA", "ACTIVADA", "DESCARTADA", "SUPERADA"]
     activa: bool
     motivo: str | None
     id_version_origen: uuid.UUID | None
@@ -577,7 +577,11 @@ class CambioRegla(Base):
 
 
 class CasoAfectado(Base):
-    id: str
+    id: str = Field(
+        description="Identificador del caso dentro de la simulación. Los casos de "
+        "referencia usan su nombre; las evaluaciones reales usan un índice opaco, "
+        "porque el ingeniero del conocimiento no accede a unidades concretas."
+    )
     origen: str
     decision_antes: str
     decision_despues: str
@@ -619,6 +623,10 @@ class PropuestaResultado(Base):
 
 
 class ActivacionEntrada(Base):
+    motivo: str = Field(min_length=15, max_length=2000)
+
+
+class DescarteEntrada(Base):
     motivo: str = Field(min_length=15, max_length=2000)
 
 

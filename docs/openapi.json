@@ -3130,13 +3130,83 @@
         }
       }
     },
+    "/api/v1/adquisicion/versiones/{id_version}/descartar": {
+      "post": {
+        "tags": [
+          "adquisicion"
+        ],
+        "summary": "Descartar",
+        "description": "Cierra una propuesta que no se va a activar, con su motivo.\n\nSolo se descarta lo que todavía es PROPUESTA. Repetir el descarte devuelve la\nmisma versión sin volver a auditarla, para que un reintento del cliente no\ngenere dos registros; una versión que llegó a activarse ya no se descarta.",
+        "operationId": "descartar_api_v1_adquisicion_versiones__id_version__descartar_post",
+        "parameters": [
+          {
+            "name": "id_version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id Version"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DescarteEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionConocimientoResumen"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/adquisicion/versiones/{id_version}/activar": {
       "post": {
         "tags": [
           "adquisicion"
         ],
         "summary": "Activar",
-        "description": "Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian.",
+        "description": "Activa una versión registrada. Las nuevas evaluaciones la usarán; las emitidas no cambian.\n\nEntre proponer y activar puede haber pasado tiempo y haberse emitido evaluaciones\nnuevas, así que el impacto se vuelve a medir aquí contra los casos de referencia y\nla muestra histórica vigente. La medición de la propuesta es informativa; esta es\nla que decide.",
         "operationId": "activar_api_v1_adquisicion_versiones__id_version__activar_post",
         "parameters": [
           {
@@ -3671,7 +3741,8 @@
         "properties": {
           "id": {
             "type": "string",
-            "title": "Id"
+            "title": "Id",
+            "description": "Identificador del caso dentro de la simulación. Los casos de referencia usan su nombre; las evaluaciones reales usan un índice opaco, porque el ingeniero del conocimiento no accede a unidades concretas."
           },
           "origen": {
             "type": "string",
@@ -4009,6 +4080,22 @@
           "paso"
         ],
         "title": "DatoPendiente"
+      },
+      "DescarteEntrada": {
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 15,
+            "title": "Motivo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "motivo"
+        ],
+        "title": "DescarteEntrada"
       },
       "DetalleVersion": {
         "properties": {
@@ -6734,7 +6821,8 @@
             "enum": [
               "PROPUESTA",
               "ACTIVADA",
-              "DESCARTADA"
+              "DESCARTADA",
+              "SUPERADA"
             ],
             "title": "Estado"
           },

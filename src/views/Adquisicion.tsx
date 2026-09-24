@@ -28,6 +28,7 @@ export default function Adquisicion() {
   const [reglaId, setReglaId] = useState(''), [reglaTexto, setReglaTexto] = useState(''), [avanzado, setAvanzado] = useState(false)
   const [resultado, setResultado] = useState<Resultado | null>(null), [error, setError] = useState<unknown>(null), [busy, setBusy] = useState(false)
   const [motivoActivacion, setMotivoActivacion] = useState<Record<string, string>>({})
+  const [motivoDescarte, setMotivoDescarte] = useState<Record<string, string>>({})
 
   if (!permitido) return <Panel title="Adquisición del conocimiento"><p>Esta función corresponde al rol de ingeniería del conocimiento. Los umbrales y las reglas no se modifican desde la captura ni desde el seguimiento.</p></Panel>
   if (catalogo.isLoading || versiones.isLoading) return <Loading />
@@ -62,6 +63,16 @@ export default function Adquisicion() {
       await post<Version>(`/adquisicion/versiones/${v.id}/activar`, { motivo: motivoActivacion[v.id] || '' })
       setResultado(null); setValores({})
       await qc.invalidateQueries()
+    } catch (err) { setError(err) } finally { setBusy(false) }
+  }
+  /** Cierra una propuesta que no se va a activar. El motivo queda en la auditoría. */
+  async function descartar(v: Version) {
+    const motivo = motivoDescarte[v.id] || ''
+    if (!confirm(`¿Descartar la versión ${v.version_base}/${v.version_parametros}? La propuesta se cierra y no podrá activarse.`)) return
+    setBusy(true); setError(null)
+    try {
+      await post<Version>(`/adquisicion/versiones/${v.id}/descartar`, { motivo })
+      await qc.invalidateQueries({ queryKey: ['versiones'] })
     } catch (err) { setError(err) } finally { setBusy(false) }
   }
   function cargarRegla(id: string) {
@@ -115,8 +126,15 @@ export default function Adquisicion() {
     <Panel title="3. Versiones">{versiones.data?.length ? versiones.data.map(v => <div className="reason" key={v.id}>
       <p><strong>Base {v.version_base} · parámetros {v.version_parametros}</strong> <span className={`badge ${v.activa ? 'good' : ''}`}>{v.activa ? 'Activa' : nombre(v.estado)}</span></p>
       <p className="muted">{v.motivo || 'Sin motivo registrado'} · cargada {fecha(v.cargada_en)}{v.activada_en ? ` · activada ${fecha(v.activada_en)}` : ''} · motor {v.version_motor} · {v.hash_base.slice(0, 12)}</p>
-      {!v.activa && v.estado === 'PROPUESTA' && <div className="form-grid"><Field label="Motivo de la activación"><input value={motivoActivacion[v.id] || ''} onChange={e => setMotivoActivacion(m => ({ ...m, [v.id]: e.target.value }))} placeholder="Revisión y aprobación de la propuesta" /></Field>
-        <div className="actions"><button className="primary" disabled={busy || (motivoActivacion[v.id] || '').length < 15} onClick={() => void activar(v)}>Activar esta versión</button></div></div>}
+      {!v.activa && v.estado === 'PROPUESTA' && <>
+        <div className="form-grid"><Field label="Motivo de la activación"><input value={motivoActivacion[v.id] || ''} onChange={e => setMotivoActivacion(m => ({ ...m, [v.id]: e.target.value }))} placeholder="Revisión y aprobación de la propuesta" /></Field>
+          <div className="actions"><button className="primary" disabled={busy || (motivoActivacion[v.id] || '').length < 15} onClick={() => void activar(v)}>Activar esta versión</button></div></div>
+        <div className="form-grid"><Field label="Motivo del descarte"><input value={motivoDescarte[v.id] || ''} onChange={e => setMotivoDescarte(m => ({ ...m, [v.id]: e.target.value }))} placeholder="Por qué esta propuesta no se llevará a producción" /></Field>
+          <div className="actions"><button disabled={busy || (motivoDescarte[v.id] || '').length < 15} onClick={() => void descartar(v)}>Descartar propuesta</button></div></div>
+        <p className="muted">Quien propone una versión no puede activarla: la revisión corresponde a otra persona con el rol de ingeniería del conocimiento.</p>
+      </>}
+      {v.estado === 'DESCARTADA' && <p className="muted">Propuesta descartada. Para retomarla, proponga una versión nueva.</p>}
+      {v.estado === 'SUPERADA' && <p className="muted">Estuvo activa y fue reemplazada por una versión posterior. Las evaluaciones emitidas con ella conservan su resultado.</p>}
     </div>) : <Empty>No hay versiones registradas.</Empty>}</Panel>
   </div>
 }
