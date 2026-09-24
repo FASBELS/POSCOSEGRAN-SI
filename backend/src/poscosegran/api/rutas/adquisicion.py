@@ -23,7 +23,7 @@ from ...seguridad.permisos import AccesoDenegado, RecursoInaccesible
 from ...servicios import auditoria
 from ...servicios import conocimiento as servicio
 from ...sistema_experto import adquisicion, serializacion
-from ...sistema_experto.base_conocimiento import BaseConocimiento
+from ...sistema_experto.base_conocimiento import DECISIONES, BaseConocimiento
 
 enrutador = APIRouter(prefix="/api/v1/adquisicion", tags=["adquisicion"])
 
@@ -109,13 +109,14 @@ def _medir_al_activar(
             status.HTTP_409_CONFLICT,
             f"la propuesta no se pudo medir contra la evidencia vigente: {error}",
         ) from error
-    fuera = sorted(
-        {c.decision_despues for c in impacto.casos} - set(propuesta.decisiones_autorizadas)
-    )
+    # `decisiones_autorizadas` son las que autorizan almacenamiento, no el vocabulario
+    # completo: lo que aquí se comprueba es que la propuesta no emita una decisión
+    # fuera de las siete declaradas.
+    fuera = sorted({c.decision_despues for c in impacto.casos} - set(DECISIONES))
     if fuera:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            f"la propuesta produce decisiones no autorizadas por su propia base: {fuera}",
+            f"la propuesta emite decisiones que la base no declara: {fuera}",
         )
     return impacto
 

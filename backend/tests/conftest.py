@@ -4,6 +4,11 @@ Las pruebas marcadas con @pytest.mark.bd exigen una base PostgreSQL migrada en
 POSCOSEGRAN_BD_URL_PRUEBAS. Sin esa variable se omiten: no se simula PostgreSQL
 con SQLite, porque los disparadores, los índices parciales y los arrays no se
 comportan igual y una prueba que pasa en SQLite no demuestra nada aquí.
+
+Omitirlas es aceptable en una máquina de desarrollo, pero no en integración
+continua: ahí una suite que "pasa" porque no hay base es exactamente el fallo que
+no debe poder ocultarse. Con POSCOSEGRAN_EXIGIR_BD=1 la ausencia de la variable
+detiene la sesión en lugar de omitir.
 """
 
 from __future__ import annotations
@@ -22,10 +27,28 @@ from poscosegran.db.modelos import Usuario, UsuarioRol
 import pytest
 
 
+def _exige_bd() -> bool:
+    return os.environ.get("POSCOSEGRAN_EXIGIR_BD", "").strip().lower() in {"1", "true", "si", "yes"}
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """En CI, una prueba de integración omitida por falta de base es un fallo."""
+    if not _exige_bd() or os.environ.get("POSCOSEGRAN_BD_URL_PRUEBAS"):
+        return
+    marcadas = [item.nodeid for item in items if item.get_closest_marker("bd")]
+    if marcadas:
+        raise pytest.UsageError(
+            f"POSCOSEGRAN_EXIGIR_BD está activo y {len(marcadas)} pruebas marcadas 'bd' se "
+            "omitirían: defina POSCOSEGRAN_BD_URL_PRUEBAS con una base PostgreSQL migrada."
+        )
+
+
 @pytest.fixture(scope="session")
 def url_bd() -> str:
     url = os.environ.get("POSCOSEGRAN_BD_URL_PRUEBAS")
     if not url:
+        if _exige_bd():
+            pytest.fail("POSCOSEGRAN_BD_URL_PRUEBAS no está definida y POSCOSEGRAN_EXIGIR_BD lo exige")
         pytest.skip("POSCOSEGRAN_BD_URL_PRUEBAS no está definida")
     return url
 
@@ -73,13 +96,23 @@ def api_real(url_bd, monkeypatch):
     from poscosegran.conocimiento.cargar import cargar
     cargar(Path(__file__).parents[2] / "knowledge", activar=True, notas=None)
     users = {}
+    # Dos ingenieros del conocimiento: la separación de funciones en adquisición exige
+    # que quien propone una versión y quien la activa sean identidades distintas.
+    cuentas = {
+        "PRODUCTOR": "PRODUCTOR",
+        "TECNICO": "TECNICO",
+        "ADMINISTRADOR": "ADMINISTRADOR",
+        "AJENO": "PRODUCTOR",
+        "INGENIERO": "INGENIERO_CONOCIMIENTO",
+        "REVISOR": "INGENIERO_CONOCIMIENTO",
+    }
     with Session(create_engine(url_bd)) as session, session.begin():
-        for rol in ("PRODUCTOR", "TECNICO", "ADMINISTRADOR", "AJENO"):
-            usuario = Usuario(id=uuid.uuid4(), nombre=rol)
+        for cuenta, rol in cuentas.items():
+            usuario = Usuario(id=uuid.uuid4(), nombre=cuenta)
             session.add(usuario)
             session.flush()
-            session.add(UsuarioRol(id_usuario=usuario.id, rol="PRODUCTOR" if rol == "AJENO" else rol, otorgado_por="pytest"))
-            users[rol] = usuario.id
+            session.add(UsuarioRol(id_usuario=usuario.id, rol=rol, otorgado_por="pytest"))
+            users[cuenta] = usuario.id
     client = TestClient(crear_app(), raise_server_exceptions=False)
 
     def headers(rol="PRODUCTOR", key=None):

@@ -73,18 +73,64 @@ def test_observacion_aportada_exige_fecha_y_metodo(motor) -> None:  # type: igno
             )
 
 
+def _unidad(conexion: sa.Connection) -> uuid.UUID:
+    """Crea una unidad propia de la prueba, con todo lo que exigen sus claves ajenas."""
+    propietario = _usuario(conexion, "productora de prueba")
+    sufijo = uuid.uuid4().hex[:12]
+    almacen, lote, recipiente, unidad = (uuid.uuid4() for _ in range(4))
+    conexion.execute(
+        sa.text(
+            "INSERT INTO poscosegran.almacen (id, id_propietario, nombre, ubicacion) "
+            "VALUES (:id, :p, :nombre, 'Prueba')"
+        ),
+        {"id": almacen, "p": propietario, "nombre": f"Almacén {sufijo}"},
+    )
+    conexion.execute(
+        sa.text(
+            "INSERT INTO poscosegran.lote (id, id_propietario, codigo, variedad, uso_final) "
+            "VALUES (:id, :p, :codigo, 'MAIZ_CHULPI', 'ALIMENTACION')"
+        ),
+        {"id": lote, "p": propietario, "codigo": f"L-{sufijo}"},
+    )
+    conexion.execute(
+        sa.text("INSERT INTO poscosegran.recipiente (id, nombre) VALUES (:id, :nombre)"),
+        {"id": recipiente, "nombre": f"Costal {sufijo}"},
+    )
+    conexion.execute(
+        sa.text(
+            "INSERT INTO poscosegran.unidad "
+            "(id, id_lote, id_almacen, id_recipiente, nombre_recipiente, tipo_almacenamiento) "
+            "VALUES (:id, :lote, :almacen, :recipiente, :nombre, 'NO_HERMETICO')"
+        ),
+        {
+            "id": unidad, "lote": lote, "almacen": almacen,
+            "recipiente": recipiente, "nombre": f"Costal {sufijo}",
+        },
+    )
+    return unidad
+
+
 def test_solo_una_incidencia_abierta_por_tipo(motor) -> None:  # type: ignore[no-untyped-def]
-    with motor.begin() as conexion:
-        unidad = conexion.execute(sa.text("SELECT id FROM poscosegran.unidad LIMIT 1")).first()
-        if unidad is None:
-            pytest.skip("no hay unidades registradas todavía")
-        insercion = sa.text(
-            "INSERT INTO poscosegran.incidencia (id_unidad, tipo, estado, causas) "
-            "VALUES (:u, 'CUARENTENA', 'ABIERTA', ARRAY['prueba'])"
-        )
-        conexion.execute(insercion, {"u": unidad[0]})
-        with pytest.raises(sa.exc.IntegrityError):
-            conexion.execute(insercion, {"u": unidad[0]})
+    """El índice parcial impide dos incidencias abiertas del mismo tipo en una unidad.
+
+    La prueba crea su propia unidad y revierte al terminar. Tomar una unidad
+    cualquiera de la base hacía que fallara el *primer* INSERT en cuanto una
+    ejecución anterior —o el uso normal de la aplicación— ya hubiera dejado una
+    cuarentena abierta sobre ella.
+    """
+    with motor.connect() as conexion:
+        transaccion = conexion.begin()
+        try:
+            unidad = _unidad(conexion)
+            insercion = sa.text(
+                "INSERT INTO poscosegran.incidencia (id_unidad, tipo, estado, causas) "
+                "VALUES (:u, 'CUARENTENA', 'ABIERTA', ARRAY['prueba'])"
+            )
+            conexion.execute(insercion, {"u": unidad})
+            with pytest.raises(sa.exc.IntegrityError):
+                conexion.execute(insercion, {"u": unidad})
+        finally:
+            transaccion.rollback()
 
 
 def test_historial_no_se_borra(motor) -> None:  # type: ignore[no-untyped-def]
