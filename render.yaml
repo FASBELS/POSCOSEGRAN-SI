@@ -11,11 +11,10 @@ services:
     name: poscosegran-api
     runtime: docker
     region: ohio
-    plan: 0.5c-512mb
+    plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
-    dockerCommand: uvicorn poscosegran.api.app:crear_app --factory --host 0.0.0.0 --port 10000
-    preDeployCommand: python scripts/render_prepare.py
+    dockerCommand: sh -c "python scripts/render_prepare.py && uvicorn poscosegran.api.app:crear_app --factory --host 0.0.0.0 --port 10000"
     healthCheckPath: /salud/bd
     autoDeployTrigger: commit
     envVars:

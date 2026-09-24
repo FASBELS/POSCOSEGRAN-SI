@@ -30,13 +30,15 @@ deshabilitada para el entorno público.
    - `POSCOSEGRAN_CORS_ORIGENES`: origen del Static Site, por ejemplo
      `https://poscosegran-web.onrender.com` (sin `/` al final).
 
-3. Revisa el plan antes de confirmar. La API está en el plan `0.5c-512mb`, que
-   es de pago y habilita el comando previo al despliegue para las migraciones.
-   La base queda en el plan gratuito como punto de partida; Render la elimina al
-   cumplir 30 días. Si vas a conservar datos, cambia `plan: free` en
-   `render.yaml` por un plan PostgreSQL pagado antes de crear los servicios.
-4. Despliega el Blueprint. El comando previo aplica Alembic y carga el catálogo
-   inicial únicamente cuando aún no hay una versión activa.
+3. Revisa los planes antes de confirmar: la API y PostgreSQL estan en el nivel
+   gratuito; el Static Site tambien es gratuito. La API puede suspenderse por
+   inactividad y tardar en responder al primer acceso. Render elimina la base
+   gratuita a los 30 dias, por lo que este plan sirve para pruebas y no para
+   conservar datos a largo plazo.
+4. Despliega el Blueprint. Al iniciar la API, el comando de arranque aplica
+   Alembic y carga el catalogo inicial unicamente cuando aun no hay una version
+   activa. Se ejecuta al inicio porque Render no ofrece `preDeployCommand` en
+   servicios gratuitos.
 5. Cuando aparezcan las URLs, comprueba que coincidan con las usadas en la
    configuración. El Blueprint supone `https://poscosegran-api.onrender.com` y
    `https://poscosegran-web.onrender.com`. Si Render asignó otra URL:
@@ -88,9 +90,9 @@ credencial inicial de Render después de preparar los usuarios.
 
 ## Despliegues posteriores
 
-Cada actualización enviada a la rama conectada inicia el despliegue. Render
-ejecuta migraciones pendientes antes de iniciar la API. La carga inicial no
-reactiva el catálogo de ejemplo si ya hay otra versión activa.
+Cada actualizacion enviada a la rama conectada inicia el despliegue. Al iniciar
+la API se ejecutan las migraciones pendientes. La carga inicial no reactiva el
+catalogo de ejemplo si ya hay otra version activa.
 
 La API usa la credencial administrada de Render Postgres para migraciones y
 operaciones. Las cuentas JWT y sus roles de aplicación son independientes de
