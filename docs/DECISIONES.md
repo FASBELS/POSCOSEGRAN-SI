@@ -117,7 +117,7 @@ determinista y la fecha forma parte de los hechos. Si la decisión reproducida n
 coincide con la almacenada, se responde 409. Así no hace falta una tabla de trazas.
 
 **D-SE-5. Versiones de conocimiento en la base de datos.** `version_conocimiento`
-guarda el contenido completo y su ciclo de vida (PROPUESTA, ACTIVADA, DESCARTADA).
+guarda el contenido completo y su ciclo de vida (PROPUESTA, ACTIVADA, SUPERADA, DESCARTADA).
 La aplicación puede insertar versiones y cambiar cuál está activa (UPDATE
 restringido a `activa`, `estado`, `activada_en`, `activada_por`), pero no reescribir
 el contenido de una versión existente. La migración 0003 es idempotente porque la

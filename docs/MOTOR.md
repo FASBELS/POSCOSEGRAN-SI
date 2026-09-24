@@ -59,9 +59,11 @@ Las etapas se declaran en la base (`etapas:`); el motor las recorre en orden:
    las detectadas al consolidar el historial.
 2. **Encadenamiento.** R01–R26 hasta punto fijo. Un hecho tardío activa una regla
    ya evaluada: R20 dispara R19 en la pasada siguiente.
-3. **Tiempo.** Vida consumida y proyectada, R29 y después R28.
-4. **Control.** Plazos de la sección 5, acortados con riesgo activo o desconocido, y R27.
-5. **Consolidación.** Solicitudes de la sección 7.1: plazo incompatible, estimación
+3. **Tiempo.** Vida consumida y proyectada; R29 decide si el tiempo está agotado.
+4. **Aviso de tiempo.** R28 emite el aviso preventivo. Está en su propia etapa
+   porque *niega* la conclusión de R29: ver "Negación estratificada" más abajo.
+5. **Control.** Plazos de la sección 5, acortados con riesgo activo o desconocido, y R27.
+6. **Consolidación.** Solicitudes de la sección 7.1: plazo incompatible, estimación
    hermética, banda condicional, incidencias abiertas, plan de monitoreo ausente,
    fase desconocida con suspensión.
 
@@ -71,6 +73,23 @@ una sola vez.
 **Refracción.** Cada regla de producción se dispara como mucho una vez por
 evaluación. Toda pasada que no alcanza el punto fijo dispara al menos una regla
 nueva, así que cada etapa termina en, como mucho, tantas pasadas como reglas tiene.
+
+**Negación estratificada.** El motor no retracta un disparo, así que una regla que
+concluye *porque un hecho no está* solo es correcta si ese hecho ya quedó decidido.
+El cargador lo comprueba al construir la base: recorre el árbol de condiciones
+—entrando en las definiciones reutilizables y siguiendo la polaridad real, ya que
+`negar`, `es_falso` y `es_desconocido` la invierten y el antecedente de `implica`
+es una posición negativa— y exige que todo hecho negado se afirme en una etapa
+*estrictamente anterior*. Una base que no lo cumpla no se carga ni se activa.
+
+Por eso R28 no puede compartir etapa con R29. R28 niega `VIDA_O_PLAZO_AGOTADO`,
+que produce R29: mientras ambas estuvieron en `tiempo`, el resultado era correcto
+solo porque R29 aparecía antes en el archivo YAML, y reordenarlo desde el módulo
+de adquisición habría emitido un aviso preventivo con la vida ya agotada.
+
+Las nueve ramas de R30 ocupan una etapa virtual posterior a todas, porque se
+evalúan una vez alcanzado el punto fijo: sus negaciones son seguras por
+construcción.
 
 **Traza.** Cada disparo registra orden, etapa, pasada, regla, conclusión,
 solicitudes y soportes: las condiciones concretas que lo hicieron verdadero. El

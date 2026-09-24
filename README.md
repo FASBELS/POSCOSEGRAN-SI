@@ -50,6 +50,18 @@ pnpm.cmd dev
 
 Abre [la aplicación local](http://localhost:8443). API interactiva: [documentación local](http://127.0.0.1:8000/documentacion). El técnico necesita una asignación al lote o almacén para ver sus unidades; el administrador no obtiene acceso general a datos de producción. El ingeniero del conocimiento mantiene la base desde *Adquisición* y tampoco ve unidades.
 
+> Activar una versión de conocimiento exige **cuatro ojos**: quien la propuso no puede activarla. Para recorrer el ciclo completo con la única cuenta `ingeniero` de desarrollo, añade `POSCOSEGRAN_ADQUISICION_PERMITIR_AUTOACTIVACION=true` a `backend/.env`. La configuración rechaza esa opción si el entorno es `produccion`.
+
+## Verificar antes de subir
+
+```powershell
+$env:POSCOSEGRAN_BD_URL_PRUEBAS = 'postgresql+psycopg://postgres:revision_local_2026@127.0.0.1:55432/poscosegran'
+$env:POSCOSEGRAN_BD_URL_PRUEBAS_APP = 'postgresql+psycopg://poscosegran_app:local_app_2026@127.0.0.1:55432/poscosegran'
+powershell -ExecutionPolicy Bypass -File scripts/verificar.ps1
+```
+
+Reproduce los gates del workflow en el mismo orden y se detiene en el primero que falle. Añade `-SaltarE2E` para omitir Playwright, o `-SinBd` para una verificación parcial que avisa de que no equivale al CI. No contiene credenciales: las lee del entorno.
+
 ## Documentación
 
 - [Instalación, contenedores, Supabase y respaldos](docs/INSTALACION_DESPLIEGUE.md)

@@ -121,6 +121,26 @@ modelos actuales: en una base nueva no hace nada y en una anterior añade las
 columnas. Las versiones registradas antes de 0003 no tienen contenido; vuelve a
 cargar la semilla con `python -m poscosegran.conocimiento.cargar knowledge --activar`.
 
+### 0004_version_superada
+
+Añade el estado `SUPERADA` al ciclo de vida de `version_conocimiento` y convierte
+las filas existentes que estaban en `ACTIVADA` con `activa = false`. Esa
+combinación se leía como si la versión siguiera vigente y obligaba a cruzar dos
+columnas para saber cuál manda; ahora el estado lo dice por sí solo:
+
+| Estado | Significado |
+|---|---|
+| `PROPUESTA` | Registrada por el módulo de adquisición; aún no rige. |
+| `ACTIVADA` | Es la versión vigente (`activa = true`). Solo puede haber una. |
+| `SUPERADA` | Estuvo activa y fue reemplazada. Las evaluaciones emitidas con ella conservan su resultado. |
+| `DESCARTADA` | Propuesta cerrada sin activar, con su motivo en auditoría. |
+
+También es idempotente, y por un motivo que conviene tener presente al editar
+`db/enums.py`: la migración 0003 construye su restricción `CHECK` importando la
+tupla `ESTADO_VERSION`, así que una base creada **después** de añadir un valor ya
+lo admite desde 0003 y aquí solo se reescribe la restricción con el mismo
+contenido. Quien de verdad necesita esta revisión es una base migrada antes.
+
 Cada evaluación guarda además, en `entrada_efectiva`, `_hechos_iniciales` (la base
 de hechos serializada, reproducible) y `_hash_base`.
 

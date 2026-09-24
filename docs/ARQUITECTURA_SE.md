@@ -149,7 +149,7 @@ y todos sus umbrales y su tabla se leen de la base.
 flowchart TD
     A[Hechos iniciales] --> B[Afirmar hechos calculados<br/>temperatura aplicable]
     B --> C{Siguiente etapa<br/>de la agenda}
-    C -->|validación, encadenamiento,<br/>tiempo, control, consolidación| D[Reconocer: evaluar el antecedente<br/>de cada regla aún no disparada]
+    C -->|validación, encadenamiento, tiempo,<br/>aviso de tiempo, control, consolidación| D[Reconocer: evaluar el antecedente<br/>de cada regla aún no disparada]
     D --> E{¿Alguna VERDADERO?}
     E -->|sí| F[Actuar: añadir hallazgos,<br/>solicitudes, motivos y acciones;<br/>registrar el disparo en la traza]
     F --> D
@@ -167,13 +167,23 @@ usa en la pasada 2 y solicita cuarentena. La prueba
 `test_traza_registra_encadenamiento_en_dos_pasadas` lo comprueba.
 
 **Agenda por etapas.** La sección 8 de la base ordena el razonamiento: validar,
-encadenar R01–R26, calcular el tiempo (R28–R29), los controles (R27) y consolidar
-las solicitudes. Las etapas están declaradas en la base (`etapas:`), no en el
-motor.
+encadenar R01–R26, decidir el agotamiento del tiempo (R29), emitir el aviso
+preventivo (R28), comprobar los controles (R27) y consolidar las solicitudes. Las
+etapas están declaradas en la base (`etapas:`), no en el motor.
 
 **Refracción.** Una regla dispara una sola vez por evaluación. Como cada pasada
 que no alcanza el punto fijo dispara al menos una regla nueva, el ciclo termina
 siempre, en como mucho tantas pasadas como reglas tenga la etapa.
+
+**Negación estratificada.** La refracción tiene una consecuencia: una regla que
+concluye porque un hecho *no* está solo es correcta si ese hecho ya quedó
+decidido. El cargador construye el grafo productor→consumidor de toda la base y
+rechaza cualquier versión en la que un hecho negado se afirme en la misma etapa o
+en una posterior, en la que un hecho consumido no tenga productor, en la que un
+hallazgo tenga dos, o en la que una regla espere un hecho que solo llega más
+tarde. Es lo que separa a R28 de R29 en dos etapas: mientras compartieron `tiempo`,
+la corrección dependía del orden de escritura del YAML, y el módulo de adquisición
+permite reordenarlo. `docs/MOTOR.md` lo detalla.
 
 **Resolución del conjunto conflicto por prioridad.** Varias reglas pueden pedir
 actuaciones incompatibles: cuarentena, suspensión, corrección, monitoreo. R30 las

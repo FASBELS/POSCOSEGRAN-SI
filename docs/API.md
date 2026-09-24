@@ -26,7 +26,18 @@ Los errores incluyen `codigo`, `mensaje`, `campos` e `id_solicitud`. La cabecera
 | `GET /adquisicion/versiones` | `INGENIERO_CONOCIMIENTO` | Versiones de la base con estado, motivo y huella. |
 | `GET /adquisicion/versiones/{id}` | `INGENIERO_CONOCIMIENTO` | Parámetros, reglas de producción y cambios respecto de su origen. |
 | `POST /adquisicion/propuestas` | `INGENIERO_CONOCIMIENTO` | Valida y mide una propuesta. `guardar: false` solo simula; `guardar: true` la registra como `PROPUESTA`. |
-| `POST /adquisicion/versiones/{id}/activar` | `INGENIERO_CONOCIMIENTO` | Activa una versión registrada, con motivo. Las evaluaciones emitidas no cambian. |
+| `POST /adquisicion/versiones/{id}/descartar` | `INGENIERO_CONOCIMIENTO` | Cierra una propuesta con su motivo. Solo admite `PROPUESTA`; repetirlo devuelve la misma versión; una versión activada responde 409. |
+| `POST /adquisicion/versiones/{id}/activar` | `INGENIERO_CONOCIMIENTO` | Activa una versión registrada, con motivo. Vuelve a medir el impacto antes de activar y deja la anterior en `SUPERADA`. Las evaluaciones emitidas no cambian. |
+
+La activación exige **cuatro ojos**: quien propuso una versión no puede activarla y
+recibe 409. La excepción `POSCOSEGRAN_ADQUISICION_PERMITIR_AUTOACTIVACION` existe
+para recorrer el ciclo con una sola cuenta en desarrollo y está prohibida en
+producción.
+
+El impacto que devuelve una simulación identifica los casos históricos por su
+posición en la muestra (`historica:0007`), nunca por el identificador de la
+evaluación: el ingeniero del conocimiento mide el efecto sobre el conjunto y no
+accede a unidades de otras personas.
 
 `GET /conocimiento` añade `version_parametros`, `hash_base`, `parametros` y
 `uso_campos` (para cada campo, las reglas que lo usan).

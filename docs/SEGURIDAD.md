@@ -60,6 +60,27 @@ quedan en auditoría con motivo, versiones y cambios. La base de datos refuerza 
 límite: la cuenta de aplicación puede insertar versiones y cambiar cuál está
 activa, pero no modificar el contenido de una versión ya registrada.
 
+**Separación de funciones.** Quien propone una versión no puede activarla: la
+activación exige otra persona con el mismo rol y devuelve 409 en caso contrario.
+Un cambio de umbral altera lo que el sistema decidirá sobre lotes reales, así que
+se revisa con cuatro ojos como cualquier cambio con efecto en producción. La
+excepción `POSCOSEGRAN_ADQUISICION_PERMITIR_AUTOACTIVACION` permite recorrer el
+ciclo con una sola cuenta en desarrollo; la configuración la rechaza si el entorno
+es `produccion`, de modo que no puede quedarse encendida por descuido.
+
+**Minimización de datos.** La simulación de impacto evalúa las últimas
+evaluaciones emitidas, que pertenecen a unidades de otras personas. Los resultados
+identifican cada caso por su posición en la muestra (`historica:0007`), nunca por
+el identificador de la evaluación: el ingeniero del conocimiento necesita saber
+cuántas decisiones cambian y en qué sentido, no de quién son.
+
+**Integridad de la activación.** La activación toma un advisory lock de
+transacción antes de leer la versión vigente, vuelve a medir el impacto contra la
+evidencia del momento y aborta sin tocar nada si la propuesta no evalúa. Dos
+activaciones simultáneas quedan serializadas y el índice parcial único sobre
+`activa` es la última defensa; hay una prueba que lanza ambas en paralelo y
+comprueba que solo queda una versión activa.
+
 ## RLS
 
 `backend/sql/rls_opcional.sql` contiene políticas de fila como defensa en

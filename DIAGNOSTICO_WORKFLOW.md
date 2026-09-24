@@ -85,7 +85,23 @@ Separé las 13 sentencias `if …: …` en dos líneas. **Comprobé que la salid
 - `sistema_experto/serializacion.py`: el diccionario de lambdas se sustituyó por `if` explícitos, con el mismo comportamiento.
 - `api/rutas/adquisicion.py` y `conocimiento.py`: se quitaron `type: ignore` innecesarios y `_casos_historicos` quedó tipado con `Session` e `Instantanea`.
 
-### F6. Otros problemas del flujo de trabajo (funcionales, no rompen el CI)
+### F6. Otros problemas del flujo de trabajo (funcionales, no rompen el CI) — ✅ los siete cerrados
+
+Los siete puntos de abajo se resolvieron al ejecutar el plan
+`docs/PLAN_IMPLEMENTACION_ENCADENAMIENTO_Y_WORKFLOW.md`:
+
+| # | Estado |
+|---|---|
+| 1 | `POST /adquisicion/versiones/{id}/descartar`, con motivo obligatorio, idempotente y auditado. |
+| 2 | Estado `SUPERADA` y migración `0004_version_superada`. |
+| 3 | Cuatro ojos: quien propone no activa; excepción solo fuera de producción. |
+| 4 | La activación vuelve a medir el impacto y lo guarda en auditoría. |
+| 5 | Los casos históricos se identifican por índice opaco, no por UUID de evaluación. |
+| 6 | `tests/test_adquisicion_api.py`: 18 casos de API, permisos, concurrencia y auditoría. |
+| 7 | La prueba crea su propia unidad y revierte; ya no depende de datos previos. |
+
+Enunciado original, por trazabilidad:
+
 1. **No se puede descartar una propuesta.** El estado `DESCARTADA` existe en BD, enum y migración, pero ningún endpoint ni pantalla lo asigna. Las propuestas se acumulan para siempre.
 2. **Estado ambiguo de la versión anterior.** Tras activar la 1.1, la 1.0 queda `estado=ACTIVADA, activa=false` (lo observé en la API). Falta un estado como `RETIRADA`/`SUPERADA`, o documentar que `estado` es histórico.
 3. **Sin separación de funciones.** El mismo ingeniero propone y activa. En un sistema experto con adquisición conviene el "principio de cuatro ojos": quien activa debe ser distinto de quien propone, o al menos debe dejar un motivo obligatorio, que ya existe.
@@ -103,7 +119,7 @@ Separé las 13 sentencias `if …: …` en dos líneas. **Comprobé que la salid
 ### 4.1 Encadenamiento hacia adelante (forward chaining), guiado por datos — el algoritmo principal
 El ciclo **reconocer → actuar** sigue la arquitectura clásica de un sistema de producción (estilo OPS5/CLIPS):
 1. **Base de hechos** (`base_hechos.py`): se afirman los hechos iniciales, que son las observaciones del lote, y los calculados (`calculos.py`).
-2. **Agenda por etapas**, con 5 en orden fijo: `validacion → encadenamiento → tiempo → control → consolidacion`.
+2. **Agenda por etapas**, con 6 en orden fijo: `validacion → encadenamiento → tiempo → aviso_tiempo → control → consolidacion`. (`aviso_tiempo` se separó de `tiempo` al corregir §4.4; antes eran 5.)
 3. En cada etapa se hacen **pasadas** repetidas:
    - *reconocer*: se evalúa `aplica_si` y `si` de cada regla aún no disparada, con lógica de tres estados;
    - *actuar*: si el resultado es VERDADERO, se dispara la regla, que añade un hallazgo (hecho inferido), un motivo, una acción y solicitudes;
@@ -122,11 +138,28 @@ El ciclo **reconocer → actuar** sigue la arquitectura clásica de un sistema d
 ### 4.3 Evaluación bajo demanda de definiciones (componente guiado por objetivos)
 Los predicados derivados (`definicion: medicion_confirmada`, `riesgo_activo`…) se evalúan **cuando una regla los necesita** y se memorizan. Esto es evaluación perezosa guiada por el objetivo, parecida al encadenamiento hacia atrás, pero **no es un motor de encadenamiento hacia atrás completo**: no hay búsqueda de metas con submetas ni preguntas al usuario. El módulo de explicación hace un recorrido *hacia atrás* sobre la traza (`fallidas`, `por_que_se_pide`), pero solo con fines explicativos.
 
-### 4.4 Riesgo detectado en el encadenamiento: negación no monótona
+### 4.4 Riesgo detectado en el encadenamiento: negación no monótona — ✅ corregido
 El motor **no retracta** disparos, así que una regla que niega un hecho solo es segura si ese hecho se produce antes. Un análisis estático de toda la base encontró un único caso:
-- `R28` (etapa `tiempo`) usa `negar: {hecho: VIDA_O_PLAZO_AGOTADO}`, que produce `R29` en **la misma etapa**. Hoy es correcto solo porque `R29` va escrita antes que `R28` en el YAML.
+- `R28` (etapa `tiempo`) usaba `negar: {hecho: VIDA_O_PLAZO_AGOTADO}`, que produce `R29` en **la misma etapa**. Era correcto solo porque `R29` va escrita antes que `R28` en el YAML.
 - **Riesgo:** desde *Adquisición*, un ingeniero puede reordenar o añadir reglas, y el motor dispararía un "próximo al límite" con la vida ya agotada.
-- **Corrección propuesta** (plan P2): el validador de `base_conocimiento.py` debe rechazar toda regla que niegue un hecho producido en la misma etapa o en una posterior, o bien el motor debe ordenar la etapa por estratos (estratificación de la negación, como en Datalog).
+
+**Corrección aplicada.** Se hicieron las dos cosas que se proponían, no una:
+
+1. `base_conocimiento.py` construye el grafo productor→consumidor al cargar la base
+   y rechaza toda producción que niegue un hecho afirmado en su misma etapa o en
+   una posterior. El recorrido entra en las definiciones reutilizables y respeta la
+   polaridad real: `negar`, `es_falso` y `es_desconocido` la invierten, y el
+   antecedente de `implica` es una posición negativa. También rechaza hechos sin
+   productor, hallazgos con dos productores y reglas inalcanzables por su etapa.
+   Las nueve ramas de R30 ocupan una etapa virtual posterior a todas, porque se
+   evalúan tras el punto fijo.
+2. `R28` pasó a la etapa nueva `aviso_tiempo`, posterior a `tiempo`.
+
+Verificación del análisis estático completo sobre la base oficial: 45 negaciones,
+de las que 44 ya estaban estratificadas y solo R28 dependía del orden. Los 242
+casos de referencia reproducen exactamente su resultado aprobado tras el cambio;
+lo único que se movió fue el `hash_base` del archivo, que ahora además se comprueba
+en una prueba para que no vuelva a quedar desactualizado en silencio.
 
 ---
 

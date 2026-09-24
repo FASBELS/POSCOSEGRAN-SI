@@ -1,5 +1,47 @@
 # Verificación de la integración
 
+## Estado tras el plan de encadenamiento y workflow (24 de septiembre de 2026)
+
+Ejecutado en Windows con Python 3.13, pnpm 10.24.0 y PostgreSQL 16.15 en contenedor.
+
+| Comprobación | Resultado |
+| --- | --- |
+| Ruff sobre código, pruebas y scripts | Sin errores |
+| Mypy estricto | Sin errores en 62 archivos (antes: 43 errores en 4 módulos huérfanos) |
+| `alembic upgrade head` desde base vacía (0001→0004) | Correcto |
+| `alembic check` | Sin diferencias de modelos |
+| Suite Python con PostgreSQL real | 175 aprobadas; 1 omitida, la de la credencial restringida, que corre en su propio paso |
+| Cuenta de aplicación sin DDL, con `poscosegran_app` | 1 aprobada |
+| Casos de referencia reproducidos | 242 de 242, sin diferencias |
+| API de adquisición (`tests/test_adquisicion_api.py`) | 18 aprobadas |
+| Carga idempotente de la base de conocimiento | Dos ejecuciones seguidas, sin cambios |
+| ESLint y compilación Vite | Correctos |
+| Contrato OpenAPI y tipos regenerados | `src/campos.json` sin cambios |
+
+### Cómo se comprueba que nada se omite en silencio
+
+`POSCOSEGRAN_EXIGIR_BD=1` convierte en fallo la omisión de las pruebas marcadas
+`bd`. Sin `POSCOSEGRAN_BD_URL_PRUEBAS`, la sesión termina con código 4 y nombra
+las 19 pruebas que se habrían saltado, en lugar de pasar en verde. El workflow lo
+define para todo el job.
+
+`scripts/verificar.ps1` reproduce los gates del workflow en Windows, en el mismo
+orden, y se detiene en el primero que falle. Lee las credenciales del entorno y se
+niega a arrancar sin URL de pruebas; con `-SinBd` avisa explícitamente de que el
+resultado no equivale al del workflow.
+
+### Aislamiento de las pruebas de integración
+
+`test_solo_una_incidencia_abierta_por_tipo` crea su propia unidad dentro de una
+transacción que revierte al terminar. Antes tomaba una unidad cualquiera de la
+base, así que fallaba el *primer* INSERT en cuanto una ejecución anterior —o el
+uso normal de la aplicación— ya había dejado una cuarentena abierta sobre ella: la
+suite daba resultados distintos en pasadas consecutivas sobre la misma base.
+
+---
+
+## Revisión anterior
+
 Revisión ejecutada el 16 de septiembre de 2026 en Windows, Python 3.13, Node y PostgreSQL 16. El navegador también se verificó contra la compilación servida por Nginx y FastAPI en Docker.
 
 | Comprobación | Resultado |
