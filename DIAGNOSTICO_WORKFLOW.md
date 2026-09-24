@@ -11,7 +11,7 @@ Fecha: 2026-09-23 · Commit revisado: `2bbbf34` ("feat: Add Adquisicion module�
 | # | Paso del CI | Estado en `2bbbf34` | Causa | Estado ahora |
 |---|---|---|---|---|
 | 1 | `ruff check` | ❌ 13 errores E701 | `generar_casos_referencia.py` escrito con `if x: y` en una sola línea | ✅ Corregido |
-| 2 | `mypy` (strict) | ❌ 55 errores en 10 archivos | 43 vienen de **4 módulos huérfanos** que debían eliminarse. Los 12 restantes son anotaciones de tipos en código nuevo | ⚠️ 12 corregidos; **faltan los 43 de los huérfanos (debes borrarlos tú, ver §4)** |
+| 2 | `mypy` (strict) | ❌ 55 errores en 10 archivos | 43 vienen de **4 módulos huérfanos** que debían eliminarse. Los 12 restantes son anotaciones de tipos en código nuevo | ✅ Corregido: los 6 huérfanos eliminados, 0 errores |
 | 3 | `alembic check` | ✅ | — | ✅ |
 | 4 | `pytest` con BD | ❌ ERROR en todas las pruebas de API | `conftest.py` llama a `cargar(knowledge/catalogo.yaml)`, pero el nuevo `cargar()` espera la carpeta | ✅ Corregido: 143 pasan |
 | 5 | Privilegios de aplicación | ✅ | — | ✅ |
@@ -36,8 +36,8 @@ Fecha: 2026-09-23 · Commit revisado: `2bbbf34` ("feat: Add Adquisicion module�
 
 ## 3. Fallos detallados y por qué
 
-### F1. Módulos huérfanos no eliminados (rompe `mypy`) — **CRÍTICO, pendiente de ti**
-La entrega decía "los 6 módulos que tenían el conocimiento en el código, eliminados". En git **siguen presentes**:
+### F1. Módulos huérfanos no eliminados (rompía `mypy`) — ✅ corregido
+La entrega decía "los 6 módulos que tenían el conocimiento en el código, eliminados". En el commit `a0db9ba` **seguían presentes**:
 
 ```
 backend/src/poscosegran/dominio/reglas.py          (690 líneas)
@@ -49,11 +49,19 @@ backend/src/poscosegran/dominio/parametros.py      (50)
 ```
 **Por qué ocurre:** al descomprimir el ZIP encima del repositorio no se borra nada. Nadie importa estos módulos (lo verifiqué con grep en `src`, `tests`, `scripts` y `docs`), pero siguen usando `Instantanea.parametros` y `tablas.ID_TABLA`, que ya no existen, así que `mypy` falla. Además contradicen el documento de arquitectura: un evaluador que abra `dominio/reglas.py` verá "conocimiento en el código".
 
-**Corrección:**
+**Corrección aplicada** (fase 1 del plan de implementación):
 ```powershell
 git rm backend/src/poscosegran/dominio/{reglas,resolucion,tiempo,comprobaciones,catalogo,parametros}.py
 ```
-(El entorno de esta sesión me bloqueó el borrado de archivos, por eso no lo hice yo.)
+
+Antes de borrarlos se comprobó que los seis solo se importaban **entre ellos**
+(`resolucion→reglas`, `resolucion→tiempo`, `reglas→comprobaciones`, `reglas→catalogo`):
+ningún consumidor externo en `src`, `tests` ni `scripts`. `dominio/tablas.py` **no**
+es huérfano —lo usa `tests/casos/test_aceptacion.py`— y se conserva.
+
+**Resultado medido tras el borrado:** `mypy` pasa de 43 errores a `Success: no issues
+found in 62 source files`; `ruff` sigue limpio; las 126 pruebas sin base de datos
+siguen pasando y los 242 casos de referencia no cambian.
 
 ### F2. `conftest.py` y `cargar()` incompatibles (rompe `pytest`) — ✅ corregido
 `cargar()` pasó a recibir la **carpeta** `knowledge/`, y la compatibilidad con la ruta antigua (`catalogo.yaml`) quedó solo en `main()`. `conftest.py` sigue pasando el archivo y se intenta abrir `knowledge/catalogo.yaml/base_conocimiento.yaml`.
