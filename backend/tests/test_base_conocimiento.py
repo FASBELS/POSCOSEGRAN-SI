@@ -295,3 +295,154 @@ def test_inconsistencia_detectada_fuera_del_motor_exige_correccion() -> None:
     assert r.decision_final == "CORREGIR_Y_REEVALUAR"
     motivo = next(m for m in r.motivos if m.id == "VALIDACION:DATOS_INCONSISTENTES")
     assert "vida_previa_menor_al_historial_persistido" in motivo.mensaje
+
+
+# --- Grafo de dependencias y orden seguro -------------------------------------------
+
+
+def _sin_etapa(contenido, produccion: str, etapa: str) -> None:
+    next(r for r in contenido["reglas"] if r["id"] == produccion)["etapa"] = etapa
+
+
+def test_la_base_oficial_estratifica_todas_las_negaciones(activa) -> None:
+    """Toda negación lee un hecho ya cerrado en una etapa anterior.
+
+    Es la garantía que hace irrelevante el orden de escritura del YAML: sin ella,
+    mover una producción dentro del archivo podría cambiar una decisión.
+    """
+    posicion = {d.id: d.posicion for d in activa.dependencias}
+    productor = {d.hallazgo: d for d in activa.dependencias if d.hallazgo}
+    negaciones = [
+        (d.id, hecho)
+        for d in activa.dependencias
+        for hecho in d.hechos_negados
+        if productor[hecho].posicion >= posicion[d.id]
+    ]
+    assert not negaciones, f"negaciones dependientes del orden: {negaciones}"
+
+
+def test_el_agotamiento_se_decide_antes_que_el_aviso(activa) -> None:
+    """R28 solo puede negar VIDA_O_PLAZO_AGOTADO desde una etapa posterior a R29."""
+    etapas = {d.id: d.etapa for d in activa.dependencias}
+    assert etapas["R29"] == "tiempo"
+    assert etapas["R28"] == "aviso_tiempo"
+    assert activa.etapas.index("tiempo") < activa.etapas.index("aviso_tiempo")
+    r28 = next(d for d in activa.dependencias if d.id == "R28")
+    assert "VIDA_O_PLAZO_AGOTADO" in r28.hechos_negados
+
+
+@pytest.mark.parametrize(
+    "mutacion, fragmento",
+    [
+        # R28 vuelve a la etapa de su productor: el resultado dependería del YAML.
+        (lambda o: _sin_etapa(o, "R28", "tiempo"), "la misma etapa"),
+        # El productor pasa a una etapa posterior a la que lo niega.
+        (lambda o: _sin_etapa(o, "R29", "control"), "la etapa posterior"),
+        # Un hecho que nadie afirma nunca podría ser verdadero.
+        (
+            lambda o: next(r for r in o["reglas"] if r["id"] == "R12").update(
+                {"si": {"hecho": "HECHO_QUE_NO_EXISTE"}}
+            ),
+            "ninguna producción afirma",
+        ),
+        # Dos productores hacen ambigua la etapa en que el hecho queda decidido.
+        (
+            lambda o: next(r for r in o["reglas"] if r["id"] == "R06")["entonces"].update(
+                {"hallazgo": "HUMEDAD_APTA_BASE"}
+            ),
+            "único productor",
+        ),
+        # Una regla de validación no puede esperar un hecho de la consolidación.
+        (
+            lambda o: next(r for r in o["reglas"] if r["id"] == "R12").update(
+                {"etapa": "validacion", "si": {"hecho": "PLAZO_INCOMPATIBLE"}}
+            ),
+            "nunca se dispararía",
+        ),
+    ],
+)
+def test_el_validador_rechaza_dependencias_inseguras(activa, mutacion, fragmento) -> None:
+    contenido = _contenido(activa)
+    mutacion(contenido["operativa"])
+    assert any(fragmento in e for e in _errores(contenido)), _errores(contenido)
+
+
+def test_detecta_la_negacion_indirecta_a_traves_de_una_definicion(activa) -> None:
+    """Envolver el hecho en una definición no esquiva la comprobación."""
+    contenido = _contenido(activa)
+    operativa = contenido["operativa"]
+    operativa["definiciones"]["agotamiento_alias"] = {"hecho": "VIDA_O_PLAZO_AGOTADO"}
+    regla = next(r for r in operativa["reglas"] if r["id"] == "R28")
+    regla["etapa"] = "tiempo"
+    regla["si"]["todos"][0] = {"negar": {"definicion": "agotamiento_alias"}}
+    assert any("la misma etapa" in e for e in _errores(contenido)), _errores(contenido)
+
+
+def test_las_ramas_r30_pueden_negar_hechos_de_cualquier_etapa(activa) -> None:
+    """Se evalúan tras el punto fijo, así que ninguna negación suya depende del orden."""
+    ramas = [d for d in activa.dependencias if d.etapa == "resolucion"]
+    assert [d.id for d in ramas] == [f"R30.{n}" for n in range(1, 10)]
+    assert all(d.posicion == len(activa.etapas) for d in ramas)
+    assert any(d.hechos_negados for d in ramas)
+
+
+# --- Propiedades del ciclo de inferencia --------------------------------------------
+
+
+def test_refraccion_y_terminacion(activa) -> None:
+    """Cada producción dispara una vez y ninguna etapa supera n+1 pasadas."""
+    from casos.base import bul
+
+    inst = con(caso_base(), heces_visibles=bul("heces_visibles", True))
+    resultado = Motor(activa).evaluar(inst)
+    producciones = [a.produccion for a in resultado.traza]
+    assert len(producciones) == len(set(producciones)), "una producción disparó dos veces"
+    por_etapa = {e: sum(1 for r in activa.reglas if r.etapa == e) for e in activa.etapas}
+    for activacion in resultado.traza:
+        assert activacion.pasada <= por_etapa[activacion.etapa] + 1
+
+
+def test_la_evaluacion_es_determinista(activa) -> None:
+    """Misma instantánea y misma versión de conocimiento: mismo resultado y misma traza."""
+    from casos.base import bul
+
+    inst = con(caso_base(), heces_visibles=bul("heces_visibles", True))
+    motor = Motor(activa)
+    primero, segundo = motor.evaluar(inst), motor.evaluar(inst)
+    assert primero.decision_final == segundo.decision_final
+    assert primero.rama_r30 == segundo.rama_r30
+    assert primero.reglas_activadas == segundo.reglas_activadas
+    assert [(a.orden, a.produccion, a.pasada) for a in primero.traza] == [
+        (a.orden, a.produccion, a.pasada) for a in segundo.traza
+    ]
+
+
+def test_cadena_de_tres_producciones_hasta_la_decision(activa) -> None:
+    """R20 afirma un hecho, R19 lo consume y pide cuarentena, y R30.1 decide con esa solicitud."""
+    from casos.base import bul
+
+    resultado = Motor(activa).evaluar(
+        con(caso_base(), heces_visibles=bul("heces_visibles", True))
+    )
+    pasos = {a.produccion: a for a in resultado.traza}
+    assert pasos["R20"].hallazgo == "CONTAMINACION_ANIMAL_OBSERVADA"
+    assert "CONTAMINACION_ANIMAL_OBSERVADA" in pasos["R19"].soportes
+    assert "CUARENTENA_SOLICITADA" in pasos["R19"].solicitudes
+    assert resultado.rama_r30 == "R30.1"
+    assert resultado.decision_final == "CUARENTENA"
+
+    # La misma cadena, leída del grafo y no de una ejecución concreta.
+    grafo = {d.id: d for d in activa.dependencias}
+    assert grafo["R20"].hallazgo in grafo["R19"].hechos
+    assert "CUARENTENA" in grafo["R19"].produce_solicitudes
+    assert "CUARENTENA" in grafo["R30.1"].solicitudes
+
+
+def test_el_hash_de_los_casos_de_referencia_coincide_con_la_base(activa) -> None:
+    """Si la base cambia, los 242 casos deben revisarse y regenerarse, no ignorarse."""
+    ruta = base_conocimiento.ruta_por_defecto() / "casos_referencia.json"
+    contenido = json.loads(ruta.read_text(encoding="utf-8"))
+    assert contenido["hash_base"] == activa.hash, (
+        "casos_referencia.json se generó con otra versión de la base: revise el impacto "
+        "y regenérelo con scripts/generar_casos_referencia.py"
+    )

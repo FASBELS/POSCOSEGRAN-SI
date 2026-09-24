@@ -455,8 +455,14 @@ definiciones:
 # Agenda de inferencia — sección 8
 # Las etapas se ejecutan en orden; dentro de cada una, las reglas se aplican
 # hasta punto fijo. Una regla ya disparada no vuelve a registrarse.
+#
+# El cargador exige que toda producción que *niegue* un hecho se ejecute en una
+# etapa estrictamente posterior a la que lo afirma. Por eso el agotamiento del
+# tiempo (R29, etapa `tiempo`) se decide antes que el aviso preventivo (R28,
+# etapa `aviso_tiempo`): el aviso solo tiene sentido si el tiempo no está agotado,
+# y con la separación esa lectura ya no depende del orden de este archivo.
 # ----------------------------------------------------------------------------
-etapas: [validacion, encadenamiento, tiempo, control, consolidacion]
+etapas: [validacion, encadenamiento, tiempo, aviso_tiempo, control, consolidacion]
 
 reglas:
 
@@ -868,7 +874,9 @@ reglas:
       - {dato: polvo_humo_gases_vapores, op: PRESENCIA, valor: true}
       - {dato: quimicos_combustibles_en_almacen, op: PRESENCIA, valor: true}
 
-  # --- Tiempo, sección 6 (R29 antes que R28: el agotamiento prevalece) ------
+  # --- Tiempo, sección 6 -----------------------------------------------------
+  # El agotamiento prevalece sobre el aviso preventivo. R29 lo decide en la etapa
+  # `tiempo`; R28 lee esa conclusión ya cerrada en `aviso_tiempo`.
   - id: R29
     etapa: tiempo
     si:
@@ -887,7 +895,7 @@ reglas:
       accion: {codigo: EVALUAR_DISPOSICION, descripcion: "Evaluar disposición técnica del lote; no se ordena consumo ni destrucción.", responsable: TECNICO}
 
   - id: R28
-    etapa: tiempo
+    etapa: aviso_tiempo
     si:
       todos:
         - {negar: {hecho: VIDA_O_PLAZO_AGOTADO}}

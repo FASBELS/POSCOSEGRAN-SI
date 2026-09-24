@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import cached_property
@@ -76,6 +76,12 @@ OPERADORES: dict[str, frozenset[str]] = {
     "constante": frozenset(),
     "siempre": frozenset(),
 }
+
+# Operadores que invierten la polaridad de lo que contienen. Un hecho leído bajo
+# uno de ellos se consume *negado*: la producción concluye porque el hecho no está.
+# El motor no retracta disparos, así que una negación solo es fiable si el hecho
+# ya alcanzó su valor definitivo; de ahí la estratificación por etapas de _grafo().
+OPERADORES_NEGATIVOS = frozenset({"negar", "es_falso", "es_desconocido"})
 
 CALCULOS_DISPONIBLES = frozenset(
     {
@@ -144,6 +150,25 @@ class Rama:
     decision: str
     si: Mapping[str, Any]
     mensaje: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class Dependencias:
+    """Lo que una producción consume y produce, y su lugar en la agenda.
+
+    `posicion` es el índice de la etapa; las ramas de resolución usan una etapa
+    virtual posterior a todas, porque se evalúan una vez alcanzado el punto fijo.
+    """
+
+    id: str
+    etapa: str
+    posicion: int
+    hechos: frozenset[str]
+    hechos_negados: frozenset[str]
+    solicitudes: frozenset[str]
+    solicitudes_negadas: frozenset[str]
+    hallazgo: str | None
+    produce_solicitudes: frozenset[str]
 
 
 @dataclass(frozen=True, slots=True)
@@ -234,6 +259,7 @@ class BaseConocimiento:
     fundamentos: Mapping[str, tuple[tuple[str, ...], str]]
     localizadores: Mapping[str, str]
     documental: Mapping[str, Any]
+    dependencias: tuple[Dependencias, ...]
     contenido: Mapping[str, Any] = field(repr=False)
 
     # --- Consulta -----------------------------------------------------------
@@ -411,6 +437,177 @@ def _ciclos(definiciones: Mapping[str, Any]) -> list[str]:
     for nombre in dependencias:
         visitar(nombre, [])
     return errores
+
+
+def _consumos(
+    nodo: Any, definiciones: Mapping[str, Any]
+) -> tuple[frozenset[str], frozenset[str], frozenset[str], frozenset[str]]:
+    """Hechos y solicitudes que consume una condición, separados por polaridad.
+
+    Se recorre el árbol completo, entrando en las definiciones reutilizables. Un
+    operador negativo invierte la polaridad de todo lo que contiene, y el
+    antecedente de `implica` también es una posición negativa, porque
+    `implica{si: A, entonces: B}` equivale a `alguno[negar A, B]`.
+    """
+    positivos: set[str] = set()
+    negados: set[str] = set()
+    solicitudes: set[str] = set()
+    solicitudes_negadas: set[str] = set()
+
+    def recorrer(nodo: Any, negativo: bool, visitadas: frozenset[str]) -> None:
+        if isinstance(nodo, Mapping):
+            for clave, valor in nodo.items():
+                if clave in OPERADORES_NEGATIVOS:
+                    recorrer(valor, not negativo, visitadas)
+                    continue
+                if clave == "implica" and isinstance(valor, Mapping):
+                    recorrer(valor.get("si"), not negativo, visitadas)
+                    recorrer(valor.get("entonces"), negativo, visitadas)
+                    continue
+                if clave in {"hecho", "algun_hecho"}:
+                    nombres = [valor] if isinstance(valor, str) else valor
+                    if isinstance(nombres, list):
+                        destino = negados if negativo else positivos
+                        destino.update(n for n in nombres if isinstance(n, str))
+                elif clave == "solicitud" and isinstance(valor, str):
+                    (solicitudes_negadas if negativo else solicitudes).add(valor)
+                elif clave == "definicion" and isinstance(valor, str) and valor not in visitadas:
+                    recorrer(definiciones.get(valor, {}), negativo, visitadas | {valor})
+                if isinstance(valor, Mapping | list):
+                    recorrer(valor, negativo, visitadas)
+        elif isinstance(nodo, list):
+            for hijo in nodo:
+                recorrer(hijo, negativo, visitadas)
+
+    recorrer(nodo, False, frozenset())
+    return (
+        frozenset(positivos),
+        frozenset(negados),
+        frozenset(solicitudes),
+        frozenset(solicitudes_negadas),
+    )
+
+
+def _grafo(
+    reglas: Sequence[ReglaProduccion],
+    resolucion: Sequence[Rama],
+    definiciones: Mapping[str, Any],
+    etapas: Sequence[str],
+) -> tuple[tuple[Dependencias, ...], list[str]]:
+    """Grafo productor→consumidor de la base, con las reglas de orden seguro.
+
+    El motor recorre las etapas en orden y no retracta lo ya afirmado, así que la
+    corrección de una negación no puede depender de en qué línea del YAML esté
+    escrita cada producción. Se exige que todo hecho negado se haya decidido en una
+    etapa *estrictamente anterior*; con eso, reordenar el archivo no altera ninguna
+    decisión y la propiedad queda comprobada en la carga, no confiada al autor.
+    """
+    posicion = {etapa: i for i, etapa in enumerate(etapas)}
+    errores: list[str] = []
+
+    grafo: list[Dependencias] = []
+    for regla in reglas:
+        if regla.etapa not in posicion:
+            continue  # la etapa desconocida ya se reportó al construir la regla
+        hechos, negados, solicitudes, sol_negadas = _consumos(regla.si, definiciones)
+        if regla.aplica_si is not None:
+            extra = _consumos(regla.aplica_si, definiciones)
+            hechos |= extra[0]
+            negados |= extra[1]
+            solicitudes |= extra[2]
+            sol_negadas |= extra[3]
+        grafo.append(
+            Dependencias(
+                id=regla.id,
+                etapa=regla.etapa,
+                posicion=posicion[regla.etapa],
+                hechos=hechos,
+                hechos_negados=negados,
+                solicitudes=solicitudes,
+                solicitudes_negadas=sol_negadas,
+                hallazgo=regla.entonces.hallazgo,
+                produce_solicitudes=frozenset(regla.entonces.solicitudes),
+            )
+        )
+    for rama in resolucion:
+        hechos, negados, solicitudes, sol_negadas = _consumos(rama.si, definiciones)
+        grafo.append(
+            Dependencias(
+                id=rama.rama,
+                etapa="resolucion",
+                posicion=len(etapas),  # después del punto fijo de todas las etapas
+                hechos=hechos,
+                hechos_negados=negados,
+                solicitudes=solicitudes,
+                solicitudes_negadas=sol_negadas,
+                hallazgo=None,
+                produce_solicitudes=frozenset(),
+            )
+        )
+
+    # Un hecho con dos productores hace ambigua la etapa en que queda decidido y
+    # permitiría que una negación válida hoy dejara de serlo al añadir el segundo.
+    productor: dict[str, Dependencias] = {}
+    for nodo in grafo:
+        if nodo.hallazgo is None:
+            continue
+        previo = productor.get(nodo.hallazgo)
+        if previo is not None:
+            errores.append(
+                f"dependencias: el hallazgo '{nodo.hallazgo}' lo producen '{previo.id}' y "
+                f"'{nodo.id}'; cada hecho debe tener un único productor (use 'alguno' dentro "
+                f"de una sola producción)"
+            )
+            continue
+        productor[nodo.hallazgo] = nodo
+    productores_solicitud: dict[str, list[Dependencias]] = {}
+    for nodo in grafo:
+        for solicitud in nodo.produce_solicitudes:
+            productores_solicitud.setdefault(solicitud, []).append(nodo)
+
+    for nodo in grafo:
+        for hecho in sorted(nodo.hechos | nodo.hechos_negados):
+            if hecho not in productor:
+                errores.append(
+                    f"dependencias: '{nodo.id}' consume el hecho '{hecho}', que ninguna "
+                    f"producción afirma"
+                )
+        for hecho in sorted(nodo.hechos):
+            origen = productor.get(hecho)
+            if origen is not None and origen.posicion > nodo.posicion:
+                errores.append(
+                    f"dependencias: '{nodo.id}' (etapa {nodo.etapa}) exige el hecho '{hecho}', "
+                    f"que solo se afirma en la etapa posterior '{origen.etapa}' ('{origen.id}'): "
+                    f"nunca se dispararía"
+                )
+        for hecho in sorted(nodo.hechos_negados):
+            origen = productor.get(hecho)
+            if origen is None or origen.posicion < nodo.posicion:
+                continue
+            relacion = (
+                f"la misma etapa '{origen.etapa}'"
+                if origen.posicion == nodo.posicion
+                else f"la etapa posterior '{origen.etapa}'"
+            )
+            errores.append(
+                f"dependencias: '{nodo.id}' (etapa {nodo.etapa}) niega el hecho '{hecho}', que "
+                f"'{origen.id}' afirma en {relacion}: el resultado dependería del orden de "
+                f"escritura. Mueva la producción que niega a una etapa posterior a su productor"
+            )
+        for solicitud in sorted(nodo.solicitudes_negadas):
+            tardios = [
+                origen
+                for origen in productores_solicitud.get(solicitud, [])
+                if origen.posicion >= nodo.posicion
+            ]
+            if tardios:
+                errores.append(
+                    f"dependencias: '{nodo.id}' (etapa {nodo.etapa}) niega la solicitud "
+                    f"'{solicitud}', que {', '.join(sorted(o.id for o in tardios))} puede pedir "
+                    f"en esa etapa o después: el resultado dependería del orden de escritura"
+                )
+
+    return tuple(grafo), errores
 
 
 def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> BaseConocimiento:
@@ -597,6 +794,10 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
             f"las ramas R30 del documento {ramas_documento} no coinciden con las operativas "
             f"{ramas_operativas}"
         )
+    # Orden seguro de dependencias: ninguna negación puede depender del orden del YAML.
+    dependencias, errores_grafo = _grafo(reglas, resolucion, definiciones, etapas)
+    errores.extend(errores_grafo)
+
     fuentes_documento = {f["id"] for f in documental.get("fuentes", [])}
     citadas = {f for fuentes, _ in fundamentos.values() for f in fuentes}
     citadas |= {f for p in parametros.values() for f in p.fuentes}
@@ -622,6 +823,7 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
         fundamentos=fundamentos,
         localizadores=dict(operativa["localizadores"]),
         documental=documental,
+        dependencias=dependencias,
         contenido={"operativa": operativa, "documental": documental},
     )
 
