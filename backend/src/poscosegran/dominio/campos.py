@@ -108,6 +108,38 @@ CAMPOS: dict[str, Campo] = {
     "hay_evento_que_invalida_control": _b(5),
     "sensor_interno_hermetico": _b(5, True),
     "temperatura_ambiente_maxima_intervalo": _n("CELSIUS", 5, True),
+    # Paso 6 — infraestructura y entorno (R31–R36)
+    "filtracion_agua_almacen": _b(6),
+    "drenaje_obstruido": _b(6),
+    "malla_ventana_danada": _b(6),
+    "abertura_ingreso_plagas": _b(6),
+    "humedad_por_agua_en_unidad": _b(6),
+    "agua_estancada_entorno": _b(6),
+    "residuos_o_maleza_entorno": _b(6),
+    "sacos_usados_o_desechos_en_almacen": _b(6),
+    "residuos_de_proceso_sin_retirar": _b(6),
+    # Paso 7 — estiba y accesibilidad (R37–R39)
+    "paleta_danada_o_con_salientes": _b(7),
+    "estiba_inestable": _b(7),
+    "altura_supera_limite_proveedor": _b(7),
+    "pasillo_inspeccion_obstruido": _b(7),
+    "distancia_entre_estantes": _n("METROS", 7, True),
+    # Paso 8 — trazabilidad y movimientos (R40–R47)
+    "identificacion_unidad_legible": _b(8),
+    "registro_trazabilidad_completo": _b(8),
+    "movimiento_sin_registro": _b(8),
+    "contacto_con_unidad_en_cuarentena": _b(8),
+    "separacion_cuarentena_verificada": _b(8),
+    "derrame_grano_en_piso": _b(8),
+    "grano_derramado_reincorporado": _b(8),
+    "rotacion_no_justificada": _b(8),
+    # Paso 9 — sustancias, plagas documentales y vencimiento (R48–R52)
+    "alimentos_olor_incompatible_en_contacto": _b(9),
+    "programa_control_plagas_documentado": _b(9),
+    "aplicacion_plaguicida_sin_registro_competente": _b(9),
+    "exposicion_quimica_del_grano": _b(9),
+    "fecha_vencimiento_producto": _f(9, True),
+    "vencimiento_aplicable": _b(9, True),
 }
 
 # Dominios numéricos admitidos. Fuera de rango el dato se conserva como INVALIDO
@@ -127,6 +159,7 @@ DOMINIOS: dict[str, tuple[float, float]] = {
     "distancia_piso": (0.0, 50.0),
     "distancia_pared": (0.0, 50.0),
     "distancia_techo": (0.0, 50.0),
+    "distancia_entre_estantes": (0.0, 50.0),
     "temperatura_grano": (-30.0, 90.0),
     "temperatura_grano_previa": (-30.0, 90.0),
     "temperatura_almacen": (-30.0, 90.0),

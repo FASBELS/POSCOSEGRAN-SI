@@ -128,6 +128,28 @@ fundamentos:
   R30.7: {fuentes: [S03, S06, S08], tipo: MIXTO}
   R30.8: {fuentes: [], tipo: POLITICA_PROTOTIPO}
   R30.9: {fuentes: [], tipo: POLITICA_PROTOTIPO}
+  R31: {fuentes: [S02, S05], tipo: MIXTO}
+  R32: {fuentes: [S05], tipo: MIXTO}
+  R33: {fuentes: [S02, S05], tipo: MIXTO}
+  R34: {fuentes: [S02, S05], tipo: MIXTO}
+  R35: {fuentes: [S02, S05], tipo: MIXTO}
+  R36: {fuentes: [S02, S04], tipo: MIXTO}
+  R37: {fuentes: [S02, S05], tipo: MIXTO}
+  R38: {fuentes: [S02, S05], tipo: MIXTO}
+  R39: {fuentes: [S02, S05], tipo: MIXTO}
+  R40: {fuentes: [S02, S05], tipo: MIXTO}
+  R41: {fuentes: [S02, S05], tipo: MIXTO}
+  R42: {fuentes: [S02, S05], tipo: MIXTO}
+  R43: {fuentes: [S02, S05], tipo: MIXTO}
+  R44: {fuentes: [S02, S05], tipo: MIXTO}
+  R45: {fuentes: [S02], tipo: PUBLICADO}
+  R46: {fuentes: [S02], tipo: PUBLICADO}
+  R47: {fuentes: [S02, S05], tipo: MIXTO}
+  R48: {fuentes: [S02], tipo: PUBLICADO}
+  R49: {fuentes: [S02], tipo: MIXTO}
+  R50: {fuentes: [S02], tipo: MIXTO}
+  R51: {fuentes: [S02], tipo: MIXTO}
+  R52: {fuentes: [S02], tipo: MIXTO}
   VALIDACION: {fuentes: [], tipo: POLITICA_PROTOTIPO}
   SECCION_5: {fuentes: [S05, S06], tipo: MIXTO}
   SECCION_6: {fuentes: [S08], tipo: MIXTO}
@@ -1004,6 +1026,240 @@ reglas:
       hallazgo: FASE_DESCONOCIDA_CON_SUSPENSION
       solicitudes: [CORRECCION]
       mensaje: "Almacenamiento normal no permitido hasta definir la fase y la actuación."
+
+  # --- E. Infraestructura y entorno (R31–R36) ------------------------------
+  - id: R31
+    si: {dato: filtracion_agua_almacen}
+    entonces:
+      hallazgo: INFRAESTRUCTURA_CON_FILTRACION
+      solicitudes: [CORRECCION]
+      mensaje: "Filtración de agua observada en el almacén: reparar filtración, verificar estanqueidad e inspeccionar unidades expuestas."
+      accion: {codigo: CORREGIR, descripcion: "Reparar la filtración, verificar estanqueidad e inspeccionar las unidades expuestas.", responsable: PRODUCTOR}
+    evidencias: [{dato: filtracion_agua_almacen, op: PRESENCIA, valor: true}]
+
+  - id: R32
+    si: {dato: drenaje_obstruido}
+    entonces:
+      hallazgo: DRENAJE_DEFICIENTE
+      solicitudes: [CORRECCION]
+      mensaje: "Drenaje obstruido en el almacén: despejar drenaje y comprobar que no entra agua."
+      accion: {codigo: CORREGIR, descripcion: "Despejar el drenaje e inspeccionar unidades potencialmente afectadas.", responsable: PRODUCTOR}
+    evidencias: [{dato: drenaje_obstruido, op: PRESENCIA, valor: true}]
+
+  - id: R33
+    si:
+      alguno:
+        - {dato: malla_ventana_danada}
+        - {dato: abertura_ingreso_plagas}
+    entonces:
+      hallazgo: BARRERA_ANTIPLAGAS_DEFICIENTE
+      solicitudes: [CORRECCION]
+      mensaje: "Barrera contra plagas deficiente (malla de ventana dañada o abertura de ingreso): reparar e inspeccionar presencia de plagas."
+      accion: {codigo: CORREGIR, descripcion: "Reparar la abertura o malla dañada e inspeccionar presencia de plagas.", responsable: PRODUCTOR}
+    evidencias:
+      - {dato: malla_ventana_danada, op: PRESENCIA, valor: true}
+      - {dato: abertura_ingreso_plagas, op: PRESENCIA, valor: true}
+
+  - id: R34
+    si:
+      alguno:
+        - {dato: agua_estancada_entorno}
+        - {dato: residuos_o_maleza_entorno}
+    entonces:
+      hallazgo: ENTORNO_NO_HIGIENICO
+      solicitudes: [CORRECCION]
+      mensaje: "Entorno no higiénico alrededor del almacén (agua estancada o maleza/residuos): limpiar y eliminar focos."
+      accion: {codigo: CORREGIR, descripcion: "Limpiar y eliminar focos de agua y residuos en el entorno del almacén.", responsable: PRODUCTOR}
+    evidencias:
+      - {dato: agua_estancada_entorno, op: PRESENCIA, valor: true}
+      - {dato: residuos_o_maleza_entorno, op: PRESENCIA, valor: true}
+
+  - id: R35
+    si:
+      alguno:
+        - {dato: sacos_usados_o_desechos_en_almacen}
+        - {dato: residuos_de_proceso_sin_retirar}
+    entonces:
+      hallazgo: MATERIAL_RESIDUAL_EN_ALMACEN
+      solicitudes: [CORRECCION]
+      mensaje: "Material residual o sacos usados/desechos acumulados en el almacén: retirar, limpiar y registrar inspección."
+      accion: {codigo: CORREGIR, descripcion: "Retirar sacos usados y residuos de proceso del almacén.", responsable: PRODUCTOR}
+    evidencias:
+      - {dato: sacos_usados_o_desechos_en_almacen, op: PRESENCIA, valor: true}
+      - {dato: residuos_de_proceso_sin_retirar, op: PRESENCIA, valor: true}
+
+  - id: R36
+    si: {dato: humedad_por_agua_en_unidad}
+    entonces:
+      hallazgo: UNIDAD_EXPUESTA_A_AGUA
+      solicitudes: [CUARENTENA]
+      mensaje: "La unidad presenta humedad por contacto directo con agua: aislar la unidad y solicitar cuarentena preventiva."
+      accion: {codigo: REVISION_TECNICA, descripcion: "Aislar la unidad, medir nuevamente humedad y revisar signos de deterioro.", responsable: TECNICO}
+    evidencias: [{dato: humedad_por_agua_en_unidad, op: PRESENCIA, valor: true}]
+
+  # --- F. Estiba y accesibilidad (R37–R39) ----------------------------------
+  - id: R37
+    si: {dato: paleta_danada_o_con_salientes}
+    entonces:
+      hallazgo: PALETA_NO_APTA
+      solicitudes: [CORRECCION]
+      mensaje: "Paleta dañada o con salientes/clavos expuestos: sustituir o reparar e inspeccionar posibles perforaciones."
+      accion: {codigo: CORREGIR, descripcion: "Sustituir o reparar la paleta e inspeccionar integridad de los envases.", responsable: PRODUCTOR}
+    evidencias: [{dato: paleta_danada_o_con_salientes, op: PRESENCIA, valor: true}]
+
+  - id: R38
+    si:
+      alguno:
+        - {dato: estiba_inestable}
+        - {dato: altura_supera_limite_proveedor}
+    entonces:
+      hallazgo: ESTIBA_INSEGURA
+      solicitudes: [CORRECCION]
+      mensaje: "Estiba inestable o altura superior al límite especificado: reestibar y asegurar estabilidad."
+      accion: {codigo: CORREGIR, descripcion: "Reestibar y verificar estabilidad y límites de altura del proveedor.", responsable: PRODUCTOR}
+    evidencias:
+      - {dato: estiba_inestable, op: PRESENCIA, valor: true}
+      - {dato: altura_supera_limite_proveedor, op: PRESENCIA, valor: true}
+
+  - id: R39
+    si:
+      alguno:
+        - {dato: pasillo_inspeccion_obstruido}
+        - todos:
+            - {aportado: distancia_entre_estantes}
+            - {dato: distancia_entre_estantes, op: LT, valor: 1.0}
+    entonces:
+      hallazgo: ACCESO_INSPECCION_INSUFICIENTE
+      solicitudes: [CORRECCION]
+      mensaje: "Pasillo de inspección obstruido o distancia entre estantes menor a 1,00 m: liberar acceso."
+      accion: {codigo: CORREGIR, descripcion: "Liberar pasillos de inspección y asegurar distancia mínima de 1 m entre estantes.", responsable: PRODUCTOR}
+    evidencias:
+      - {dato: pasillo_inspeccion_obstruido, op: PRESENCIA, valor: true}
+      - {dato: distancia_entre_estantes, op: LT, valor: 1.0}
+
+  # --- G. Trazabilidad y movimientos (R40–R47) ------------------------------
+  - id: R40
+    si: {es_falso: {dato: identificacion_unidad_legible}}
+    entonces:
+      hallazgo: IDENTIDAD_DE_UNIDAD_NO_VERIFICABLE
+      solicitudes: [CORRECCION]
+      mensaje: "Identificación de la unidad ilegible o no verificable: conciliar etiqueta, lote y registro."
+      accion: {codigo: CORREGIR, descripcion: "Conciliar etiqueta, lote y registro antes de autorizar movimientos o salida.", responsable: PRODUCTOR}
+    evidencias: [{dato: identificacion_unidad_legible, op: EQ, valor: false}]
+
+  - id: R41
+    si: {es_falso: {dato: registro_trazabilidad_completo}}
+    entonces:
+      hallazgo: TRAZABILIDAD_INCOMPLETA
+      solicitudes: [CORRECCION]
+      mensaje: "Registro de trazabilidad incompleto: completar procedencia, lote, entrada, movimientos y destino."
+      accion: {codigo: CORREGIR, descripcion: "Completar la información obligatoria de trazabilidad de la unidad.", responsable: PRODUCTOR}
+    evidencias: [{dato: registro_trazabilidad_completo, op: EQ, valor: false}]
+
+  - id: R42
+    si: {dato: movimiento_sin_registro}
+    entonces:
+      hallazgo: HISTORIAL_DE_UBICACION_INCIERTO
+      solicitudes: [CORRECCION]
+      mensaje: "Movimiento de la unidad realizado sin registro: reconstruir fecha, origen, destino y responsable."
+      accion: {codigo: CORREGIR, descripcion: "Reconstruir registro de movimiento e inspeccionar la unidad si la exposición es incierta.", responsable: PRODUCTOR}
+    evidencias: [{dato: movimiento_sin_registro, op: PRESENCIA, valor: true}]
+
+  - id: R43
+    si: {dato: contacto_con_unidad_en_cuarentena}
+    entonces:
+      hallazgo: POSIBLE_CONTAMINACION_CRUZADA
+      solicitudes: [CUARENTENA]
+      mensaje: "Contacto comprobado con una unidad en cuarentena: abrir episodio de cuarentena preventiva por riesgo de contaminación cruzada."
+      accion: {codigo: REVISION_TECNICA, descripcion: "Aislar la unidad expuesta y documentar contacto real para evaluación técnica.", responsable: TECNICO}
+    evidencias: [{dato: contacto_con_unidad_en_cuarentena, op: PRESENCIA, valor: true}]
+
+  - id: R44
+    si:
+      todos:
+        - {episodio: [CUARENTENA]}
+        - {es_falso: {dato: separacion_cuarentena_verificada}}
+    entonces:
+      hallazgo: AISLAMIENTO_INSUFICIENTE
+      solicitudes: [CORRECCION]
+      mensaje: "Unidad con cuarentena abierta pero sin verificación de aislamiento físico o señalización adecuada."
+      accion: {codigo: CORREGIR, descripcion: "Separar físicamente, señalizar y registrar la verificación del aislamiento.", responsable: PRODUCTOR}
+    evidencias: [{dato: separacion_cuarentena_verificada, op: EQ, valor: false}]
+
+  - id: R45
+    si: {dato: derrame_grano_en_piso}
+    entonces:
+      hallazgo: DERRAME_DE_GRANO_REGISTRADO
+      solicitudes: [CORRECCION]
+      mensaje: "Derrame de grano en piso observado: segregar el grano derramado del lote y registrar cantidad."
+      accion: {codigo: CORREGIR, descripcion: "Separar el grano caído y evaluar limpieza antes de cualquier reincorporación.", responsable: PRODUCTOR}
+    evidencias: [{dato: derrame_grano_en_piso, op: PRESENCIA, valor: true}]
+
+  - id: R46
+    si: {dato: grano_derramado_reincorporado}
+    entonces:
+      hallazgo: REINCORPORACION_NO_VERIFICADA
+      solicitudes: [CUARENTENA]
+      mensaje: "Grano derramado en piso reincorporado a la unidad sin verificación técnica documentada: cuarentena preventiva."
+      accion: {codigo: REVISION_TECNICA, descripcion: "Aislar la unidad mezclada, reconstruir la cantidad y pedir dictamen técnico.", responsable: TECNICO}
+    evidencias: [{dato: grano_derramado_reincorporado, op: PRESENCIA, valor: true}]
+
+  - id: R47
+    si: {dato: rotacion_no_justificada}
+    entonces:
+      hallazgo: ROTACION_NO_JUSTIFICADA
+      mensaje: "Se programa salida de un lote posterior teniendo lote anterior apto pendiente de salida sin motivo registrado (aviso de despacho)."
+      accion: {codigo: REVISION_TECNICA, descripcion: "Revisar orden de salida de lotes en el flujo de despacho.", responsable: TECNICO}
+    evidencias: [{dato: rotacion_no_justificada, op: PRESENCIA, valor: true}]
+
+  # --- H. Sustancias, plagas y vencimiento (R48–R52) ------------------------
+  - id: R48
+    si: {dato: alimentos_olor_incompatible_en_contacto}
+    entonces:
+      hallazgo: RIESGO_TRANSFERENCIA_OLOR
+      solicitudes: [CORRECCION]
+      mensaje: "Alimentos u objetos de olor incompatible en contacto o proximidad: separar e inspeccionar olor del grano."
+      accion: {codigo: CORREGIR, descripcion: "Separar alimentos incompatibles e inspeccionar olor de la unidad.", responsable: PRODUCTOR}
+    evidencias: [{dato: alimentos_olor_incompatible_en_contacto, op: PRESENCIA, valor: true}]
+
+  - id: R49
+    si: {es_falso: {dato: programa_control_plagas_documentado}}
+    entonces:
+      hallazgo: GESTION_PREVENTIVA_PLAGAS_INCOMPLETA
+      solicitudes: [CORRECCION]
+      mensaje: "Programa de control y prevención de plagas no documentado: registrar responsable, controles y prestador autorizado."
+      accion: {codigo: CORREGIR, descripcion: "Documentar el programa de control preventivo de plagas.", responsable: PRODUCTOR}
+    evidencias: [{dato: programa_control_plagas_documentado, op: EQ, valor: false}]
+
+  - id: R50
+    si: {dato: aplicacion_plaguicida_sin_registro_competente}
+    entonces:
+      hallazgo: TRATAMIENTO_NO_VERIFICABLE
+      solicitudes: [CUARENTENA]
+      mensaje: "Aplicación de plaguicida sin registro técnico competente: retener unidades hasta revisar producto, dosis y carencia."
+      accion: {codigo: REVISION_TECNICA, descripcion: "Retener las unidades tratadas hasta revisar producto, responsable y período de carencia.", responsable: TECNICO}
+    evidencias: [{dato: aplicacion_plaguicida_sin_registro_competente, op: PRESENCIA, valor: true}]
+
+  - id: R51
+    si: {dato: exposicion_quimica_del_grano}
+    entonces:
+      hallazgo: CONTACTO_QUIMICO_SOSPECHADO
+      solicitudes: [CUARENTENA]
+      mensaje: "Exposición directa o contacto químico sospechado en el grano: segregar unidad y solicitar evaluación competente."
+      accion: {codigo: REVISION_TECNICA, descripcion: "Segregar la unidad afectada y remitir a evaluación toxicológica competente.", responsable: TECNICO}
+    evidencias: [{dato: exposicion_quimica_del_grano, op: PRESENCIA, valor: true}]
+
+  - id: R52
+    si:
+      todos:
+        - {dato: vencimiento_aplicable}
+        - {vencido_dias: fecha_vencimiento_producto, dias: 0}
+    entonces:
+      hallazgo: PRODUCTO_VENCIDO
+      solicitudes: [SUSPENSION]
+      mensaje: "Fecha de vencimiento comercial del producto superada: suspender almacenamiento normal y gestionar disposición técnica."
+      accion: {codigo: EVALUAR_DISPOSICION, descripcion: "Gestionar disposición técnica del producto vencido mediante evaluación competente.", responsable: TECNICO}
+    evidencias: [{dato: fecha_vencimiento_producto, op: VIGENCIA}]
 
 # ----------------------------------------------------------------------------
 # Datos exigibles — generan DATOS_PENDIENTES cuando son desconocidos.

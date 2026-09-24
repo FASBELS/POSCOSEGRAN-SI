@@ -394,5 +394,173 @@
     "unidad": "CELSIUS",
     "paso": 5,
     "admite_no_aplica": true
+  },
+  "filtracion_agua_almacen": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "drenaje_obstruido": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "malla_ventana_danada": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "abertura_ingreso_plagas": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "humedad_por_agua_en_unidad": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "agua_estancada_entorno": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "residuos_o_maleza_entorno": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "sacos_usados_o_desechos_en_almacen": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "residuos_de_proceso_sin_retirar": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 6,
+    "admite_no_aplica": false
+  },
+  "paleta_danada_o_con_salientes": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 7,
+    "admite_no_aplica": false
+  },
+  "estiba_inestable": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 7,
+    "admite_no_aplica": false
+  },
+  "altura_supera_limite_proveedor": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 7,
+    "admite_no_aplica": false
+  },
+  "pasillo_inspeccion_obstruido": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 7,
+    "admite_no_aplica": false
+  },
+  "distancia_entre_estantes": {
+    "tipo": "N",
+    "unidad": "METROS",
+    "paso": 7,
+    "admite_no_aplica": true
+  },
+  "identificacion_unidad_legible": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "registro_trazabilidad_completo": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "movimiento_sin_registro": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "contacto_con_unidad_en_cuarentena": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "separacion_cuarentena_verificada": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "derrame_grano_en_piso": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "grano_derramado_reincorporado": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "rotacion_no_justificada": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 8,
+    "admite_no_aplica": false
+  },
+  "alimentos_olor_incompatible_en_contacto": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 9,
+    "admite_no_aplica": false
+  },
+  "programa_control_plagas_documentado": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 9,
+    "admite_no_aplica": false
+  },
+  "aplicacion_plaguicida_sin_registro_competente": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 9,
+    "admite_no_aplica": false
+  },
+  "exposicion_quimica_del_grano": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 9,
+    "admite_no_aplica": false
+  },
+  "fecha_vencimiento_producto": {
+    "tipo": "F",
+    "unidad": "TEXTO",
+    "paso": 9,
+    "admite_no_aplica": true
+  },
+  "vencimiento_aplicable": {
+    "tipo": "B",
+    "unidad": "BOOLEANO",
+    "paso": 9,
+    "admite_no_aplica": true
   }
 }

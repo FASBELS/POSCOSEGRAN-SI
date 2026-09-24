@@ -23,7 +23,7 @@ from ...seguridad.permisos import AccesoDenegado, RecursoInaccesible
 from ...servicios import auditoria
 from ...servicios import conocimiento as servicio
 from ...sistema_experto import adquisicion, serializacion
-from ...sistema_experto.base_conocimiento import DECISIONES, BaseConocimiento
+from ...sistema_experto.base_conocimiento import DECISIONES, BaseConocimiento, validar_sintaxis_regla
 
 enrutador = APIRouter(prefix="/api/v1/adquisicion", tags=["adquisicion"])
 
@@ -119,6 +119,21 @@ def _medir_al_activar(
             f"la propuesta emite decisiones que la base no declara: {fuera}",
         )
     return impacto
+
+
+@enrutador.post("/validar-regla", response_model=api.ValidarReglaResultado)
+def validar_regla(
+    entrada: api.ValidarReglaEntrada, sesion: SesionDep, identidad: IdentidadDep
+) -> api.ValidarReglaResultado:
+    """Comprueba la sintaxis y semántica de una regla aislada contra la base activa.
+
+    No modifica la base ni registra nada: solo devuelve los errores encontrados.
+    Se usa para dar retroalimentación en tiempo real al cognimático mientras edita.
+    """
+    _exigir_ingeniero(identidad)
+    _, activa = servicio.base_activa(sesion)
+    errores = validar_sintaxis_regla(entrada.definicion, activa)
+    return api.ValidarReglaResultado(valida=not errores, errores=errores)
 
 
 @enrutador.get("/versiones", response_model=list[api.VersionConocimientoResumen])

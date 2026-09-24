@@ -50,9 +50,9 @@ def _errores(contenido) -> list[str]:
 
 def test_la_base_del_repositorio_es_valida(activa) -> None:
     assert len(activa.parametros) == 29
-    assert {r.regla for r in activa.reglas if r.regla.startswith("R") and "." not in r.regla} == {
-        f"R{n:02d}" for n in range(1, 30)
-    }
+    assert {r.regla for r in activa.reglas if r.regla.startswith("R") and "." not in r.regla} == (
+        {f"R{n:02d}" for n in range(1, 30)} | {f"R{n:02d}" for n in range(31, 53)}
+    )
     assert [r.rama for r in activa.resolucion] == [f"R30.{n}" for n in range(1, 10)]
 
 

@@ -150,3 +150,29 @@ a { color:#245c3e; text-decoration:underline; }
 .aviso { padding:10px 14px; border-radius:8px; background:#fff0ed; border:1px solid #e5b7b0; }
 .filtros { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
 .filtros .field { min-width:180px; }
+
+/* Módulo de adquisición: editor de reglas */
+.reglas-toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+.reglas-toolbar input[type="search"] { flex:1; min-width:200px; }
+.editor-tabs { display:flex; gap:6px; align-items:center; margin-bottom:12px; border-bottom:2px solid var(--color-divider); padding-bottom:8px; }
+.editor-tabs .tab { background:none; border:none; padding:6px 14px; cursor:pointer; font-size:13px; border-radius:6px 6px 0 0; color:#5f6b63; transition:all .15s; }
+.editor-tabs .tab:hover { background:var(--color-forest-light); }
+.editor-tabs .tab.active { background:var(--color-forest); color:#fff; }
+.editor-visual { padding:4px 0; }
+.editor-visual h3 { font-size:14px; margin:16px 0 8px; color:var(--color-forest); border-bottom:1px solid var(--color-divider); padding-bottom:4px; }
+.editor-codigo textarea { width:100%; min-height:300px; font-family:var(--font-mono); font-size:13px; padding:12px; border:1px solid var(--color-divider); border-radius:8px; background:#fafaf7; resize:vertical; line-height:1.5; }
+.condicion-editor { padding:8px 0 8px 16px; border-left:3px solid var(--color-forest-light); }
+.condicion-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px; }
+.condicion-row select, .condicion-row input { font-size:13px; }
+.condicion-hijos { margin-top:6px; }
+.condicion-hijo { display:flex; gap:6px; align-items:flex-start; margin-bottom:6px; }
+.consecuente-editor { padding:4px 0; }
+.consecuente-editor .check-group { display:flex; flex-wrap:wrap; gap:10px; }
+.chip-btn { font-size:12px; padding:2px 10px; border-radius:999px; border:1px solid #d3e0d7; background:#eef3ef; cursor:pointer; transition:all .15s; }
+.chip-btn:hover { background:#d9e7dc; }
+.chip-btn.danger { background:#fff0ed; border-color:#e5b7b0; color:var(--color-crit); }
+.chip-btn.danger:hover { background:#ffe0da; }
+.actions-inline { display:flex; gap:4px; }
+.actions-inline button { font-size:12px; padding:3px 8px; }
+.actions-inline button.danger { color:var(--color-crit); }
+tr.modificado { background:#fffaf0; }

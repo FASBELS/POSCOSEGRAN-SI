@@ -781,12 +781,22 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
     # Coherencia con el documento: mismas reglas, mismas fuentes.
     codigos_documento = {r["id"] for r in documental.get("reglas", [])}
     codigos_operativos = {r.regla for r in reglas if r.regla.startswith("R") and "." not in r.regla}
-    esperados = {f"R{n:02d}" for n in range(1, 31)}
-    if codigos_documento != esperados:
-        errores.append("catálogo documental: debe describir R01–R30")
-    faltan_operativas = sorted(esperados - {"R30"} - codigos_operativos)
+    nucleo = {f"R{n:02d}" for n in range(1, 31)}
+    faltan_nucleo_doc = sorted(nucleo - codigos_documento)
+    if faltan_nucleo_doc:
+        errores.append(f"catálogo documental: faltan las reglas base {faltan_nucleo_doc}")
+    faltan_operativas = sorted((nucleo - {"R30"}) - codigos_operativos)
     if faltan_operativas:
         errores.append(f"la base operativa no implementa {faltan_operativas}")
+    # Reglas adicionales (R31+): cada operativa debe tener ficha documental y viceversa.
+    adicionales_operativas = codigos_operativos - nucleo
+    adicionales_documento = codigos_documento - nucleo
+    sin_ficha = sorted(adicionales_operativas - adicionales_documento)
+    sin_operativa = sorted(adicionales_documento - adicionales_operativas)
+    if sin_ficha:
+        errores.append(f"reglas operativas sin ficha en el catálogo documental: {sin_ficha}")
+    if sin_operativa:
+        errores.append(f"fichas documentales sin regla operativa: {sin_operativa}")
     ramas_documento = [r["id"] for r in documental.get("ramas_r30", [])]
     ramas_operativas = [r.rama for r in resolucion]
     if ramas_documento != ramas_operativas:
@@ -831,6 +841,68 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
 def desde_contenido(contenido: Mapping[str, Any]) -> BaseConocimiento:
     return construir(contenido["operativa"], contenido["documental"])
 
+
+def validar_sintaxis_regla(
+    definicion: Mapping[str, Any],
+    base: BaseConocimiento,
+) -> list[str]:
+    """Comprueba la sintaxis y la semántica de una regla aislada contra la base activa.
+
+    Devuelve una lista de errores; lista vacía si la definición es correcta.
+    No reconstruye la base: solo valida la estructura, los operadores,
+    los parámetros referenciados y los consecuentes.
+    """
+    errores: list[str] = []
+    ident = definicion.get("id")
+    ruta = f"regla({ident or '?'})"
+
+    if not ident:
+        errores.append(f"{ruta}: identificador ausente")
+
+    etapa = definicion.get("etapa", "encadenamiento")
+    if etapa not in base.etapas:
+        errores.append(f"{ruta}: etapa desconocida '{etapa}'")
+
+    if "si" not in definicion:
+        errores.append(f"{ruta}: falta la condición 'si'")
+    else:
+        _validar_nodo(
+            definicion["si"], f"{ruta}.si",
+            dict(base.definiciones), dict(base.parametros), errores,
+        )
+
+    if definicion.get("aplica_si") is not None:
+        _validar_nodo(
+            definicion["aplica_si"], f"{ruta}.aplica_si",
+            dict(base.definiciones), dict(base.parametros), errores,
+        )
+
+    if "entonces" not in definicion:
+        errores.append(f"{ruta}: falta el consecuente 'entonces'")
+    else:
+        entonces = definicion["entonces"]
+        solicitudes = tuple(entonces.get("solicitudes", ()))
+        for solicitud in solicitudes:
+            if solicitud not in SOLICITUDES:
+                errores.append(f"{ruta}: solicitud desconocida '{solicitud}'")
+        registrar = bool(definicion.get("registrar_motivo", True))
+        if registrar and not entonces.get("hallazgo"):
+            errores.append(f"{ruta}: una regla que registra motivo necesita 'hallazgo'")
+        if registrar and not entonces.get("mensaje"):
+            errores.append(f"{ruta}: una regla que registra motivo necesita 'mensaje'")
+        if not entonces.get("hallazgo") and not solicitudes:
+            errores.append(f"{ruta}: el consecuente no produce ningún hecho ni solicitud")
+
+    for j, prueba in enumerate(definicion.get("evidencias", ())):
+        if "dato" not in prueba:
+            errores.append(f"{ruta}.evidencias[{j}]: requiere 'dato'")
+        elif "valor" in prueba:
+            _validar_valor(
+                prueba["valor"], f"{ruta}.evidencias[{j}].valor",
+                dict(base.definiciones), dict(base.parametros), errores,
+            )
+
+    return errores
 
 def ruta_por_defecto() -> Path:
     """Carpeta knowledge/ del repositorio, o la indicada en POSCOSEGRAN_KNOWLEDGE."""

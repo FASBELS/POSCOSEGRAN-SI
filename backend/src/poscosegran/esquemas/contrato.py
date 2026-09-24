@@ -637,6 +637,14 @@ class DetalleVersion(Base):
     cambios_respecto_origen: list[CambioParametro]
 
 
+class ValidarReglaEntrada(Base):
+    definicion: dict[str, Any] = Field(description="Definición completa de la regla de producción a validar.")
+
+
+class ValidarReglaResultado(Base):
+    valida: bool
+    errores: list[str]
+
 class ControlProximo(Base):
     id_unidad: uuid.UUID
     nombre: str

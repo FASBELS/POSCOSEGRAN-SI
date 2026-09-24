@@ -11,7 +11,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-CODIGO_REGLA = re.compile(r"^R(0[1-9]|[12][0-9]|30)$")
+CODIGO_REGLA = re.compile(r"^R(0[1-9]|[1-4][0-9]|5[0-2])$")
 CODIGO_RAMA = re.compile(r"^R30\.[1-9]$")
 CODIGO_FUENTE = re.compile(r"^S0[1-9]$")
 
@@ -57,13 +57,14 @@ class Catalogo(BaseModel):
     @model_validator(mode="after")
     def _completitud(self) -> "Catalogo":
         codigos = [regla.id for regla in self.reglas]
-        esperados = [f"R{numero:02d}" for numero in range(1, 31)]
-        if codigos != esperados:
-            faltan = sorted(set(esperados) - set(codigos))
-            sobran = sorted(set(codigos) - set(esperados))
+        esperados_30 = [f"R{numero:02d}" for numero in range(1, 31)]
+        esperados_52 = [f"R{numero:02d}" for numero in range(1, 53)]
+        if codigos not in (esperados_30, esperados_52):
+            faltan = sorted(set(esperados_30) - set(codigos))
+            sobran = sorted(set(codigos) - set(esperados_52))
             raise ValueError(
-                f"las reglas deben ser R01…R30 en orden. Faltan: {faltan or 'ninguna'}. "
-                f"No reconocidas: {sobran or 'ninguna'}"
+                f"las reglas deben ser R01…R30 o R01…R52 en orden consecutivo. "
+                f"Faltan: {faltan or 'ninguna'}. No reconocidas: {sobran or 'ninguna'}"
             )
 
         ramas = [rama.id for rama in self.ramas_r30]
