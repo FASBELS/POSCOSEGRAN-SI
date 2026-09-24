@@ -31,7 +31,12 @@ if not url:
     raise RuntimeError(
         "Defina POSCOSEGRAN_BD_URL_MIGRACIONES con la credencial de migraciones."
     )
-config.set_main_option("sqlalchemy.url", url)
+if url.startswith("postgres://"):
+    url = "postgresql+psycopg://" + url.removeprefix("postgres://")
+elif url.startswith("postgresql://"):
+    url = "postgresql+psycopg://" + url.removeprefix("postgresql://")
+# configparser interpreta '%' en credenciales URL-encoded como interpolación.
+config.set_main_option("sqlalchemy.url", url.replace("%", "%%"))
 
 metadatos = Base.metadata
 

@@ -65,6 +65,7 @@ Reproduce los gates del workflow en el mismo orden y se detiene en el primero qu
 ## Documentación
 
 - [Instalación, contenedores, Supabase y respaldos](docs/INSTALACION_DESPLIEGUE.md)
+- [Desplegar frontend, API y PostgreSQL en Render](docs/RENDER.md)
 - [Manual de uso](docs/MANUAL_USUARIO.md)
 - [Arquitectura e integración](docs/ARQUITECTURA.md)
 - [API y contrato generado](docs/API.md)

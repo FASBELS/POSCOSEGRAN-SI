@@ -34,6 +34,17 @@ class Configuracion(BaseSettings):
     # entorno de desarrollo; el validador de abajo la prohíbe en producción.
     adquisicion_permitir_autoactivacion: bool = False
 
+    @field_validator("bd_url_app", mode="before")
+    @classmethod
+    def normalizar_url_postgres(cls, valor: object) -> object:
+        """Render publica URLs postgres://; SQLAlchemy necesita el driver psycopg."""
+        if isinstance(valor, str):
+            if valor.startswith("postgres://"):
+                return "postgresql+psycopg://" + valor.removeprefix("postgres://")
+            if valor.startswith("postgresql://"):
+                return "postgresql+psycopg://" + valor.removeprefix("postgresql://")
+        return valor
+
     @field_validator("jwt_algoritmos", "cors_origenes", mode="before")
     @classmethod
     def separar(cls, valor: object) -> object:
