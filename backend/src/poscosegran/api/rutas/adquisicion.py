@@ -30,7 +30,7 @@ enrutador = APIRouter(prefix="/api/v1/adquisicion", tags=["adquisicion"])
 EVALUACIONES_HISTORICAS = 200
 
 
-def _exigir_ingeniero(identidad) -> None:  # type: ignore[no-untyped-def]
+def _exigir_ingeniero(identidad) -> None:  
     if not identidad.es_ingeniero_conocimiento:
         raise AccesoDenegado("se requiere el rol INGENIERO_CONOCIMIENTO")
 
@@ -51,7 +51,7 @@ def _resumen(v: VersionConocimiento) -> api.VersionConocimientoResumen:
     )
 
 
-def _parametros(base) -> list[api.Parametro]:  # type: ignore[no-untyped-def]
+def _parametros(base) -> list[api.Parametro]:  
     return [
         api.Parametro(
             nombre=p.nombre, valor=float(p.valor), unidad=p.unidad, fundamento=p.fundamento,
@@ -82,7 +82,7 @@ def _casos_historicos(sesion: Session) -> list[tuple[str, str, Instantanea]]:
     return casos
 
 
-def _puede_activar(identidad, version: VersionConocimiento) -> bool:  # type: ignore[no-untyped-def]
+def _puede_activar(identidad, version: VersionConocimiento) -> bool:  
     """Separación de funciones: quien propuso una versión no la activa.
 
     La excepción existe para poder recorrer el ciclo completo con una sola cuenta en
@@ -104,14 +104,11 @@ def _medir_al_activar(
     casos = adquisicion.cargar_casos_referencia() + _casos_historicos(sesion)
     try:
         impacto = adquisicion.medir_impacto(activa, propuesta, casos)
-    except Exception as error:  # la propuesta no evalúa: no se activa nada
+    except Exception as error:  
         raise HTTPException(
             status.HTTP_409_CONFLICT,
             f"la propuesta no se pudo medir contra la evidencia vigente: {error}",
         ) from error
-    # `decisiones_autorizadas` son las que autorizan almacenamiento, no el vocabulario
-    # completo: lo que aquí se comprueba es que la propuesta no emita una decisión
-    # fuera de las siete declaradas.
     fuera = sorted({c.decision_despues for c in impacto.casos} - set(DECISIONES))
     if fuera:
         raise HTTPException(
@@ -163,8 +160,8 @@ def detalle(id_version: uuid.UUID, sesion: SesionDep, identidad: IdentidadDep) -
     return api.DetalleVersion(
         version=_resumen(version),
         parametros=_parametros(base),
-        reglas=list(version.contenido["operativa"]["reglas"]),  # type: ignore[index]
-        fichas=[api.FichaRegla.model_validate(f) for f in version.contenido["documental"]["reglas"]],  # type: ignore[index]
+        reglas=list(version.contenido["operativa"]["reglas"]),  
+        fichas=[api.FichaRegla.model_validate(f) for f in version.contenido["documental"]["reglas"]],  
         cambios_respecto_origen=cambios,
     )
 
@@ -271,7 +268,7 @@ def descartar(
     if version is None:
         raise RecursoInaccesible(str(id_version))
     if version.estado == "DESCARTADA":
-        return _resumen(version)  # idempotente frente a un reintento
+        return _resumen(version)  
     if version.estado != "PROPUESTA":
         raise HTTPException(
             status.HTTP_409_CONFLICT,
@@ -302,8 +299,6 @@ def activar(
     la que decide.
     """
     _exigir_ingeniero(identidad)
-    # El candado se toma antes de leer la versión vigente: dos activaciones
-    # simultáneas se serializan y la segunda ve el estado ya actualizado.
     servicio.bloquear_activacion(sesion)
     version = sesion.get(VersionConocimiento, id_version, with_for_update=True)
     if version is None:
@@ -322,7 +317,7 @@ def activar(
             "con el rol INGENIERO_CONOCIMIENTO",
         )
 
-    propuesta = servicio.base_de(version)  # revalida el contenido antes de activarlo
+    propuesta = servicio.base_de(version)  
     anterior, base_anterior = servicio.base_activa(sesion)
     impacto = _medir_al_activar(sesion, base_anterior, propuesta)
 

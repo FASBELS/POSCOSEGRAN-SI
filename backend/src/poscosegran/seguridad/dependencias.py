@@ -82,8 +82,6 @@ def sesion_bd(
     identidad: Annotated[Identidad, Depends(identidad_actual)],
 ) -> Iterator[Session]:
     with unidad_de_trabajo(identidad.id) as sesion:
-        # Serializa comandos de este piloto entre todos los workers. La transacción
-        # abarca precondiciones, instantánea y efectos; lecturas nunca toman el lock.
         if request.method in {"POST", "PUT", "PATCH"}:
             sesion.execute(text("SELECT pg_advisory_xact_lock(7342026)"))
         yield sesion

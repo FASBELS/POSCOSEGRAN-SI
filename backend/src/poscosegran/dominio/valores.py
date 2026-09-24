@@ -20,7 +20,7 @@ class Tri(enum.Enum):
     DESCONOCIDO = "DESCONOCIDO"
     NO_APLICA = "NO_APLICA"
 
-    def __bool__(self) -> bool:  # pragma: no cover
+    def __bool__(self) -> bool:  
         raise TypeError("use Tri.VERDADERO explícitamente; el valor de verdad no es binario")
 
     @property
@@ -152,7 +152,7 @@ def evidencia(dato: Dato, operador: str | None = None, umbral: object = None) ->
         unidad=dato.unidad,
         fecha_observacion=dato.fecha_observacion,
         operador=operador,
-        umbral=umbral,  # type: ignore[arg-type]
+        umbral=umbral,  
     )
 
 
@@ -202,7 +202,7 @@ def comparar(izquierda: Dato, operador: str, derecha: Dato) -> Tri:
             return V if a < b else F
         case "LTE":
             return V if a <= b else F
-        case _:  # pragma: no cover
+        case _:  
             raise ValueError(f"operador no admitido: {operador}")
 
 

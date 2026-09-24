@@ -133,7 +133,6 @@ def construir_instantanea(
         else None
     )
 
-    # Los controles completos aportan fechas verificadas; los parciales no renuevan vigencia.
     from ..dominio.valores import Dato, EstadoDato
     fechas_control = {"GRANO": "fecha_inspeccion_grano", "EXTERIOR": "fecha_inspeccion_exterior",
                       "ALMACEN": "fecha_control_almacen"}
@@ -146,7 +145,6 @@ def construir_instantanea(
     evento = sesion.scalar(sa.select(Evento).where(Evento.id_unidad == unidad.id)
                           .order_by(Evento.creado_en.desc()).limit(1))
     if evento and evento.tipo in {"APERTURA", "RESELLADO", "SECADO", "ENFRIAMIENTO", "EXPOSICION_AGUA", "CARGA_DESCARGA"}:
-        # Una comprobación anterior al evento no demuestra las condiciones posteriores.
         for campo in ("cierre_seguro", "sello_integro", "temperatura_grano_previa",
                       "fecha_inspeccion_grano", "fecha_inspeccion_exterior", "ingreso_inspeccionado"):
             dato = datos.get(campo)
@@ -302,8 +300,6 @@ def persistir(
     calculos = resultado.calculos
     efectiva = entrada.model_dump(mode="json")
     efectiva["_instantanea"] = jsonable_encoder(instantanea, custom_encoder={Decimal: str})
-    # Base de hechos iniciales en forma reproducible y huella de la base usada:
-    # permiten explicar y volver a evaluar esta decisión con la misma versión.
     efectiva["_hechos_iniciales"] = serializacion.a_json(instantanea)
     efectiva["_hash_base"] = resultado.hash_base
     efectiva["_observaciones_aplicadas"] = [

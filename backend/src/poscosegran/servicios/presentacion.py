@@ -25,7 +25,7 @@ from . import observaciones as obs
 def _numero(valor: object) -> float | bool | str | None:
     if valor is None or isinstance(valor, (bool, str)):
         return valor
-    return float(valor)  # type: ignore[arg-type]
+    return float(valor)  
 
 
 def almacen(fila: Almacen) -> api.Almacen:

@@ -39,7 +39,7 @@ def sumar_mes_calendario(fecha: datetime) -> datetime:
             return fecha.replace(year=anio, month=mes, day=dia)
         except ValueError:
             continue
-    raise ValueError("fecha no representable")  # pragma: no cover
+    raise ValueError("fecha no representable")  
 
 
 def _comparar(izquierda: Decimal, operador: str, derecha: Decimal) -> Tri:
@@ -72,7 +72,6 @@ class Evaluador:
         self.calculadora = calculadora
         self._evaluando: set[str] = set()
 
-    # --- Valores ---------------------------------------------------------------
 
     def valor(self, nodo: Any) -> Any:
         """Resuelve un valor: literal, parámetro, dato observado o elección."""
@@ -89,7 +88,6 @@ class Evaluador:
             return nodo
         return _como_decimal(nodo)
 
-    # --- Condiciones -----------------------------------------------------------
 
     def evaluar(self, nodo: Mapping[str, Any]) -> Juicio:
         operador = next(k for k in nodo if k != "descripcion" and k not in {"op", "valor", "en", "igual", "definido", "dias", "meses"})
@@ -109,7 +107,6 @@ class Evaluador:
         descripcion = self.descripcion(nodo)
         return (descripcion,) if descripcion else juicio.soportes
 
-    # Conectivas -----------------------------------------------------------------
 
     def _op_todos(self, nodo: Mapping[str, Any]) -> Juicio:
         juicios = [(hijo, self.evaluar(hijo)) for hijo in nodo["todos"]]
@@ -171,7 +168,6 @@ class Evaluador:
     def _op_siempre(self, nodo: Mapping[str, Any]) -> Juicio:
         return Juicio(V)
 
-    # Datos observados -----------------------------------------------------------
 
     def _op_dato(self, nodo: Mapping[str, Any]) -> Juicio:
         campo = nodo["dato"]
@@ -194,7 +190,6 @@ class Evaluador:
         derecha = self.valor(nodo["valor"])
 
         if isinstance(derecha, Dato):
-            # Dato frente a dato: si falta cualquiera, DESCONOCIDO.
             if operador in {"EQ", "NEQ"} and (dato.texto is not None or derecha.texto is not None):
                 if dato.texto is None or derecha.texto is None:
                     return Juicio(D)
@@ -280,7 +275,6 @@ class Evaluador:
             return Juicio(D)
         return Juicio(_comparar(a - b, nodo["op"], self.valor(nodo["valor"])))
 
-    # Hechos inferidos y contexto -------------------------------------------------
 
     def _op_hecho(self, nodo: Mapping[str, Any]) -> Juicio:
         nombre = nodo["hecho"]
@@ -314,7 +308,7 @@ class Evaluador:
 
     def _op_definicion(self, nodo: Mapping[str, Any]) -> Juicio:
         nombre = nodo["definicion"]
-        if nombre in self._evaluando:  # pragma: no cover — el cargador rechaza ciclos
+        if nombre in self._evaluando:  
             raise RuntimeError(f"ciclo al evaluar la definición {nombre}")
         self._evaluando.add(nombre)
         try:
@@ -373,7 +367,6 @@ class Evaluador:
     def _sin_descripcion(nodo: Mapping[str, Any]) -> Mapping[str, Any]:
         return {k: v for k, v in nodo.items() if k != "descripcion"}
 
-    # --- Diagnóstico: qué le faltó a una condición para ser VERDADERO ------------
 
     def fallidas(self, nodo: Mapping[str, Any]) -> list[str]:
         """Descripciones de las partes que impidieron que la condición fuera VERDADERO.

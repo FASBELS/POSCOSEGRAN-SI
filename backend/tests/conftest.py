@@ -54,7 +54,7 @@ def url_bd() -> str:
 
 
 @pytest.fixture(scope="session")
-def motor(url_bd: str):  # type: ignore[no-untyped-def]
+def motor(url_bd: str):  
     from sqlalchemy import create_engine
 
     motor = create_engine(url_bd, future=True)
@@ -96,8 +96,6 @@ def api_real(url_bd, monkeypatch):
     from poscosegran.conocimiento.cargar import cargar
     cargar(Path(__file__).parents[2] / "knowledge", activar=True, notas=None)
     users = {}
-    # Dos ingenieros del conocimiento: la separación de funciones en adquisición exige
-    # que quien propone una versión y quien la activa sean identidades distintas.
     cuentas = {
         "PRODUCTOR": "PRODUCTOR",
         "TECNICO": "TECNICO",

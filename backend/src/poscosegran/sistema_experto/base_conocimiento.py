@@ -43,7 +43,6 @@ DECISIONES = (
 FUNDAMENTOS = ("PUBLICADO", "TRANSFERIDO", "POLITICA_PROTOTIPO", "MIXTO")
 OPERADORES_COMPARACION = ("GT", "GTE", "LT", "LTE", "EQ", "NEQ")
 
-# Operadores del lenguaje de condiciones y los campos que admite cada uno.
 OPERADORES: dict[str, frozenset[str]] = {
     "todos": frozenset(),
     "alguno": frozenset(),
@@ -77,10 +76,6 @@ OPERADORES: dict[str, frozenset[str]] = {
     "siempre": frozenset(),
 }
 
-# Operadores que invierten la polaridad de lo que contienen. Un hecho leído bajo
-# uno de ellos se consume *negado*: la producción concluye porque el hecho no está.
-# El motor no retracta disparos, así que una negación solo es fiable si el hecho
-# ya alcanzó su valor definitivo; de ahí la estratificación por etapas de _grafo().
 OPERADORES_NEGATIVOS = frozenset({"negar", "es_falso", "es_desconocido"})
 
 CALCULOS_DISPONIBLES = frozenset(
@@ -262,7 +257,6 @@ class BaseConocimiento:
     dependencias: tuple[Dependencias, ...]
     contenido: Mapping[str, Any] = field(repr=False)
 
-    # --- Consulta -----------------------------------------------------------
 
     def parametro(self, nombre: str) -> Decimal:
         return self.parametros[nombre].valor
@@ -328,7 +322,6 @@ def _recorrer(nodo: Any) -> Iterator[tuple[str, Any]]:
             yield from _recorrer(elemento)
 
 
-# --- Validación -------------------------------------------------------------------
 
 
 def _validar_nodo(
@@ -508,7 +501,7 @@ def _grafo(
     grafo: list[Dependencias] = []
     for regla in reglas:
         if regla.etapa not in posicion:
-            continue  # la etapa desconocida ya se reportó al construir la regla
+            continue  
         hechos, negados, solicitudes, sol_negadas = _consumos(regla.si, definiciones)
         if regla.aplica_si is not None:
             extra = _consumos(regla.aplica_si, definiciones)
@@ -535,7 +528,7 @@ def _grafo(
             Dependencias(
                 id=rama.rama,
                 etapa="resolucion",
-                posicion=len(etapas),  # después del punto fijo de todas las etapas
+                posicion=len(etapas),  
                 hechos=hechos,
                 hechos_negados=negados,
                 solicitudes=solicitudes,
@@ -545,8 +538,6 @@ def _grafo(
             )
         )
 
-    # Un hecho con dos productores hace ambigua la etapa en que queda decidido y
-    # permitiría que una negación válida hoy dejara de serlo al añadir el segundo.
     productor: dict[str, Dependencias] = {}
     for nodo in grafo:
         if nodo.hallazgo is None:
@@ -778,7 +769,6 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
             errores.append(f"fundamentos.{regla}: {tipo} exige al menos una fuente")
         fundamentos[regla] = (fuentes, tipo)
 
-    # Coherencia con el documento: mismas reglas, mismas fuentes.
     codigos_documento = {r["id"] for r in documental.get("reglas", [])}
     codigos_operativos = {r.regla for r in reglas if r.regla.startswith("R") and "." not in r.regla}
     nucleo = {f"R{n:02d}" for n in range(1, 31)}
@@ -788,7 +778,6 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
     faltan_operativas = sorted((nucleo - {"R30"}) - codigos_operativos)
     if faltan_operativas:
         errores.append(f"la base operativa no implementa {faltan_operativas}")
-    # Reglas adicionales (R31+): cada operativa debe tener ficha documental y viceversa.
     adicionales_operativas = codigos_operativos - nucleo
     adicionales_documento = codigos_documento - nucleo
     sin_ficha = sorted(adicionales_operativas - adicionales_documento)
@@ -804,7 +793,6 @@ def construir(operativa: Mapping[str, Any], documental: Mapping[str, Any]) -> Ba
             f"las ramas R30 del documento {ramas_documento} no coinciden con las operativas "
             f"{ramas_operativas}"
         )
-    # Orden seguro de dependencias: ninguna negación puede depender del orden del YAML.
     dependencias, errores_grafo = _grafo(reglas, resolucion, definiciones, etapas)
     errores.extend(errores_grafo)
 

@@ -491,7 +491,6 @@ class Catalogo(Base):
     reglas: list[Regla]
     ramas_r30: list[Regla]
     fuentes: list[Fuente]
-    # Extensión del contrato (docs/DECISIONES.md, D-SE-3): la base como datos.
     version_parametros: str | None = None
     hash_base: str | None = None
     parametros: list[Parametro] = Field(default_factory=list)
@@ -500,7 +499,6 @@ class Catalogo(Base):
     )
 
 
-# --- Módulo de explicación ----------------------------------------------------------
 
 
 class HechoInicial(Base):
@@ -546,7 +544,6 @@ class Explicacion(Base):
     hash_base: str
 
 
-# --- Módulo de adquisición ------------------------------------------------------------
 
 
 class VersionConocimientoResumen(Base):

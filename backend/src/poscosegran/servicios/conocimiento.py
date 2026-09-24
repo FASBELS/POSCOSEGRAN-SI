@@ -21,9 +21,6 @@ from ..sistema_experto.motor import VERSION_MOTOR
 
 _bases: dict[uuid.UUID, BaseConocimiento] = {}
 
-# Candado de transacción con el que se serializan las activaciones. Dos peticiones
-# simultáneas no pueden medir el impacto contra la misma versión vigente y dejar dos
-# activas: la segunda espera y vuelve a leer el estado ya actualizado.
 CANDADO_ACTIVACION = 0x504F5343
 
 

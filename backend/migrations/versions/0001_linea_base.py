@@ -16,7 +16,7 @@ import sqlalchemy as sa
 from alembic import op
 
 from poscosegran.db.base import ESQUEMA, Base
-from poscosegran.db import modelos  # noqa: F401  (registra las tablas)
+from poscosegran.db import modelos  
 
 revision = "0001_linea_base"
 down_revision = None
@@ -28,8 +28,6 @@ def upgrade() -> None:
     conexion = op.get_bind()
     if not sa.inspect(conexion).has_schema(ESQUEMA):
         op.execute(sa.text(f'CREATE SCHEMA "{ESQUEMA}"'))
-    # gen_random_uuid() proviene de pgcrypto en PostgreSQL anteriores a 13.
-    # PostgreSQL 16 incluye gen_random_uuid(); no necesita CREATE EXTENSION.
     Base.metadata.create_all(bind=conexion)
 
 

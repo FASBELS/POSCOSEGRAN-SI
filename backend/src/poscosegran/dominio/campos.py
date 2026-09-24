@@ -37,9 +37,7 @@ def _f(paso: int, na: bool = False) -> Campo:
 
 
 CAMPOS: dict[str, Campo] = {
-    # Paso 1 — identificación y modalidad
     "clima_calido": _b(1),
-    # Paso 2 — mediciones y procedimiento
     "humedad_grano": _n("PCT_BH", 2),
     "metodo_humedad": _x(2),
     "temperatura_muestra": _n("CELSIUS", 2, True),
@@ -61,7 +59,6 @@ CAMPOS: dict[str, Campo] = {
     "lluvia_o_niebla": _b(2, True),
     "humedad_equilibrio_maiz": _n("PCT_BH", 2, True),
     "tabla_equilibrio_id": _x(2, True),
-    # Paso 3 — plagas, deterioro y calidad física
     "insectos_vivos": _b(3),
     "granos_perforados": _b(3),
     "polvillo_inusual": _b(3),
@@ -82,7 +79,6 @@ CAMPOS: dict[str, Campo] = {
     "granos_quebrados": _n("PCT_MASA", 3),
     "materia_organica_extrana": _n("PCT_MASA", 3),
     "materia_inorganica_extrana": _n("PCT_MASA", 3),
-    # Paso 4 — recipiente, estiba y almacén
     "sello_integro": _b(4, True),
     "perforacion_barrera": _b(4, True),
     "bolsa_abierta_sin_resellar": _b(4, True),
@@ -100,7 +96,6 @@ CAMPOS: dict[str, Campo] = {
     "limpieza_tras_operaciones": _b(4, True),
     "polvo_humo_gases_vapores": _b(4),
     "quimicos_combustibles_en_almacen": _b(4),
-    # Paso 5 — historial y control
     "fecha_inspeccion_grano": _f(5, True),
     "fecha_inspeccion_exterior": _f(5, True),
     "fecha_control_almacen": _f(5),
@@ -108,7 +103,6 @@ CAMPOS: dict[str, Campo] = {
     "hay_evento_que_invalida_control": _b(5),
     "sensor_interno_hermetico": _b(5, True),
     "temperatura_ambiente_maxima_intervalo": _n("CELSIUS", 5, True),
-    # Paso 6 — infraestructura y entorno (R31–R36)
     "filtracion_agua_almacen": _b(6),
     "drenaje_obstruido": _b(6),
     "malla_ventana_danada": _b(6),
@@ -118,13 +112,11 @@ CAMPOS: dict[str, Campo] = {
     "residuos_o_maleza_entorno": _b(6),
     "sacos_usados_o_desechos_en_almacen": _b(6),
     "residuos_de_proceso_sin_retirar": _b(6),
-    # Paso 7 — estiba y accesibilidad (R37–R39)
     "paleta_danada_o_con_salientes": _b(7),
     "estiba_inestable": _b(7),
     "altura_supera_limite_proveedor": _b(7),
     "pasillo_inspeccion_obstruido": _b(7),
     "distancia_entre_estantes": _n("METROS", 7, True),
-    # Paso 8 — trazabilidad y movimientos (R40–R47)
     "identificacion_unidad_legible": _b(8),
     "registro_trazabilidad_completo": _b(8),
     "movimiento_sin_registro": _b(8),
@@ -133,7 +125,6 @@ CAMPOS: dict[str, Campo] = {
     "derrame_grano_en_piso": _b(8),
     "grano_derramado_reincorporado": _b(8),
     "rotacion_no_justificada": _b(8),
-    # Paso 9 — sustancias, plagas documentales y vencimiento (R48–R52)
     "alimentos_olor_incompatible_en_contacto": _b(9),
     "programa_control_plagas_documentado": _b(9),
     "aplicacion_plaguicida_sin_registro_competente": _b(9),
@@ -142,8 +133,6 @@ CAMPOS: dict[str, Campo] = {
     "vencimiento_aplicable": _b(9, True),
 }
 
-# Dominios numéricos admitidos. Fuera de rango el dato se conserva como INVALIDO
-# y produce corrección, pero no participa en comparaciones.
 DOMINIOS: dict[str, tuple[float, float]] = {
     "humedad_grano": (0.0, 100.0),
     "actividad_agua": (0.0, 1.0),

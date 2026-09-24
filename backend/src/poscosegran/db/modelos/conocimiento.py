@@ -37,7 +37,6 @@ class VersionConocimiento(Base):
     cargada_en: Mapped[datetime] = mapped_column(server_default=AHORA)
     cargada_por: Mapped[uuid.UUID | None] = fk_uuid("usuario.id", nullable=True)
 
-    # Migración 0003: módulo de adquisición.
     contenido: Mapped[dict[str, Any] | None] = mapped_column(
         nullable=True, comment="Base operativa y documental completas."
     )

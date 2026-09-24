@@ -20,7 +20,6 @@ from ..dominio.campos import CAMPOS, DOMINIOS, METODOS_HUMEDAD
 from ..dominio.valores import Dato, EstadoDato, Procedencia
 from ..esquemas.contrato import ObservacionEntrada, ObservacionValidada
 
-# Campos cuyo valor útil es una fecha aunque viajen como texto ISO.
 CAMPOS_FECHA = {campo for campo, definicion in CAMPOS.items() if definicion.tipo == "F"}
 
 
@@ -144,8 +143,6 @@ def historicas(
     Se reutiliza para no exigir abrir un recipiente hermético solo para repetir un
     dato que ya consta. Conserva su fecha y pasa a procedencia HISTORICA.
     """
-    # La última captura prevalece incluso si es desconocida o inválida. Nunca
-    # resucitar un dato favorable anterior ni mezclar unidades con igual fecha.
     filas = sesion.scalars(
         sa.select(ObservacionBD).where(
             ObservacionBD.id_unidad == id_unidad,

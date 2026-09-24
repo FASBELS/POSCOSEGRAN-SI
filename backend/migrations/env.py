@@ -19,8 +19,8 @@ load_dotenv()
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "src"))
 
-from poscosegran.db.base import ESQUEMA, Base  # noqa: E402
-from poscosegran.db import modelos  # noqa: E402,F401  (registra las tablas)
+from poscosegran.db.base import ESQUEMA, Base  
+from poscosegran.db import modelos  
 
 config = context.config
 if config.config_file_name is not None:
@@ -35,13 +35,12 @@ if url.startswith("postgres://"):
     url = "postgresql+psycopg://" + url.removeprefix("postgres://")
 elif url.startswith("postgresql://"):
     url = "postgresql+psycopg://" + url.removeprefix("postgresql://")
-# configparser interpreta '%' en credenciales URL-encoded como interpolación.
 config.set_main_option("sqlalchemy.url", url.replace("%", "%%"))
 
 metadatos = Base.metadata
 
 
-def _incluir(objeto, nombre, tipo, reflejado, comparado) -> bool:  # type: ignore[no-untyped-def]
+def _incluir(objeto, nombre, tipo, reflejado, comparado) -> bool:  
     """Alembic solo gobierna el esquema de la aplicación."""
     if tipo == "table":
         return objeto.schema == ESQUEMA

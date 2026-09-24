@@ -45,7 +45,6 @@ def _errores(contenido) -> list[str]:
     return error.value.errores
 
 
-# --- Base de conocimiento -----------------------------------------------------------
 
 
 def test_la_base_del_repositorio_es_valida(activa) -> None:
@@ -109,7 +108,6 @@ def test_cambiar_un_parametro_cambia_la_decision(activa) -> None:
 def test_retirar_una_regla_la_desactiva(activa) -> None:
     contenido = _contenido(activa)
     contenido["operativa"]["reglas"] = [r for r in contenido["operativa"]["reglas"] if r["id"] != "R18"]
-    # El cargador exige las 29 reglas del catálogo: retirarla invalida la base.
     assert any("R18" in e for e in _errores(contenido))
 
 
@@ -164,7 +162,6 @@ def test_serializacion_ida_y_vuelta() -> None:
     assert serializacion.a_json(serializacion.desde_json(json.loads(json.dumps(ida)))) == ida
 
 
-# --- Motor --------------------------------------------------------------------------------
 
 
 def test_traza_registra_encadenamiento_en_dos_pasadas() -> None:
@@ -186,7 +183,6 @@ def test_resolucion_evalua_todas_las_ramas_pero_decide_una() -> None:
     assert next(x for x in r.ramas if x.rama == "R30.9").valor == "VERDADERO"
 
 
-# --- Explicación ------------------------------------------------------------------------
 
 
 def test_explicacion_como(activa) -> None:
@@ -221,7 +217,6 @@ def test_por_que_se_pide(activa) -> None:
     assert por_que_se_pide("observaciones_libres", activa).reglas == ()
 
 
-# --- Adquisición ------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="module")
@@ -241,7 +236,6 @@ def test_propuesta_valida_mide_impacto(activa, pocos_casos) -> None:
     assert p.cambios_parametros[0].anterior == Decimal("14")
     assert p.impacto is not None and p.impacto.evaluados == len(pocos_casos)
     assert p.base is not None and p.base.parametro("humedad_admision_max") == Decimal("13.5")
-    # La versión activa no cambia: la propuesta es una copia.
     assert activa.parametro("humedad_admision_max") == Decimal("14")
 
 
@@ -297,7 +291,6 @@ def test_inconsistencia_detectada_fuera_del_motor_exige_correccion() -> None:
     assert "vida_previa_menor_al_historial_persistido" in motivo.mensaje
 
 
-# --- Grafo de dependencias y orden seguro -------------------------------------------
 
 
 def _sin_etapa(contenido, produccion: str, etapa: str) -> None:
@@ -334,25 +327,20 @@ def test_el_agotamiento_se_decide_antes_que_el_aviso(activa) -> None:
 @pytest.mark.parametrize(
     "mutacion, fragmento",
     [
-        # R28 vuelve a la etapa de su productor: el resultado dependería del YAML.
         (lambda o: _sin_etapa(o, "R28", "tiempo"), "la misma etapa"),
-        # El productor pasa a una etapa posterior a la que lo niega.
         (lambda o: _sin_etapa(o, "R29", "control"), "la etapa posterior"),
-        # Un hecho que nadie afirma nunca podría ser verdadero.
         (
             lambda o: next(r for r in o["reglas"] if r["id"] == "R12").update(
                 {"si": {"hecho": "HECHO_QUE_NO_EXISTE"}}
             ),
             "ninguna producción afirma",
         ),
-        # Dos productores hacen ambigua la etapa en que el hecho queda decidido.
         (
             lambda o: next(r for r in o["reglas"] if r["id"] == "R06")["entonces"].update(
                 {"hallazgo": "HUMEDAD_APTA_BASE"}
             ),
             "único productor",
         ),
-        # Una regla de validación no puede esperar un hecho de la consolidación.
         (
             lambda o: next(r for r in o["reglas"] if r["id"] == "R12").update(
                 {"etapa": "validacion", "si": {"hecho": "PLAZO_INCOMPATIBLE"}}
@@ -386,7 +374,6 @@ def test_las_ramas_r30_pueden_negar_hechos_de_cualquier_etapa(activa) -> None:
     assert any(d.hechos_negados for d in ramas)
 
 
-# --- Propiedades del ciclo de inferencia --------------------------------------------
 
 
 def test_refraccion_y_terminacion(activa) -> None:
@@ -431,7 +418,6 @@ def test_cadena_de_tres_producciones_hasta_la_decision(activa) -> None:
     assert resultado.rama_r30 == "R30.1"
     assert resultado.decision_final == "CUARENTENA"
 
-    # La misma cadena, leída del grafo y no de una ejecución concreta.
     grafo = {d.id: d for d in activa.dependencias}
     assert grafo["R20"].hallazgo in grafo["R19"].hechos
     assert "CUARENTENA" in grafo["R19"].produce_solicitudes

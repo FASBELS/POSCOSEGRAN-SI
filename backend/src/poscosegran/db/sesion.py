@@ -35,7 +35,7 @@ def obtener_motor() -> Engine:
         )
 
         @event.listens_for(_motor, "connect")
-        def _fijar_ruta_busqueda(dbapi_conn, _registro) -> None:  # type: ignore[no-untyped-def]
+        def _fijar_ruta_busqueda(dbapi_conn, _registro) -> None:  
             with dbapi_conn.cursor() as cur:
                 cur.execute(f"SET search_path TO {ESQUEMA}")
 

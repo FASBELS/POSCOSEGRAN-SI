@@ -54,7 +54,6 @@ class Calculadora:
         self._memoria: dict[str, Any] = {}
         self.estimacion_hermetica: Estimacion | None = None
 
-    # --- Temperatura aplicable, sección 6.2 ----------------------------------
 
     def preparar(self) -> None:
         """Afirma los hechos calculados antes de la inferencia."""
@@ -118,7 +117,6 @@ class Calculadora:
             no_aplica=dato.no_aplica,
         )
 
-    # --- Tiempo de almacenamiento, sección 6 ---------------------------------
 
     @property
     def tiempo(self) -> CalculosTiempo:
@@ -187,8 +185,8 @@ class Calculadora:
                 )
                 continue
             celda_tramo = tabla.seleccionar(
-                intervalo.humedad_grano,  # type: ignore[arg-type]
-                intervalo.temperatura_grano,  # type: ignore[arg-type]
+                intervalo.humedad_grano,  
+                intervalo.temperatura_grano,  
             )
             if celda_tramo is None:
                 completo = False
@@ -242,7 +240,6 @@ class Calculadora:
             return F
         return V
 
-    # --- Acceso por nombre desde el lenguaje de condiciones -------------------
 
     def valor(self, nombre: str) -> Any:
         inst = self._hechos.instantanea
@@ -281,7 +278,6 @@ class Calculadora:
                 return V if cubre else F
         raise KeyError(f"cálculo desconocido: {nombre}")
 
-    # --- Fechas del resultado ------------------------------------------------
 
     def proximo_control(self, riesgo: Tri, monitoreo: bool) -> datetime:
         inst = self._hechos.instantanea

@@ -66,7 +66,6 @@ def hermetico(inst: Instantanea, **estado: bool) -> Instantanea:
     return con(inst, **{campo: bul(campo, valor) for campo, valor in valores.items()})
 
 
-# --- A. Humedad -------------------------------------------------------------------
 
 def test_c01_caso_base_autoriza() -> None:
     resultado = evaluar(base())
@@ -137,7 +136,6 @@ def test_c09_falta_verificacion_del_equipo_no_concluye() -> None:
     assert "R05" not in resultado.reglas_activadas
 
 
-# --- B. Hermeticidad y control ----------------------------------------------------
 
 def test_c10_sello_con_perforacion_es_inconsistente() -> None:
     resultado = evaluar(hermetico(base(), perforacion_barrera=True))
@@ -183,7 +181,6 @@ def test_c12_inspeccion_exterior_vencida_exige_correccion() -> None:
     assert "R27" in resultado.reglas_activadas
 
 
-# --- C. Plagas y deterioro --------------------------------------------------------
 
 def test_c13_moho_visible_produce_cuarentena() -> None:
     resultado = evaluar(con(base(), moho_visible=bul("moho_visible", True)))
@@ -211,7 +208,6 @@ def test_c15_revision_confirmada_encadena_hasta_cuarentena() -> None:
     assert "R19" in resultado.reglas_activadas
 
 
-# --- D. Tiempo --------------------------------------------------------------------
 
 def test_c16_vida_en_aviso_autoriza_con_monitoreo() -> None:
     inst = replace(
@@ -258,7 +254,6 @@ def test_c19_temperatura_fuera_de_tabla_no_se_extrapola() -> None:
     assert resultado.decision_final == "CORREGIR_Y_REEVALUAR"
 
 
-# --- E. Aireación -----------------------------------------------------------------
 
 def aireacion(inst: Instantanea, equilibrio: str, hr: str, aire: str) -> Instantanea:
     return con(
@@ -295,7 +290,6 @@ def test_c23_aireacion_no_aplica_a_hermetico() -> None:
     assert "R11" not in resultado.reglas_activadas
 
 
-# --- F. Persistencia y vigencia ---------------------------------------------------
 
 def test_c24_nueva_medicion_desfavorable_no_conserva_autorizacion() -> None:
     primera = evaluar(base())
@@ -327,7 +321,6 @@ def test_c26_cuarentena_conserva_la_causa_de_suspension() -> None:
     assert resultado.datos_pendientes
 
 
-# --- G. Monitoreo y plazos --------------------------------------------------------
 
 def test_c27_ambiente_favorable_a_insectos_con_plan_autoriza_con_monitoreo() -> None:
     inst = replace(base(), plan=plan_reforzado())
@@ -396,7 +389,6 @@ def test_c33_escenario_hermetico_se_declara_como_estimacion() -> None:
     assert any(e.tipo == "ESTIMACION_HERMETICA" for e in resultado.estimaciones)
 
 
-# --- H. Ambiente, calidad y contexto ----------------------------------------------
 
 @pytest.mark.parametrize(
     ("campo", "valor", "unidad"),
@@ -408,8 +400,6 @@ def test_c34_umbrales_ambientales_exigen_correccion(campo: str, valor: str, unid
 
 
 def test_c35_hr_externa_no_bloquea_hermetico_integro() -> None:
-    # "Autorizar según datos internos": el recipiente tiene sensor instalado, de
-    # modo que no interviene el escenario de planificación de la sección 6.2.
     inst = replace(hermetico(base()), sensor_interno_hermetico=True)
     resultado = evaluar(con(inst, hr_almacen=num("hr_almacen", "65", "PCT_HR")))
     assert "R07" not in resultado.reglas_activadas
@@ -468,7 +458,6 @@ def test_c40_un_descarte_anterior_no_cubre_insectos_nuevos() -> None:
     assert "R14" in resultado.reglas_activadas
 
 
-# --- Invariantes de la sección 9 --------------------------------------------------
 
 CASOS_VARIADOS = (
     "base", "moho", "humedad_alta", "sin_equipo", "temperatura_alta", "insectos",

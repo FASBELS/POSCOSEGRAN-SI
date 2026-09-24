@@ -32,15 +32,15 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(RAIZ / "src"), str(RAIZ / "tests")]
 
-from casos.base import AHORA, base, bul, con, desconocido, fec, num, txt  # noqa: E402
-from casos.test_aceptacion import dictamen_vigente, hermetico, plan_reforzado  # noqa: E402
+from casos.base import AHORA, base, bul, con, desconocido, fec, num, txt  
+from casos.test_aceptacion import dictamen_vigente, hermetico, plan_reforzado  
 
-from poscosegran.dominio.hechos import (  # noqa: E402
+from poscosegran.dominio.hechos import (  
     Controles, Episodio, Fase, Historial, Intervalo, Modalidad, Plan, ResultadoRevision,
 )
-from poscosegran.dominio.motor import evaluar  # noqa: E402
-from poscosegran.dominio.valores import D, Dato, EstadoDato, F, V  # noqa: E402
-from poscosegran.sistema_experto import base_conocimiento, serializacion  # noqa: E402
+from poscosegran.dominio.motor import evaluar  
+from poscosegran.dominio.valores import D, Dato, EstadoDato, F, V  
+from poscosegran.sistema_experto import base_conocimiento, serializacion  
 
 SUAVE_B, SUAVE_N = 8, 7
 rnd = random.Random(20260923)

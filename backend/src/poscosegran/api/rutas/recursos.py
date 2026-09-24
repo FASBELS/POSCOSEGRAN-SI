@@ -216,8 +216,6 @@ def actualizar_almacen(
         sesion, identidad, accion="actualizar_almacen", recurso_tipo="almacen",
         recurso_id=fila.id, metodo="PATCH", ruta=f"/almacenes/{id_almacen}", estado_http=200,
         revision_resultante=fila.revision,
-        # Un cambio de ubicación invalida los controles de sus unidades: la nueva
-        # revisión del almacén hace que las autorizaciones previas dejen de ser vigentes.
         resumen={"ubicacion_modificada": ubicacion_cambia},
     )
     etiquetar(respuesta, fila.revision)
@@ -275,7 +273,6 @@ def crear_lote(
 
     if "PRODUCTOR" not in identidad.roles:
         raise AccesoDenegado("Crear un lote requiere rol PRODUCTOR")
-    # El propietario es siempre el usuario autenticado: no se acepta del cliente.
     fila = Lote(id_propietario=identidad.id, **entrada.model_dump())
     sesion.add(fila)
     sesion.flush()
@@ -456,8 +453,6 @@ def actualizar_unidad(
         sesion, identidad, accion="actualizar_unidad", recurso_tipo="unidad", recurso_id=fila.id,
         metodo="PATCH", ruta=f"/unidades/{id_unidad}", estado_http=200,
         revision_resultante=fila.revision,
-        # Cambiar de modalidad invalida los controles heredados: la vigencia se
-        # recalcula al consultar y la autorización anterior deja de aplicarse.
         resumen={"modalidad_modificada": modalidad_cambia},
     )
     etiquetar(respuesta, fila.revision)

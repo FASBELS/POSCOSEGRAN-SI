@@ -96,7 +96,7 @@ class Motor:
                     disparos += 1
                 if disparos == 0:
                     break
-            else:  # pragma: no cover — imposible por refracción
+            else:  
                 raise RuntimeError(f"la etapa {etapa} no alcanzó un punto fijo")
 
         hechos.pendientes = self._pendientes(hechos, evaluador, calculadora)
@@ -143,7 +143,6 @@ class Motor:
             no_aplicables=tuple(hechos.no_aplicables),
         )
 
-    # --- Actuar ----------------------------------------------------------------
 
     def _disparar(
         self,
@@ -264,7 +263,6 @@ class Motor:
 
         return self._MARCADOR.sub(sustituir, plantilla)
 
-    # --- Datos exigibles -------------------------------------------------------
 
     def _pendientes(self, hechos: BaseHechos, evaluador: Evaluador, calculadora: Calculadora) -> list[Pendiente]:
         salida: list[Pendiente] = []
@@ -291,7 +289,6 @@ class Motor:
             unicos.setdefault((pendiente.campo, pendiente.motivo), pendiente)
         return list(unicos.values())
 
-    # --- Resolución del conjunto conflicto -------------------------------------
 
     def _resolver(self, hechos: BaseHechos, evaluador: Evaluador) -> tuple[str, str]:
         """Prioridad fija: gana la primera rama VERDADERO.

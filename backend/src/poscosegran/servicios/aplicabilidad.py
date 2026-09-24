@@ -8,7 +8,7 @@ def comprobar(datos: dict[str, Dato], modalidad: str | None, fase: str | None) -
     salida = dict(datos)
     hermetico = modalidad == "HERMETICO"
     no_hermetico = modalidad == "NO_HERMETICO"
-    def booleano(campo: str):  # type: ignore[no-untyped-def]
+    def booleano(campo: str):  
         return datos.get(campo, Dato(campo)).booleano
     for campo, dato in datos.items():
         if not dato.no_aplica:
@@ -33,7 +33,6 @@ def comprobar(datos: dict[str, Dato], modalidad: str | None, fase: str | None) -
         elif campo in {"ingreso_inspeccionado", "limpieza_previa_nuevo_lote"}:
             permitido = fase == "SEGUIMIENTO"
         elif campo == "limpieza_tras_operaciones":
-            # La matriz permite ausencia documentada de operaciones.
             permitido = bool((dato.motivo_no_aplica or "").strip())
         if not permitido:
             salida[campo] = replace(dato, no_aplica=False, estado=EstadoDato.INVALIDO)

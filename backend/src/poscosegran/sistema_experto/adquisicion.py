@@ -51,7 +51,7 @@ class CambioParametro:
 class CambioRegla:
     produccion: str
     regla: str
-    tipo: str  # MODIFICADA | NUEVA | RETIRADA
+    tipo: str  
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,7 +90,6 @@ class Propuesta:
     base: BaseConocimiento | None = field(repr=False, default=None)
 
 
-# --- Casos de referencia -------------------------------------------------------------
 
 
 def cargar_casos_referencia(ruta: Path | None = None) -> list[tuple[str, str, Instantanea]]:
@@ -104,7 +103,6 @@ def cargar_casos_referencia(ruta: Path | None = None) -> list[tuple[str, str, In
     ]
 
 
-# --- Propuesta --------------------------------------------------------------------------
 
 
 def _decimal(valor: Any) -> Decimal | None:

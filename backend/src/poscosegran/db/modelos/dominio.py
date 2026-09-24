@@ -26,7 +26,6 @@ class Almacen(Base):
     actualizado_en: Mapped[datetime] = mapped_column(server_default=AHORA)
 
     __table_args__ = (
-        # clima_calido es una clasificación documentada: sin fundamento no se guarda.
         sa.CheckConstraint(
             "clima_calido IS NULL OR (fundamento_clima IS NOT NULL "
             "AND length(btrim(fundamento_clima)) > 0)",

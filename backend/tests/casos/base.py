@@ -78,7 +78,6 @@ def desconocido(campo: str) -> Dato:
 def datos_base() -> dict[str, Dato]:
     datos: dict[str, Dato] = {}
 
-    # Humedad y su confirmación
     datos["humedad_grano"] = num("humedad_grano", "12.5")
     datos["metodo_humedad"] = txt("metodo_humedad", "INSTRUMENTAL")
     datos["temperatura_muestra"] = num("temperatura_muestra", "10", "CELSIUS")
@@ -91,14 +90,12 @@ def datos_base() -> dict[str, Dato]:
 
     datos["aw_medida"] = bul("aw_medida", False)
 
-    # Temperaturas y ambiente
     datos["temperatura_grano"] = num("temperatura_grano", "10", "CELSIUS")
     datos["punto_medicion"] = txt("punto_medicion", "CENTRO")
     datos["metodo_termico"] = txt("metodo_termico", "SONDA")
     datos["temperatura_almacen"] = num("temperatura_almacen", "10", "CELSIUS")
     datos["hr_almacen"] = num("hr_almacen", "50", "PCT_HR")
 
-    # Plagas y deterioro: observados y negativos
     for campo in (
         "insectos_vivos", "granos_perforados", "polvillo_inusual", "exuvias_larvas",
         "ruido_alimentacion", "heces_roedores_aves_entorno", "huellas", "bolsa_roida",
@@ -107,7 +104,6 @@ def datos_base() -> dict[str, Dato]:
     ):
         datos[campo] = bul(campo, False)
 
-    # Calidad física
     datos["suciedad_origen_animal"] = num("suciedad_origen_animal", "0.0", "PCT_MASA")
     datos["granos_defectuosos"] = num("granos_defectuosos", "2.0", "PCT_MASA")
     datos["granos_enfermos"] = num("granos_enfermos", "0.1", "PCT_MASA")
@@ -115,7 +111,6 @@ def datos_base() -> dict[str, Dato]:
     datos["materia_organica_extrana"] = num("materia_organica_extrana", "0.5", "PCT_MASA")
     datos["materia_inorganica_extrana"] = num("materia_inorganica_extrana", "0.1", "PCT_MASA")
 
-    # Recipiente y estiba
     for campo in (
         "recipiente_limpio", "recipiente_seco", "material_grado_alimentario",
         "recipiente_resistente", "cierre_seguro",
@@ -125,7 +120,6 @@ def datos_base() -> dict[str, Dato]:
     datos["distancia_pared"] = num("distancia_pared", "0.60", "METROS")
     datos["distancia_techo"] = num("distancia_techo", "1.20", "METROS")
 
-    # Higiene y calidad del aire
     datos["fecha_limpieza_general"] = fec("fecha_limpieza_general", AHORA - timedelta(days=3))
     datos["limpieza_diaria"] = bul("limpieza_diaria", True)
     datos["limpieza_previa_nuevo_lote"] = bul("limpieza_previa_nuevo_lote", True)

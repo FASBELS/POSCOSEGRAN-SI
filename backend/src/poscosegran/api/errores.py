@@ -116,7 +116,6 @@ def registrar_manejadores(app: FastAPI) -> None:
     @app.exception_handler(Exception)
     async def _interno(request: Request, exc: Exception) -> JSONResponse:
         id_solicitud = _id_solicitud(request)
-        # El detalle va al log con su identificador; al cliente no se le expone.
         registro.exception("fallo no controlado", extra={"id_solicitud": str(id_solicitud)})
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

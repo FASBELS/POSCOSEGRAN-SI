@@ -21,7 +21,7 @@ def _usuario(conexion: sa.Connection, nombre: str) -> uuid.UUID:
     return identificador
 
 
-def test_evaluacion_no_se_puede_modificar(motor) -> None:  # type: ignore[no-untyped-def]
+def test_evaluacion_no_se_puede_modificar(motor) -> None:  
     """Editar una evaluación debe fallar: se corrige emitiendo otra."""
     with motor.begin() as conexion:
         existe = conexion.execute(
@@ -39,7 +39,7 @@ def test_evaluacion_no_se_puede_modificar(motor) -> None:  # type: ignore[no-unt
             )
 
 
-def test_clima_calido_exige_fundamento(motor) -> None:  # type: ignore[no-untyped-def]
+def test_clima_calido_exige_fundamento(motor) -> None:  
     with motor.begin() as conexion:
         propietario = _usuario(conexion, "productora de prueba")
         with pytest.raises(sa.exc.IntegrityError):
@@ -53,7 +53,7 @@ def test_clima_calido_exige_fundamento(motor) -> None:  # type: ignore[no-untype
             )
 
 
-def test_observacion_aportada_exige_fecha_y_metodo(motor) -> None:  # type: ignore[no-untyped-def]
+def test_observacion_aportada_exige_fecha_y_metodo(motor) -> None:  
     """Un número sin procedimiento ni fecha no es una observación válida."""
     with motor.begin() as conexion:
         unidad = conexion.execute(sa.text("SELECT id FROM poscosegran.unidad LIMIT 1")).first()
@@ -110,7 +110,7 @@ def _unidad(conexion: sa.Connection) -> uuid.UUID:
     return unidad
 
 
-def test_solo_una_incidencia_abierta_por_tipo(motor) -> None:  # type: ignore[no-untyped-def]
+def test_solo_una_incidencia_abierta_por_tipo(motor) -> None:  
     """El índice parcial impide dos incidencias abiertas del mismo tipo en una unidad.
 
     La prueba crea su propia unidad y revierte al terminar. Tomar una unidad
@@ -133,7 +133,7 @@ def test_solo_una_incidencia_abierta_por_tipo(motor) -> None:  # type: ignore[no
             transaccion.rollback()
 
 
-def test_historial_no_se_borra(motor) -> None:  # type: ignore[no-untyped-def]
+def test_historial_no_se_borra(motor) -> None:  
     with motor.begin() as conexion:
         registro = conexion.execute(sa.text("SELECT id FROM poscosegran.evento LIMIT 1")).first()
         if registro is None:
@@ -144,7 +144,7 @@ def test_historial_no_se_borra(motor) -> None:  # type: ignore[no-untyped-def]
             )
 
 
-def test_la_credencial_de_aplicacion_no_puede_crear_tablas(motor) -> None:  # type: ignore[no-untyped-def]
+def test_la_credencial_de_aplicacion_no_puede_crear_tablas(motor) -> None:  
     """Comprobación del reparto de privilegios de sql/roles_privilegios.sql."""
     with motor.begin() as conexion:
         rol = conexion.execute(sa.text("SELECT current_user")).scalar_one()

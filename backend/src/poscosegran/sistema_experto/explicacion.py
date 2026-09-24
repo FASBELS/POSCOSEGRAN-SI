@@ -142,8 +142,6 @@ def explicar(resultado: Resultado, base: BaseConocimiento) -> Explicacion:
     cadena = [_paso(a, antecedentes) for a in _cadena(resultado, base)]
     ramas = [_explicar_rama(r, resultado.rama_r30) for r in resultado.ramas]
 
-    # ¿Por qué no? Solo interesa para las autorizaciones que no se concedieron:
-    # todas si la decisión no autoriza; la ordinaria si se autorizó con monitoreo.
     autorizadas = base.decisiones_autorizadas
     indice_elegida = next(i for i, r in enumerate(ramas) if r.aplicada)
     por_que_no = [

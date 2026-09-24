@@ -23,7 +23,6 @@ USUARIOS = {
 }
 ALIAS_USUARIOS = {"testeo": "productor"}
 
-# Rol de cada usuario local; el nombre de usuario no siempre coincide con el rol.
 ROLES_LOCALES = {
     "productor": "PRODUCTOR",
     "tecnico": "TECNICO",

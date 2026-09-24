@@ -64,7 +64,6 @@ def upgrade() -> None:
             f"REFERENCES {ESQUEMA}.{destino} (id) ON DELETE RESTRICT"
         ))
 
-    # Rol nuevo: el CHECK y el ancho de la columna dependen de la lista de roles.
     op.execute(sa.text(f"ALTER TABLE {ESQUEMA}.usuario_rol ALTER COLUMN rol TYPE VARCHAR({max(len(r) for r in ROL)})"))
     op.execute(sa.text(f"ALTER TABLE {ESQUEMA}.usuario_rol DROP CONSTRAINT IF EXISTS ck_usuario_rol_rol"))
     op.execute(sa.text(

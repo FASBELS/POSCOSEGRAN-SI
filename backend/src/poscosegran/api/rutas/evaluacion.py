@@ -155,13 +155,11 @@ def evaluar(
         for observacion in entrada.observaciones
     ]
 
-    # El reloj de la evaluación pertenece al servidor.
     ahora = datetime.now(UTC)
     instantanea, aplicadas = evaluaciones.construir_instantanea(
         sesion, unidad=unidad, almacen=almacen, entrada=entrada, filas_actuales=filas, ahora=ahora
     )
     resultado = motor.evaluar(instantanea, base)
-    # Una nueva declaración no puede borrar consumo documentado anteriormente.
     from dataclasses import replace
     previa = sesion.get(Evaluacion, unidad.id_evaluacion_actual) if unidad.id_evaluacion_actual else None
     if previa and previa.vida_minima_documentada is not None and (resultado.calculos.vida_minima_documentada or 0) < previa.vida_minima_documentada:
@@ -183,8 +181,6 @@ def evaluar(
         version=version,
     )
     evaluaciones.sincronizar_incidencias(sesion, id_unidad, resultado, fila_evaluacion.id)
-    # La captura enviada queda en la evaluación inmutable. El borrador de este
-    # usuario ya no debe reaparecer sobre una nueva inspección.
     sesion.execute(sa.delete(Borrador).where(
         Borrador.id_unidad == id_unidad, Borrador.id_usuario == identidad.id
     ))
@@ -257,8 +253,6 @@ def historial(
         if len(filas) > tope
         else None
     )
-    # La vigencia es la de la unidad hoy; las evaluaciones antiguas siguen siendo
-    # historia, no autorizaciones paralelas.
     actual = servicio_vigencia.calcular(sesion, id_unidad)
     return api.Pagina(
         items=[
@@ -313,13 +307,13 @@ def explicacion(id_evaluacion: uuid.UUID, sesion: SesionDep, identidad: Identida
         raise HTTPException(409, "la evaluación no se reproduce con su versión de la base: revise la integridad del registro")
     e = explicar(resultado, base)
 
-    def paso(p) -> api.PasoExplicacion:  # type: ignore[no-untyped-def]
+    def paso(p) -> api.PasoExplicacion:  
         return api.PasoExplicacion(
             orden=p.orden, regla=p.regla, etapa=p.etapa, pasada=p.pasada, conclusion=p.conclusion,
             solicitudes=list(p.solicitudes), porque=list(p.porque), antecedente=p.antecedente,
         )
 
-    def rama(r) -> api.RamaExplicada:  # type: ignore[no-untyped-def]
+    def rama(r) -> api.RamaExplicada:  
         return api.RamaExplicada(rama=r.rama, decision=r.decision, aplicada=r.aplicada, valor=r.valor, faltan=list(r.faltan))
 
     return api.Explicacion(

@@ -85,7 +85,6 @@ def reservar(
     try:
         sesion.flush()
     except IntegrityError as exc:
-        # Otra petición ganó la carrera con la misma clave.
         sesion.rollback()
         raise OperacionEnCurso(str(clave)) from exc
     return None

@@ -60,7 +60,6 @@ with Session(admin) as db, db.begin():
             db.add(Usuario(id=identificador, nombre=f"{nombre.capitalize()} local"))
             db.flush()
             db.add(UsuarioRol(id_usuario=identificador, rol=ROLES_LOCALES[nombre], otorgado_por="preparar_local.py"))
-# Carga administrativa de la semilla de knowledge/.
 os.environ["POSCOSEGRAN_BD_URL_APP"] = str(admin.url.render_as_string(hide_password=False))
 obtener_configuracion.cache_clear()
 print(cargar(BACKEND.parent / "knowledge", activar=True, notas="Desarrollo local"))
@@ -68,8 +67,6 @@ with admin.begin() as conn:
     conn.exec_driver_sql("GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA poscosegran TO poscosegran_app")
     conn.exec_driver_sql("GRANT DELETE ON poscosegran.borrador, poscosegran.idempotencia TO poscosegran_app")
     conn.exec_driver_sql("REVOKE INSERT, UPDATE ON poscosegran.usuario, poscosegran.usuario_rol, poscosegran.asignacion_lote, poscosegran.asignacion_almacen, poscosegran.version_conocimiento, poscosegran.regla, poscosegran.fuente FROM poscosegran_app")
-    # Módulo de adquisición: la API registra versiones nuevas y cambia cuál está
-    # activa, pero no puede reescribir el contenido de una versión existente.
     conn.exec_driver_sql("GRANT INSERT ON poscosegran.version_conocimiento, poscosegran.regla, poscosegran.fuente TO poscosegran_app")
     conn.exec_driver_sql("GRANT UPDATE (activa, estado, activada_en, activada_por, motivo) ON poscosegran.version_conocimiento TO poscosegran_app")
 frontend = BACKEND.parent / ".env.local"

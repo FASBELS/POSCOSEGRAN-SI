@@ -144,7 +144,7 @@ def desde_json(datos: dict[str, Any]) -> Instantanea:
     plan = datos["plan"]
     dictamen = datos.get("dictamen")
     return Instantanea(
-        fecha_evaluacion=_p(datos["fecha_evaluacion"]),  # type: ignore[arg-type]
+        fecha_evaluacion=_p(datos["fecha_evaluacion"]),  
         fase=Fase(datos["fase"]) if datos.get("fase") else None,
         tipo_almacenamiento=Modalidad(datos["tipo_almacenamiento"]) if datos.get("tipo_almacenamiento") else None,
         clima_calido=Tri(datos["clima_calido"]),
@@ -170,8 +170,8 @@ def desde_json(datos: dict[str, Any]) -> Instantanea:
             evidencia_vida_previa=datos["historial"].get("evidencia_vida_previa"),
             intervalos=tuple(
                 Intervalo(
-                    inicio=_p(i["inicio"]),  # type: ignore[arg-type]
-                    fin=_p(i["fin"]),  # type: ignore[arg-type]
+                    inicio=_p(i["inicio"]),  
+                    fin=_p(i["fin"]),  
                     humedad_grano=_n(i.get("humedad_grano")),
                     temperatura_grano=_n(i.get("temperatura_grano")),
                     metodo=i.get("metodo"),
@@ -200,7 +200,7 @@ def desde_json(datos: dict[str, Any]) -> Instantanea:
             humedad_min=Decimal(dictamen["humedad_min"]),
             humedad_max=Decimal(dictamen["humedad_max"]),
             plazo_maximo_dias=int(dictamen["plazo_maximo_dias"]),
-            vence_en=_p(dictamen["vence_en"]),  # type: ignore[arg-type]
+            vence_en=_p(dictamen["vence_en"]),  
             vigente=bool(dictamen["vigente"]),
         ),
         episodios=tuple(
@@ -218,9 +218,6 @@ def desde_json(datos: dict[str, Any]) -> Instantanea:
     )
 
 
-# --- Forma compacta para colecciones de casos ---------------------------------------
-# Los casos de referencia comparten casi todas sus observaciones. Se guarda una
-# plantilla de datos y, en cada caso, solo lo que difiere de ella.
 
 def comprimir(hechos: dict[str, Any], plantilla: dict[str, Any]) -> dict[str, Any]:
     datos = hechos["datos"]

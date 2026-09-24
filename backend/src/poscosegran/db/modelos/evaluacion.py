@@ -46,7 +46,6 @@ class Evaluacion(Base):
     decision_final: Mapped[str] = mapped_column(enum_texto("decision", DECISION))
     rama_r30: Mapped[str] = mapped_column(enum_texto("rama_r30", RAMA_R30))
 
-    # Entrada efectiva tal como se aplicó, para poder reproducir la inferencia.
     entrada_efectiva: Mapped[dict[str, Any]] = mapped_column(JSONB)
     revision_unidad_usada: Mapped[int] = mapped_column(sa.Integer)
     revision_almacen_usada: Mapped[int] = mapped_column(sa.Integer)
@@ -55,7 +54,6 @@ class Evaluacion(Base):
         ARRAY(sa.Text), server_default=sa.text("'{}'::text[]")
     )
 
-    # CalculosTiempo desplegado en columnas: se consulta y se audita mejor que en JSON.
     vida_consumida: Mapped[Decimal | None] = mapped_column(sa.Numeric(8, 4), nullable=True)
     vida_minima_documentada: Mapped[Decimal | None] = mapped_column(sa.Numeric(8, 4), nullable=True)
     vida_proyectada: Mapped[Decimal | None] = mapped_column(sa.Numeric(8, 4), nullable=True)
@@ -82,7 +80,6 @@ class Evaluacion(Base):
         sa.CheckConstraint(
             "vida_consumida IS NULL OR vida_consumida >= 0", name="vida_no_negativa"
         ),
-        # Una decisión no autorizada no lleva vencimiento de autorización.
         sa.CheckConstraint(
             "fecha_vencimiento_autorizacion IS NULL "
             "OR decision_final IN ('AUTORIZAR_ALMACENAMIENTO', 'AUTORIZAR_CON_MONITOREO')",

@@ -141,7 +141,7 @@ def transcribir(ruta: Path) -> str:
             salida.append(f'    fundamento: "{elemento["fundamento"]}"')
             citadas = elemento["fuentes"]
             if citadas:
-                lista = ", ".join(f'"{codigo}"' for codigo in citadas)  # type: ignore[union-attr]
+                lista = ", ".join(f'"{codigo}"' for codigo in citadas)  
                 salida.append(f"    fuentes: [{lista}]")
             else:
                 salida.append("    fuentes: []")

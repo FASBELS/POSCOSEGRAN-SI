@@ -47,7 +47,6 @@ def calcular(sesion: Session, id_unidad: uuid.UUID) -> Vigencia:
             causas=[f"La última evaluación resolvió {evaluacion.decision_final}."],
         )
 
-    # Un episodio abierto o un evento posterior invalidan una autorización previa.
     abiertas = sesion.scalars(
         sa.select(Incidencia.tipo).where(
             Incidencia.id_unidad == id_unidad,

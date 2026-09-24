@@ -30,7 +30,6 @@ ESQUEMA = "poscosegran"
 TABLA = "version_conocimiento"
 RESTRICCION = f"ck_{TABLA}_estado_version"
 
-# Estados admitidos antes de esta revisión, para poder revertirla.
 ANTERIORES = ("PROPUESTA", "ACTIVADA", "DESCARTADA")
 
 
@@ -50,7 +49,6 @@ def _restriccion(valores: tuple[str, ...]) -> None:
 
 def upgrade() -> None:
     _restriccion(ESTADO_VERSION)
-    # Las versiones que ya fueron reemplazadas pasan a decirlo en su propio estado.
     op.execute(
         sa.text(
             f"UPDATE {ESQUEMA}.{TABLA} SET estado = 'SUPERADA' "

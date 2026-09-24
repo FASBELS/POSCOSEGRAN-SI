@@ -17,10 +17,6 @@ pytestmark = pytest.mark.bd
 
 MOTIVO = "Revisión técnica documentada de la campaña 2026"
 
-# Las pruebas comparten la base y algunas activan lo que proponen, así que la versión
-# activa va cambiando. Cada propuesta usa un número de versión y un valor de parámetro
-# distintos: repetir el valor vigente haría que la propuesta se rechace por no cambiar
-# nada. El rango se mantiene entre humedad_base_max (13) y el valor original (14).
 _contador = itertools.count(1)
 
 
@@ -52,7 +48,6 @@ def _propuesta_guardada(client, headers, rol="INGENIERO"):
     return cuerpo["version"]
 
 
-# --- Simulación y propuesta ---------------------------------------------------------
 
 
 def test_simulacion_valida_mide_impacto_sin_registrar(api_real) -> None:
@@ -112,7 +107,6 @@ def test_guardar_registra_la_propuesta_en_estado_propuesta(api_real) -> None:
     assert version["activa"] is False
 
 
-# --- Permisos -----------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("rol", ["PRODUCTOR", "TECNICO", "ADMINISTRADOR"])
@@ -127,7 +121,6 @@ def test_el_ingeniero_del_conocimiento_accede(api_real) -> None:
     assert client.get("/api/v1/adquisicion/versiones", headers=headers("INGENIERO")).status_code == 200
 
 
-# --- Descarte -----------------------------------------------------------------------
 
 
 def test_descartar_una_propuesta_y_repetir_el_descarte(api_real) -> None:
@@ -139,7 +132,6 @@ def test_descartar_una_propuesta_y_repetir_el_descarte(api_real) -> None:
     assert primera.status_code == 200, primera.text
     assert primera.json()["estado"] == "DESCARTADA"
 
-    # Un reintento del cliente no debe fallar ni volver a cambiar nada.
     segunda = client.post(ruta, json={"motivo": MOTIVO}, headers=headers("INGENIERO"))
     assert segunda.status_code == 200, segunda.text
     assert segunda.json()["estado"] == "DESCARTADA"
@@ -170,7 +162,6 @@ def test_no_se_activa_una_version_descartada(api_real) -> None:
     assert "DESCARTADA" in respuesta.json()["mensaje"]
 
 
-# --- Activación ---------------------------------------------------------------------
 
 
 def test_activar_deja_la_anterior_como_superada(api_real, motor) -> None:
@@ -209,7 +200,6 @@ def test_quien_propone_no_activa(api_real) -> None:
     assert respuesta.status_code == 409, respuesta.text
     assert "no puede activarla" in respuesta.json()["mensaje"]
 
-    # Otra persona con el mismo rol sí puede.
     revisada = client.post(
         f"/api/v1/adquisicion/versiones/{version['id']}/activar",
         json={"motivo": MOTIVO}, headers=headers("REVISOR"),
@@ -235,7 +225,7 @@ def test_dos_activaciones_concurrentes_dejan_una_sola_version_activa(api_real, m
     respuestas: list[int] = []
     barrera = threading.Barrier(2)
 
-    def activar(version) -> None:  # type: ignore[no-untyped-def]
+    def activar(version) -> None:  
         barrera.wait()
         respuesta = client.post(
             f"/api/v1/adquisicion/versiones/{version['id']}/activar",
@@ -258,7 +248,6 @@ def test_dos_activaciones_concurrentes_dejan_una_sola_version_activa(api_real, m
     assert activas == 1
 
 
-# --- Auditoría ----------------------------------------------------------------------
 
 
 def test_cada_cambio_de_estado_queda_auditado_con_su_impacto(api_real, motor) -> None:

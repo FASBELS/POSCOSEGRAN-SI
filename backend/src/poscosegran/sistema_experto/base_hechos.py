@@ -124,9 +124,6 @@ class BaseHechos:
         datos["hay_evento_que_invalida_control"] = _dato_de_tri(
             "hay_evento_que_invalida_control", controles.hay_evento_que_invalida_control, ahora
         )
-        # La revisión técnica de plagas es un registro cerrado: si no existe, no hay
-        # descarte ni confirmación, nunca un valor desconocido que se pudiera leer
-        # como favorable.
         datos["resultado_revision_plagas"] = _registro(
             "resultado_revision_plagas",
             inst.resultado_revision_plagas.value if inst.resultado_revision_plagas else "NINGUNA",
@@ -142,7 +139,6 @@ class BaseHechos:
         )
         return cls(instantanea=inst, datos=datos)
 
-    # --- Consulta -------------------------------------------------------------
 
     def dato(self, campo: str) -> Dato:
         return self.datos.get(campo) or Dato(campo=campo)
@@ -170,7 +166,6 @@ class BaseHechos:
             if dato.estado in (EstadoDato.INVALIDO, EstadoDato.VENCIDO)
         )
 
-    # --- Hechos iniciales, para la explicación -------------------------------
 
     def iniciales(self) -> list[tuple[str, object, str]]:
         """Observaciones utilizables con su procedencia: el punto de partida del caso."""
@@ -183,7 +178,6 @@ class BaseHechos:
                 salida.append((campo, valor, dato.procedencia.value))
         return salida
 
-    # --- Afirmación -----------------------------------------------------------
 
     def afirmar_calculado(self, dato: Dato) -> None:
         """Hecho derivado por un procedimiento de cálculo, marcado como tal."""

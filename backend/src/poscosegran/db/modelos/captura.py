@@ -164,7 +164,6 @@ class Observacion(Base):
             "  AND motivo_no_aplica IS NOT NULL)",
             name="no_aplica_exige_motivo",
         ),
-        # estado_dato nulo se reserva a NO_APLICA validado; nunca equivale a FALSO.
         sa.CheckConstraint(
             "estado_dato IS NOT NULL OR aplicabilidad = 'NO_APLICA'",
             name="estado_nulo_solo_no_aplica",
