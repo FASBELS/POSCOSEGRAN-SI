@@ -16,7 +16,7 @@ flowchart LR
     K[Base de conocimiento versionada<br/>version_conocimiento.contenido] --> M
 ```
 
-Se conserva React/Vite y el lenguaje visual de Figma. Se incorporan rutas, datos reales, estados de carga/error y captura guiada. No se realizó la migración a TanStack Start/SSR sugerida en la guía: esta aplicación autenticada funciona como SPA, servida por Vite en desarrollo o Nginx en contenedor. No se afirma identidad visual píxel por píxel con el ZIP original.
+La aplicación usa React/Vite con rutas, datos reales, estados de carga/error y captura guiada. Funciona como SPA autenticada, servida por Vite en desarrollo o Nginx en contenedor.
 
 El navegador nunca calcula una autorización ni decide permisos. Los roles se leen de PostgreSQL tras validar JWT, emisor, audiencia y algoritmo. La conexión SQL pertenece al backend; el esquema privado no depende de la Data API de Supabase.
 

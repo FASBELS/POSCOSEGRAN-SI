@@ -60,7 +60,7 @@ body {
   outline-offset: 2px;
 }
 
-/* El lenguaje visual de Figma se comparte entre los recorridos conectados. */
+/* Estructura compartida por los módulos conectados. */
 .app-content { min-width: 0; flex: 1; }
 .app-shell { display:flex; min-height:100vh; }
 .topbar { display:flex; gap:16px; justify-content:space-between; align-items:center; padding:12px 24px; background:white; border-bottom:1px solid #E2DDD5; }

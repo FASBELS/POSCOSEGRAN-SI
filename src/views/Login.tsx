@@ -31,7 +31,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
     <Panel title="Iniciar sesión"><form onSubmit={login} className="stack">
       {localAuth && <p className="message">Entorno local de desarrollo · datos guardados en PostgreSQL.</p>}
       <Field label={localAuth ? 'Usuario local' : 'Correo electrónico'}>
-        <input value={user} onChange={e => setUser(e.target.value)} required autoComplete="username" type={localAuth ? 'text' : 'email'} placeholder={localAuth ? 'productor / tecnico / administrador' : 'tu@correo.com'} />
+        <input value={user} onChange={e => setUser(e.target.value)} required autoComplete="username" type={localAuth ? 'text' : 'email'} placeholder={localAuth ? 'testeo' : 'tu@correo.com'} />
       </Field>
       <Field label="Contraseña"><input type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password" /></Field>
       <ErrorMessage error={error} /><button className="primary" disabled={busy}>{busy ? 'Ingresando…' : 'Entrar'}</button>

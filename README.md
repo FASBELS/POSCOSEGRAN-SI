@@ -35,7 +35,7 @@ backend/.venv/Scripts/python.exe backend/scripts/preparar_local.py
 
 Si usas uv: `uv venv backend/.venv --python 3.13` y `uv pip install --python backend/.venv/Scripts/python.exe -e "backend[dev]"`. No recrees el entorno si ya existe.
 
-El preparador aplica migraciones, carga la base 2.0 y crea cuatro usuarios de desarrollo: `productor`, `tecnico`, `administrador` e `ingeniero` (ingeniería del conocimiento, para el módulo de adquisición). La contraseña está en `POSCOSEGRAN_AUTH_LOCAL_PASSWORD` de `backend/.env`; se genera al preparar el entorno y no se publica. Los archivos existentes no se sobrescriben.
+El preparador aplica migraciones, carga la base 2.0 y crea cuatro usuarios de desarrollo: `productor`, `tecnico`, `administrador` e `ingeniero` (ingeniería del conocimiento, para el módulo de adquisición). Para probar el inicio de sesión usa `testeo` como usuario y contraseña; corresponde al perfil PRODUCTOR. También puedes usar los nombres de usuario de los otros roles con esa misma contraseña. Esta credencial se limita al entorno local.
 
 En dos terminales:
 

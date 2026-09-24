@@ -2,7 +2,7 @@
 
 ## Etapa 6
 
-**El frontend no se tocó.** Llegó un prototipo de Figma Make (React 19 + Vite +
+**El frontend no se tocó.** Llegó un prototipo web (React 19 + Vite +
 Tailwind, navegación por estado en `App.tsx`, datos incrustados en las vistas) en
 lugar del frontend de las etapas 1–5. Sus tipos no son los del anexo A.2:
 `LotStatus` con tres valores frente a los cinco de `EstadoVigencia`,
@@ -75,7 +75,7 @@ que supone un recipiente con sensor.
 
 ## Integración y revisión end-to-end (septiembre de 2026)
 
-Se conserva la SPA React/Vite de Figma y se integran TanStack Router, Query y tipos generados desde OpenAPI. Se reemplazan los datos simulados y el selector de roles por autenticación y permisos efectivos. No se migra a Start/SSR; el despliegue estático con proxy está documentado en ARQUITECTURA.md.
+Se conserva la SPA React/Vite inicial y se integran TanStack Router, Query y tipos generados desde OpenAPI. Se reemplazan los datos simulados y el selector de roles por autenticación y permisos efectivos. No se migra a Start/SSR; el despliegue estático con proxy está documentado en ARQUITECTURA.md.
 
 Ante la ausencia de proyecto Supabase se incorpora acceso local explícito con usuarios sembrados y contraseña generada. Firma JWT y atraviesa las mismas comprobaciones de identidad/permisos que la API; la configuración prohíbe habilitarlo en producción. Supabase queda pendiente de aprovisionamiento y verificación real.
 

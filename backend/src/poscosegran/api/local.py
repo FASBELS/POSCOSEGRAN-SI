@@ -20,6 +20,7 @@ USUARIOS = {
     "administrador": uuid.UUID("00000000-0000-4000-8000-000000000003"),
     "ingeniero": uuid.UUID("00000000-0000-4000-8000-000000000004"),
 }
+ALIAS_USUARIOS = {"testeo": "productor"}
 
 # Rol de cada usuario local; el nombre de usuario no siempre coincide con el rol.
 ROLES_LOCALES = {
@@ -40,7 +41,8 @@ def sesion_local(entrada: AccesoLocal, request: Request) -> dict[str, str | int]
     cfg = obtener_configuracion()
     if not limite.permitir(request.client.host if request.client else "local"):
         raise HTTPException(429, "Demasiados intentos; espere un minuto")
-    identificador = USUARIOS.get(entrada.usuario)
+    usuario = ALIAS_USUARIOS.get(entrada.usuario, entrada.usuario)
+    identificador = USUARIOS.get(usuario)
     if identificador is None or not hmac.compare_digest(
         entrada.password.encode(), (cfg.auth_local_password or "").encode()
     ):

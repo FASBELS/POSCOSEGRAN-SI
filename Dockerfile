@@ -4,8 +4,8 @@ RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY index.html tsconfig.json vite.config.ts ./
-COPY .figma/make/site.json ./.figma/make/site.json
 COPY src ./src
+COPY public ./public
 ARG VITE_AUTH_MODE=supabase
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY

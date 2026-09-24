@@ -257,7 +257,7 @@ function ConsecuenteEditor({
 function useValidacionEnVivo(definicion: Record<string, unknown>) {
   const [errores, setErrores] = useState<string[]>([])
   const [validando, setValidando] = useState(false)
-  const timer = useRef<ReturnType<typeof setTimeout>>()
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastJson = useRef("")
 
   const validar = useCallback(async (def: Record<string, unknown>) => {
@@ -279,9 +279,11 @@ function useValidacionEnVivo(definicion: Record<string, unknown>) {
   }, [])
 
   useEffect(() => {
-    clearTimeout(timer.current)
+    if (timer.current !== null) clearTimeout(timer.current)
     timer.current = setTimeout(() => void validar(definicion), 600)
-    return () => clearTimeout(timer.current)
+    return () => {
+      if (timer.current !== null) clearTimeout(timer.current)
+    }
   }, [definicion, validar])
 
   return { errores, validando }

@@ -34,7 +34,7 @@ if not argumentos.contenedor and not archivo.exists():
         f"POSCOSEGRAN_JWT_SECRETO={secrets.token_urlsafe(48)}\n"
         "POSCOSEGRAN_JWT_EMISOR=http://localhost/auth/v1\n"
         "POSCOSEGRAN_AUTH_LOCAL_HABILITADA=true\n"
-        f"POSCOSEGRAN_AUTH_LOCAL_PASSWORD={secrets.token_urlsafe(16)}\n"
+        "POSCOSEGRAN_AUTH_LOCAL_PASSWORD=testeo\n"
         "POSCOSEGRAN_CORS_ORIGENES=http://localhost:8443,http://127.0.0.1:8443\n"
         "POSCOSEGRAN_LIMITE_PETICIONES_POR_MINUTO=1000\n"
         "POSCOSEGRAN_LIMITE_PETICIONES_ESCRITURA_POR_MINUTO=300\n", encoding="utf-8")
@@ -75,6 +75,6 @@ with admin.begin() as conn:
 frontend = BACKEND.parent / ".env.local"
 if not argumentos.contenedor and not frontend.exists():
     frontend.write_text("VITE_AUTH_MODE=local\nVITE_API_URL=/api/v1\n", encoding="utf-8")
-print("Entorno listo. Usuarios: productor / tecnico / administrador / ingeniero.")
+print("Entorno listo. Usuarios: testeo (productor), productor, tecnico, administrador e ingeniero.")
 if not argumentos.contenedor:
     print("Contraseña local: consulte POSCOSEGRAN_AUTH_LOCAL_PASSWORD en backend/.env.")

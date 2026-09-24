@@ -20,7 +20,7 @@ if (-not (Test-Path -LiteralPath $envPath)) {
     $parent = Split-Path -Parent $envPath
     if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Path $parent | Out-Null }
     $jwtSecret = New-LocalSecret 48
-    $loginPassword = New-LocalSecret 18
+    $loginPassword = "testeo"
     $content = @"
 POSCOSEGRAN_ENTORNO=local
 POSCOSEGRAN_BD_URL_APP=postgresql+psycopg://poscosegran_app:local_app_2026@127.0.0.1:55432/poscosegran
@@ -50,4 +50,4 @@ try {
 }
 
 Write-Host "POSCOSEGRAN iniciandose en http://localhost:8080"
-Write-Host "Usuarios locales: productor, tecnico y administrador. La contrasena esta en $envPath"
+Write-Host "Acceso local de prueba: usuario testeo, contrasena testeo (perfil PRODUCTOR)."
