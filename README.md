@@ -3,7 +3,7 @@
 Sistema experto para evaluar condiciones de almacenamiento de maíz chulpi. React + Vite, FastAPI, motor Python y PostgreSQL 16. La interfaz consume la API real; las decisiones, permisos e incidencias se calculan en el servidor.
 
 
-**Sistema experto.** El conocimiento del dominio —las 30 reglas, sus umbrales y la resolución R30— está en [`knowledge/base_conocimiento.yaml`](knowledge/base_conocimiento.yaml), separado de un motor de inferencia genérico, con módulos de explicación y de adquisición. Ver [`docs/ARQUITECTURA_SE.md`](docs/ARQUITECTURA_SE.md).
+**Sistema experto.** El conocimiento del dominio está en [`knowledge/base_conocimiento.yaml`](knowledge/base_conocimiento.yaml), separado de un motor de inferencia genérico, con módulos de explicación y adquisición. La especificación integrada de las reglas está en [`knowledge/POSCOSEGRAN_52_reglas_base_conocimiento_integrada.md`](knowledge/POSCOSEGRAN_52_reglas_base_conocimiento_integrada.md).
 
 ## Ejecutar todo con Docker
 
@@ -64,13 +64,10 @@ Reproduce los gates del workflow en el mismo orden y se detiene en el primero qu
 
 ## Documentación
 
-- [Instalación, contenedores, Supabase y respaldos](docs/INSTALACION_DESPLIEGUE.md)
-- [Desplegar frontend, API y PostgreSQL en Render](docs/RENDER.md)
-- [Manual de uso](docs/MANUAL_USUARIO.md)
-- [Arquitectura e integración](docs/ARQUITECTURA.md)
-- [API y contrato generado](docs/API.md)
-- [Pruebas y límites de la verificación](docs/PRUEBAS.md)
-- [Decisiones de implementación](docs/DECISIONES.md)
-- [Base de conocimiento vigente](knowledge/POSCOSEGRAN_30_reglas_base_conocimiento_actualizado.md)
+- [Base de conocimiento ejecutable](knowledge/base_conocimiento.yaml)
+- [Especificación integrada de las reglas](knowledge/POSCOSEGRAN_52_reglas_base_conocimiento_integrada.md)
+- [Catálogo de reglas](knowledge/catalogo.yaml)
+- [Casos de referencia](knowledge/casos_referencia.json)
+- La API interactiva está disponible en `/documentacion` al iniciar el backend.
 
 Supabase todavía no está configurado. El acceso local permite recorrer la aplicación sin ese servicio y está bloqueado en producción. Este prototipo orienta sobre almacenamiento; no certifica inocuidad ni ausencia de micotoxinas.
